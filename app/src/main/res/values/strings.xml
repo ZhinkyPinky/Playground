@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Playground</string>
+    <string name="show_less">Show less</string>
+    <string name="show_more">Show more</string>
+    <string name="high_priority">High priority</string>
+    <string name="medium_priority">Medium priority</string>
+    <string name="low_priority">Low priority</string>
+    <string name="no_priority_set">No priority set</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+</resources>
