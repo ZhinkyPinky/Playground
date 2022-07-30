@@ -9,9 +9,8 @@ import kotlinx.coroutines.launch
 class TasksRepository(
     private val simpleTaskDao : SimpleTaskDao,
     private val exerciseDao : ExerciseDao,
-    private val exerciseProgramWithExercisesDao : ExerciseProgramWithExercisesDao,
     private val exerciseProgramExerciseConnectionDao : ExerciseProgramExerciseConnectionDao,
-    private val exerciseProgramWithExercisesAndConnectionDao : ExerciseProgramWithExercisesAndConnectionDao
+    private val exerciseProgramWithExercisesAndConnectionsDao : ExerciseProgramWithExercisesAndConnectionsDao,
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -27,13 +26,9 @@ class TasksRepository(
 
     fun getExerciseProgramExerciseConnections() : Flow<List<ExerciseProgramExerciseConnection>> = exerciseProgramExerciseConnectionDao.getAllConnections()
 
-    fun getExerciseProgramsWithExercises() : Flow<List<ExerciseProgramWithExercises>> = exerciseProgramWithExercisesDao.getAllExerciseProgramsWithExercises()
-
-    fun getExerciseProgramsWithExercisesAndConnection() : Flow<List<ExerciseProgramWithExercisesAndConnections>> = exerciseProgramWithExercisesAndConnectionDao.getAll()
+    fun getExerciseProgramsWithExercisesAndConnections() : Flow<List<ExerciseProgramWithExercisesAndConnections>> = exerciseProgramWithExercisesAndConnectionsDao.getAll()
 
     suspend fun updateExerciseProgramExerciseConnection(exerciseProgramExerciseConnection : ExerciseProgramExerciseConnection) {
         exerciseProgramExerciseConnectionDao.update(exerciseProgramExerciseConnection)
     }
-
-
 }

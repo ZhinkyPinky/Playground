@@ -11,9 +11,8 @@ object Graph {
         TasksRepository(
             simpleTaskDao = database.getSimpleTaskDao(),
             exerciseDao = database.getExerciseDao(),
-            exerciseProgramWithExercisesDao = database.getExerciseProgramWithExercisesDao(),
             exerciseProgramExerciseConnectionDao = database.getExerciseProgramExerciseConnectionDao(),
-            exerciseProgramWithExercisesAndConnectionDao = database.getExerciseProgramWithExercisesAndConnectionDao()
+            exerciseProgramWithExercisesAndConnectionsDao = database.getExerciseProgramWithExercisesAndConnectionsDao(),
         )
     }
 

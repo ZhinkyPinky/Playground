@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.je.playground">
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name="com.je.playground.PlaygroundApplication"
         android:allowBackup="true"
@@ -26,5 +28,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

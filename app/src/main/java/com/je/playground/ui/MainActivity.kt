@@ -3,20 +3,13 @@ package com.je.playground.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.lifecycle.whenStarted
-import com.je.playground.database.AppDatabase
-import com.je.playground.database.tasks.Exercise
-import com.je.playground.ui.tasks.TasksScreen
-import com.je.playground.ui.tasks.viewmodel.TasksViewModel
+import com.je.playground.GraphV2
+import com.je.playground.PlaygroundApplication
+import com.je.playground.ui.tasklist.TasksScreen
+import com.je.playground.ui.tasklist.viewmodel.TasksViewModelV2
 import com.je.playground.ui.theme.PlaygroundTheme
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -26,19 +19,26 @@ class MainActivity : ComponentActivity() {
         setContent {
             PlaygroundTheme {
                 // A surface container using the 'background' color from the theme
-                PlaygroundApp(this)
+                PlaygroundApp(
+                    application as PlaygroundApplication,
+                    this
+                )
             }
         }
     }
 }
 
 @Composable
-fun PlaygroundApp(activity : MainActivity) {
-    val tasksViewModel : TasksViewModel = viewModel(
-        factory = TasksViewModel.provideFactory(
+fun PlaygroundApp(
+    application : PlaygroundApplication,
+    activity : MainActivity
+) {
+    val tasksViewModelV2 : TasksViewModelV2 = viewModel(
+        factory = TasksViewModelV2.provideFactory(
+            application = application,
             owner = activity
         )
     )
-    TasksScreen(tasksViewModel)
+    TasksScreen(tasksViewModelV2)
 }
 

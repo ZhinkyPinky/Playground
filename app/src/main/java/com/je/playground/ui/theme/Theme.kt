@@ -8,12 +8,18 @@ import androidx.compose.runtime.Composable
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
+    //Main colors
     primary = darkPrimary,
     primaryVariant = darkPrimaryVariant,
-    onPrimary = darkSecondary,
+
+    //Text
     secondary = darkSecondary,
     secondaryVariant = darkSecondaryVariant,
-    onSecondary = darkHighlight,
+
+    //Green/Red
+    onPrimary = onPrimary,
+    onSecondary = onSecondary,
+
     background = darkPrimary,
     onBackground = darkSecondary
 )
