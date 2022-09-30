@@ -15,7 +15,15 @@ val highlightDark = Color(0xFFEB5E28)
 val darkPrimary = Color(0xFF1B1B1B)
 val darkPrimaryVariant = Color(0xFF3D3B38)
 val darkSecondary = Color(0xFFFFFFFF)
-val darkSecondaryVariant = Color(0xFF808080)
+val darkSecondaryVariant = Color(0xFFCCCCCC)
+//val darkSecondaryVariant = Color(0xFF808080)
+
+val lightPrimary = Color(0xFFF0EBE4)
+val lightPrimaryVariant = Color(0xFFBFAD8F)
+val lightSecondary = Color(0xFF000000)
+val lightSecondaryVariant = Color(0xFF4D4D4D)
+//val lightSecondaryVariant = Color(0xFF808080)
+
 val onPrimary = Color(0xFF00C853)
 val onSecondary = Color(0xFFFF4A0E)
 

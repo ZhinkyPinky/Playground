@@ -1,7 +1,8 @@
-package com.je.playground.ui.tasklist.components.shared
+package com.je.playground.ui.sharedcomponents
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.runtime.Composable
@@ -31,11 +32,10 @@ fun PriorityIconComponent(
         tint = when (priority) {
             0 -> Color.Red
             1 -> Color(0xFFFFAB00)
-            2 -> Color.Green
+            2 -> MaterialTheme.colors.onPrimary
             else -> Color.Transparent
         },
         modifier = modifier
             .size(8.dp)
-
     )
 }

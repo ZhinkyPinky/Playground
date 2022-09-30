@@ -23,10 +23,5 @@ fun NoteComponent(note : String) {
                 bottom = 8.dp
             )
         )
-
-        Divider(
-            thickness = 3.dp,
-            modifier = Modifier.padding(bottom = 1.dp)
-        )
     }
 }

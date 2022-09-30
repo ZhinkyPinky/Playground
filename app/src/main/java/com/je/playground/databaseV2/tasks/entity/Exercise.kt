@@ -3,10 +3,21 @@ package com.je.playground.databaseV2.tasks.entity
 import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.Duration
 
-@Entity(tableName = "exercise")
+@Entity(
+    tableName = "exercise",
+    foreignKeys = [
+        ForeignKey(
+            entity = ExerciseProgram::class,
+            parentColumns = ["exercise_program_id"],
+            childColumns = ["exercise_program_id"],
+            onDelete = ForeignKey.CASCADE
+        )]
+)
+
 data class Exercise(
     @NonNull @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "exercise_id") val id : Long,
     @NonNull @ColumnInfo(name = "exercise_program_id") val exerciseProgramId : Int,

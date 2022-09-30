@@ -10,8 +10,8 @@ interface TaskDao {
     fun getAll() : Flow<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(task : Task) : Long
+    suspend fun insert(task : Task) : Long
 
     @Delete
-    fun delete(task : Task)
+    suspend fun delete(task : Task)
 }

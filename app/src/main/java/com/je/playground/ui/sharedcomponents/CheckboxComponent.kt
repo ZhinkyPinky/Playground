@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.shared
+package com.je.playground.ui.sharedcomponents
 
 import androidx.compose.material.Checkbox
 import androidx.compose.material.CheckboxDefaults

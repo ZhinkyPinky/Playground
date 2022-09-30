@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.shared
+package com.je.playground.ui.sharedcomponents
 
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton

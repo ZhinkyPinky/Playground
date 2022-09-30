@@ -1,12 +1,13 @@
 package com.je.playground.ui.tasklist.components.schedule
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
@@ -23,11 +24,14 @@ fun WeekComponent(
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .padding(
+                start = 8.dp,
+                end = 8.dp,
                 bottom = 8.dp
             )
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
         DayOfWeek
             .values()
@@ -71,12 +75,12 @@ fun WeekdayComponent(
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
         },
         modifier = Modifier
-            .size(48.dp)
+            .size(35.dp)
     ) {
         Text(
             text = dayOfWeek.name.substring(0..0),
             style = subcontent(if (weekdayScheduleEntry != null) MaterialTheme.colors.secondary else MaterialTheme.colors.secondaryVariant),
-            modifier = Modifier
+            modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
 }

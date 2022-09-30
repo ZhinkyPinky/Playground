@@ -7,8 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class TasksRepositoryV2(
+
+class TasksRepositoryV2 @Inject constructor(
     private val exerciseDao : ExerciseDao,
     private val exerciseOccasionDao : ExerciseOccasionDao,
     private val exerciseProgramDao : ExerciseProgramDao,
@@ -78,13 +80,15 @@ class TasksRepositoryV2(
         taskDao.insert(Task())
     }
 
-    fun deleteTask(task : Task) : Any = taskDao.delete(task)
+    fun deleteTask(task : Task) = coroutineScope.launch { taskDao.delete(task) }
 
     fun getAllTasks() : Flow<List<Task>> = taskDao.getAll()
 
     //endregion
 
     //region TaskOccasion
+
+    fun getAllTaskOccasions() : Flow<List<TaskOccasion>> = taskOccasionDao.getAll()
 
     fun insertTaskOccasion(taskOccasion : TaskOccasion) = coroutineScope.launch {
         taskOccasionDao.insert(taskOccasion)
@@ -99,10 +103,12 @@ class TasksRepositoryV2(
     }
 
     fun deleteTaskOccasionWithTaskIdAndDateFrom(taskOccasion : TaskOccasion) = coroutineScope.launch {
-        taskOccasionDao.deleteWithTaskIdAndDateTimeFrom(
-            taskOccasion.taskId,
-            taskOccasion.dateFrom
-        )
+        taskOccasion.dateFrom?.let {
+            taskOccasionDao.deleteWithTaskIdAndDateTimeFrom(
+                taskOccasion.taskId,
+                it
+            )
+        }
     }
 
     //endregion

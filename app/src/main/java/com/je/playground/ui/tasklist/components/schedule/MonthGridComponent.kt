@@ -12,12 +12,14 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import java.time.LocalDate
 import java.time.Month
 
 @Composable fun MonthGridComponent(
     year : Int,
-    month : Month
+    month : Month,
+    taskOccasions : List<TaskOccasion>
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -58,13 +60,32 @@ import java.time.Month
                     ) {
                         Text(
                             text = "$dayCounter",
-                            color = if (((dayCounter) <= 0) || (dayCounter > month.length(LocalDate.now().isLeapYear))) {
+                            color = dateColorSelection(
+                                day = dayCounter,
+                                month = month,
+                                year = year,
+                                taskOccasions = taskOccasions
+                            )
+
+                            /*
+                            if (((dayCounter) <= 0) || (dayCounter > month.length(LocalDate.now().isLeapYear))) {
                                 Color.Transparent
+                            } else if (containsDate(
+                                    LocalDate.of(
+                                        year,
+                                        month,
+                                        dayCounter
+                                    ),
+                                    taskOccasions
+                                )
+                            ) {
+                                MaterialTheme.colors.onSecondary
                             } else if ((dayCounter >= LocalDate.now().dayOfMonth && month.ordinal == currentMonth.ordinal || month.ordinal > currentMonth.ordinal) || year > currentYear) {
                                 MaterialTheme.colors.secondary
                             } else {
                                 MaterialTheme.colors.secondaryVariant
-                            },
+                            }
+                            */,
                             textAlign = TextAlign.Center
                         )
 
@@ -74,4 +95,50 @@ import java.time.Month
             }
         }
     }
+}
+
+@Composable
+fun dateColorSelection(
+    day : Int,
+    month : Month,
+    year : Int,
+    taskOccasions : List<TaskOccasion>
+) : Color {
+    if (day <= 0 || day > month.length(LocalDate.now().isLeapYear)) return Color.Transparent
+
+    val currentYear = LocalDate.now().year
+    val currentMonth = LocalDate.now().month
+
+    val date = LocalDate.of(
+        year,
+        month,
+        day
+    )
+
+    taskOccasions.forEach { taskOccasion ->
+        if (taskOccasion.dateFrom != null) {
+            if (taskOccasion.dateFrom == date) {
+                return when (taskOccasion.isCompleted) {
+                    true -> MaterialTheme.colors.onPrimary
+                    false -> if (taskOccasion.dateFrom < LocalDate.now()) MaterialTheme.colors.onSecondary else Color(0xFFFFAB00)
+                }
+            }
+        }
+    }
+
+    return if ((date.dayOfMonth >= LocalDate.now().dayOfMonth && month.ordinal == currentMonth.ordinal || month.ordinal > currentMonth.ordinal) || year > currentYear) {
+        MaterialTheme.colors.secondary
+    } else MaterialTheme.colors.secondaryVariant
+}
+
+fun containsDate(
+    date : LocalDate,
+    taskOccasions : List<TaskOccasion>
+) : Boolean {
+    taskOccasions.forEach { taskOccasion ->
+        print("$date : ${taskOccasion.dateFrom}")
+        if (taskOccasion.dateFrom == date) return true
+    }
+
+    return false
 }

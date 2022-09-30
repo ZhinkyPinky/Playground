@@ -6,11 +6,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,12 +30,16 @@ import java.time.LocalTime
 
 
 @Composable
-fun TasksScreen(tasksViewModelV2 : TasksViewModelV2) {
+fun TasksScreen(
+    navigateToTaskEditWindow : () -> Unit,
+    tasksViewModelV2 : TasksViewModelV2
+) {
     val tasksUiState by tasksViewModelV2.tasksUiState.collectAsState()
 
     TasksScreen(
         tasksUiState = tasksUiState,
         priorities = tasksUiState.priorities,
+        navigateToTaskEditWindow = navigateToTaskEditWindow,
         updateTaskOccasion = tasksViewModelV2::updateTaskOccasion,
         insertWeekdayScheduleEntry = tasksViewModelV2::insertWeekdayScheduleEntry,
         deleteWeekdayScheduleEntry = tasksViewModelV2::deleteWeekdayScheduleEntry,
@@ -49,6 +53,7 @@ fun TasksScreen(tasksViewModelV2 : TasksViewModelV2) {
 fun TasksScreen(
     tasksUiState : TasksUiStateV2,
     priorities : List<Priority>,
+    navigateToTaskEditWindow : () -> Unit,
     updateTaskOccasion : (TaskOccasion) -> Unit,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
     deleteWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
@@ -89,27 +94,14 @@ fun TasksScreen(
                             .weight(1f)
                     )
 
-                    IconButton(onClick = {
-                        insertSimpleTask(
-                            "test",
-                            Priority.Low,
-                            "The brown fox jumped over the lazy dog.",
-                            LocalDate.now(),
-                            LocalTime.now(),
-                            LocalDate
-                                .now()
-                                .plusDays(1),
-                            LocalTime.now()
-                        )
-                    }) {
+                    IconButton(onClick = {/* TODO */ }) {
                         Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Add a new task",
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "Config",
                             tint = MaterialTheme.colors.secondary,
                             modifier = Modifier.padding(end = 2.dp)
                         )
                     }
-
                 }
 
                 Divider(
@@ -117,17 +109,10 @@ fun TasksScreen(
                 )
             }
         },
-        /*
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    insertSimpleTask(
-                        "test",
-                        Priority.Low,
-                        "The brown fox jumped over the lazy dog.",
-                        LocalDateTime.now(),
-                        LocalDateTime.now()
-                    )
+                    navigateToTaskEditWindow()
                 },
                 backgroundColor = MaterialTheme.colors.onPrimary,
                 content = {
@@ -139,28 +124,32 @@ fun TasksScreen(
                 }
             )
         },
-         */
+
         content = {
             LazyColumn(
                 modifier = Modifier
                     .padding(top = 1.dp)
             ) {
                 items(items = tasksUiState.tasksWithOccasions) { taskWithOccasions ->
-                    taskWithOccasions.simpleTask?.let {
-                        SimpleTaskComponent(
-                            taskWithOccasions = taskWithOccasions,
-                            deleteSimpleTask = {}
-                        )
-                    }
+                    key(taskWithOccasions.task.id) {
 
-                    taskWithOccasions.exerciseProgramWithExercises?.let {
-                        ExerciseProgramComponent(
-                            name = taskWithOccasions.exerciseProgramWithExercises.exerciseProgram.name,
-                            taskWithOccasions = taskWithOccasions,
-                            updateExerciseOccasion = updateExerciseOccasion,
-                            insertWeekdayScheduleEntry = insertWeekdayScheduleEntry,
-                            deleteWeekdayScheduleEntry = deleteWeekdayScheduleEntry
-                        )
+                        taskWithOccasions.simpleTask?.let {
+                            SimpleTaskComponent(
+                                taskWithOccasions = taskWithOccasions,
+                                updateTaskOccasion = updateTaskOccasion,
+                                deleteTask = deleteTask
+                            )
+                        }
+
+                        taskWithOccasions.exerciseProgramWithExercises?.let {
+                            ExerciseProgramComponent(
+                                name = taskWithOccasions.exerciseProgramWithExercises.exerciseProgram.name,
+                                taskWithOccasions = taskWithOccasions,
+                                updateExerciseOccasion = updateExerciseOccasion,
+                                insertWeekdayScheduleEntry = insertWeekdayScheduleEntry,
+                                deleteWeekdayScheduleEntry = deleteWeekdayScheduleEntry
+                            )
+                        }
                     }
                 }
             }

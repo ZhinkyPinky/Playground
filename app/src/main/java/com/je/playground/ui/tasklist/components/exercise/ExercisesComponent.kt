@@ -13,8 +13,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.je.playground.databaseV2.tasks.entity.ExerciseOccasion
 import com.je.playground.databaseV2.tasks.entity.ExerciseWithOccasions
-import com.je.playground.ui.tasklist.components.shared.CheckboxComponent
-import com.je.playground.ui.tasklist.components.shared.ExpandButtonComponent
+import com.je.playground.ui.sharedcomponents.CheckboxComponent
+import com.je.playground.ui.sharedcomponents.ExpandButtonComponent
 import com.je.playground.ui.theme.subcontent
 
 @Composable

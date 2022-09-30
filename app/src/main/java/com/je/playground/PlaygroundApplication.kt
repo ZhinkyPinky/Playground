@@ -1,11 +1,7 @@
 package com.je.playground
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class PlaygroundApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-
-        GraphV2.provide(this)
-    }
-}
+@HiltAndroidApp
+class PlaygroundApplication : Application()

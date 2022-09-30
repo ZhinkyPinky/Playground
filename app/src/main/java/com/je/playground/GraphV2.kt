@@ -4,9 +4,11 @@ import android.content.Context
 import com.je.playground.databaseV2.AppDatabaseV2
 import com.je.playground.databaseV2.repository.TasksRepositoryV2
 
+
 object GraphV2 {
     lateinit var database : AppDatabaseV2
 
+    /*
     val tasksRepositoryV2 by lazy {
         TasksRepositoryV2(
             exerciseDao = database.getExerciseDao(),
@@ -20,8 +22,11 @@ object GraphV2 {
             weekdayScheduleDao = database.getWeekdayScheduleDao()
         )
     }
+     */
 
+    /*
     fun provide(context : Context) {
         database = AppDatabaseV2.getDatabase(context)
     }
+     */
 }

@@ -3,57 +3,86 @@ package com.je.playground.ui.tasklist.components.SimpleTask
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.swipeable
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.tasks.entity.SimpleTask
+import com.je.playground.databaseV2.tasks.entity.Task
+import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
+import com.je.playground.ui.sharedcomponents.PriorityIconComponent
 import com.je.playground.ui.tasklist.components.NoteComponent
-import com.je.playground.ui.tasklist.components.shared.BaseTaskComponent
-import com.je.playground.ui.tasklist.components.shared.CheckboxComponent
-import com.je.playground.ui.tasklist.components.shared.MainContentComponent
-import com.je.playground.ui.tasklist.components.shared.PriorityIconComponent
+import com.je.playground.ui.tasklist.components.shared.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SimpleTaskComponent(
     taskWithOccasions : TaskWithOccasions,
-    deleteSimpleTask : (SimpleTask) -> Unit
+    updateTaskOccasion : (TaskOccasion) -> Unit,
+    deleteTask : (Task) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
-    var isCompleted by remember {
-        mutableStateOf(false)
-    }
+    val swipeableState = rememberSwipeableState(false)
 
-    /* TODO */
-    val swipeableState = rememberSwipeableState(initialValue = "On")
+    val widthPx = with(LocalDensity.current) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
     val anchors = mapOf(
-        0f to "On",
-        150f to "Off",
-        300f to "Locked"
+        0f to false,
+        -widthPx to true
     )
 
+    if (swipeableState.currentValue) {
+        deleteTask(taskWithOccasions.task)
+    }
+
     Box(
-        modifier = Modifier.swipeable(
-            enabled = true,
-            state = swipeableState,
-            anchors = anchors,
-            thresholds = { _, _ -> FractionalThreshold(0.5f) },
-            orientation = Orientation.Horizontal
-        )
-    ) {
+        modifier = Modifier
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                orientation = Orientation.Horizontal,
+                enabled = taskWithOccasions.taskOccasions.first().isCompleted,
+                thresholds = { _, _ -> FractionalThreshold(0.7f) }
+            )
+
+    )
+    {
         taskWithOccasions.simpleTask?.let {
-            BaseTaskComponent(
+            CompletableTaskComponent(
                 title = it.name,
-                priority = taskWithOccasions.simpleTask.priority,
                 taskWithOccasions = taskWithOccasions,
+                priority = it.priority,
+                mainContent = mutableListOf(
+                    {
+                        if (taskWithOccasions.simpleTask.priority != -1) {
+                            PriorityIconComponent(
+                                taskWithOccasions.simpleTask.priority,
+                                Modifier.padding(end = 8.dp)
+                            )
+                        }
+                    }),
+                subContent = mutableListOf(
+                    {
+                        taskWithOccasions.simpleTask.note?.let { it1 -> NoteComponent(note = it1) }
+                    }),
+                updateTaskOccasion = updateTaskOccasion,
+                deleteTask = deleteTask
+            )
+
+            /*
+            BaseTaskComponentV2(
+                title = it.name,
+                taskWithOccasions = taskWithOccasions,
+                mainRowModifier = Modifier.offset {
+                    IntOffset(
+                        swipeableState.offset.value.roundToInt(),
+                        0
+                    )
+                },
+
                 mainContent = {
                     MainContentComponent(
                         content = listOf(
@@ -66,20 +95,24 @@ fun SimpleTaskComponent(
                                 }
                             },
                             {
-                                CheckboxComponent(isCompleted) {
-                                    isCompleted = !isCompleted
+                                CheckboxComponent(taskWithOccasions.taskOccasions.first().isCompleted) {
+                                    taskWithOccasions.taskOccasions.first().isCompleted = !taskWithOccasions.taskOccasions.first().isCompleted
+                                    updateTaskOccasion(taskWithOccasions.taskOccasions.first())
                                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 }
                             }
                         )
                     )
                 },
+
                 subContent = {
                     NoteComponent(note = taskWithOccasions.simpleTask.note)
                 }
             )
+            */
         }
     }
 }
+
 
 //.align { size, space -> (((space + 25) - size).toFloat() / 2f).toInt() }

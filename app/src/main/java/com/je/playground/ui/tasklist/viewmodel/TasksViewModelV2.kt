@@ -1,36 +1,38 @@
 package com.je.playground.ui.tasklist.viewmodel
 
-import android.app.Application
 import android.content.Context
-import com.je.playground.GraphV2.tasksRepositoryV2
-import android.os.Bundle
-import androidx.lifecycle.*
-import androidx.savedstate.SavedStateRegistryOwner
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.je.playground.GraphV2
-import com.je.playground.PlaygroundApplication
-
 import com.je.playground.databaseV2.repository.TasksRepositoryV2
 import com.je.playground.databaseV2.tasks.entity.*
-import kotlinx.coroutines.flow.*
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 data class TasksUiStateV2(
     val simpleTasks : List<SimpleTask> = emptyList(),
     val exerciseProgramsWithExercises : List<ExerciseProgramWithExercises> = emptyList(),
     val tasks : List<Task> = emptyList(),
+    val taskOccasions : List<TaskOccasion> = emptyList(),
     val tasksWithOccasions : List<TaskWithOccasions> = emptyList(),
     val priorities : List<Priority> = Priority
         .values()
         .asList()
 )
+
+enum class TaskType(type : String) {
+    SimpleTask("Basic Task"),
+    ExerciseProgram("Exercise Program")
+}
 
 enum class Priority {
     High,
@@ -38,10 +40,10 @@ enum class Priority {
     Low
 }
 
-class TasksViewModelV2(
-    application : PlaygroundApplication,
-    tasksRepositoryV2 : TasksRepositoryV2
-) : AndroidViewModel(application) {
+@HiltViewModel
+class TasksViewModelV2 @Inject constructor(
+    private val tasksRepositoryV2 : TasksRepositoryV2
+) : ViewModel() {
 
     private val priorities = MutableStateFlow(
         Priority
@@ -60,12 +62,14 @@ class TasksViewModelV2(
                 tasksRepositoryV2.getAllSimpleTask(),
                 tasksRepositoryV2.getAllExerciseProgramsWithExercises(),
                 tasksRepositoryV2.getAllTasks(),
+                tasksRepositoryV2.getAllTaskOccasions(),
                 tasksRepositoryV2.getAllTasksWithOccasions()
-            ) { simpleTasks, exerciseProgramWithExercises, tasks, tasksWithOccasions ->
+            ) { simpleTasks, exerciseProgramWithExercises, tasks, taskOccasions, tasksWithOccasions ->
                 TasksUiStateV2(
                     simpleTasks = simpleTasks,
                     exerciseProgramsWithExercises = exerciseProgramWithExercises,
                     tasks = tasks,
+                    taskOccasions = taskOccasions,
                     tasksWithOccasions = tasksWithOccasions
                 )
             }
@@ -76,12 +80,6 @@ class TasksViewModelV2(
                     _tasksUiStateV2.value = it
                 }
         }
-    }
-
-    fun alarmTest() {
-        val workManager : WorkManager = WorkManager.getInstance(getApplication<Application>().applicationContext)
-
-
     }
 
     //region Exercise
@@ -126,11 +124,11 @@ class TasksViewModelV2(
     fun insertSimpleTask(
         name : String,
         priority : Priority,
-        note : String,
-        dateFrom : LocalDate,
-        timeFrom : LocalTime,
-        dateTo : LocalDate,
-        timeTo : LocalTime
+        note : String?,
+        dateFrom : LocalDate?,
+        timeFrom : LocalTime?,
+        dateTo : LocalDate?,
+        timeTo : LocalTime?
     ) = viewModelScope.launch {
         val simpleTask = SimpleTask(
             id = insertTask(),
@@ -139,8 +137,6 @@ class TasksViewModelV2(
             note = note
         )
 
-        tasksRepositoryV2.insertSimpleTask(simpleTask)
-
         insertTaskOccasion(
             taskId = simpleTask.id,
             dateFrom = dateFrom,
@@ -148,6 +144,8 @@ class TasksViewModelV2(
             dateTo = dateTo,
             timeTo = timeTo
         )
+
+        tasksRepositoryV2.insertSimpleTask(simpleTask)
     }
 
     fun updateSimpleTask(simpleTask : SimpleTask) = tasksRepositoryV2.updateSimpleTask(simpleTask)
@@ -166,7 +164,7 @@ class TasksViewModelV2(
 
     fun insertTaskOccasion(
         taskId : Long,
-        dateFrom : LocalDate,
+        dateFrom : LocalDate? = null,
         timeFrom : LocalTime? = null,
         dateTo : LocalDate? = null,
         timeTo : LocalTime? = null
@@ -242,6 +240,7 @@ class TasksViewModelV2(
 
     //endregion
 
+    /*
     companion object {
         fun provideFactory(
             tasksRepositoryV2 : TasksRepositoryV2 = GraphV2.tasksRepositoryV2,
@@ -266,6 +265,7 @@ class TasksViewModelV2(
                 }
             }
     }
+     */
 }
 
 class TestWorker(

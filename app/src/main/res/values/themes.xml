@@ -4,4 +4,21 @@
     <style name="Theme.Playground" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/purple_700</item>
     </style>
+
+    <style name="Theme" parent="Theme.Dialog">
+
+        <item name="android:dialogTheme">@style/Theme.Dialog</item> <!-- TimePicker dialog -->
+        <item name="android:alertDialogTheme">@style/Theme.Dialog</item> <!-- Alert dialog -->
+
+    </style>
+
+    <style name="Theme.Dialog" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:colorBackground">#FF1B1B1B</item>
+        <item name="android:color">#FF00C853</item>
+        <item name="android:colorAccent">#FFD600</item>
+        <item name="android:colorPrimary">#FFEB5E28</item>
+        <item name="android:textColorPrimary">#FFFFFFFF</item>
+        <item name="android:textColorSecondary">#FFCCCCCC</item>
+    </style>
+
 </resources>
