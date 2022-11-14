@@ -6,9 +6,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -16,8 +15,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.je.playground.ui.tasklist.viewmodel.TaskType
 import com.je.playground.ui.theme.regularText
@@ -27,11 +24,11 @@ import com.je.playground.ui.theme.regularText
 fun TaskTypeComponent(
     onValueChange : (String) -> Unit
 ) {
-    var textFieldValue by remember {
+    var textFieldValue by rememberSaveable {
         mutableStateOf("")
     }
 
-    var expanded by remember {
+    var expanded by rememberSaveable {
         mutableStateOf(false)
     }
 

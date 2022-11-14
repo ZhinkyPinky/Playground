@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -59,18 +60,18 @@ private fun TaskEditorScreen(
 ) {
     val context = LocalContext.current
 
-    var taskType by remember {
+    var taskType by rememberSaveable {
         mutableStateOf("")
     }
 
-    var title by remember { mutableStateOf("") }
-    var priority by remember { mutableStateOf("Low") }
-    var note : String? by remember { mutableStateOf(null) }
-    var weekdays : List<DayOfWeek>? by remember { mutableStateOf(null) }
-    var dateFrom : LocalDate? by remember { mutableStateOf(null) }
-    var timeFrom : LocalTime? by remember { mutableStateOf(null) }
-    var dateTo : LocalDate? by remember { mutableStateOf(null) }
-    var timeTo : LocalTime? by remember { mutableStateOf(null) }
+    var title by rememberSaveable { mutableStateOf("") }
+    var priority by rememberSaveable { mutableStateOf("Low") }
+    var note : String? by rememberSaveable { mutableStateOf(null) }
+    var weekdays : List<DayOfWeek>? by rememberSaveable { mutableStateOf(null) }
+    var dateFrom : LocalDate? by rememberSaveable { mutableStateOf(null) }
+    var timeFrom : LocalTime? by rememberSaveable { mutableStateOf(null) }
+    var dateTo : LocalDate? by rememberSaveable { mutableStateOf(null) }
+    var timeTo : LocalTime? by rememberSaveable { mutableStateOf(null) }
 
     println(title)
     println(priority)
@@ -156,7 +157,7 @@ private fun TaskEditorScreen(
             )
         },
         backgroundColor = MaterialTheme.colors.background
-    ) {
+    ) { padding ->
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
@@ -166,7 +167,7 @@ private fun TaskEditorScreen(
                         dampingRatio = Spring.DampingRatioNoBouncy,
                         stiffness = Spring.StiffnessMedium,
                     )
-                )
+                ).padding(padding)
         ) {
             TaskTypeComponent {
                 taskType = it
@@ -208,18 +209,20 @@ private fun TaskEditorScreen(
 
                     Divider()
 
-                    DateTimePicker(
-                        context = context,
-                        title = "To",
-                        savedDate = dateTo,
-                        onDateValueChange = {
-                            dateTo = it
-                        },
-                        onTimeValueChange = {
-                            timeTo = it
-                        })
+                    if(dateFrom != null || timeFrom != null) {
+                        DateTimePicker(
+                            context = context,
+                            title = "To",
+                            savedDate = dateTo,
+                            onDateValueChange = {
+                                dateTo = it
+                            },
+                            onTimeValueChange = {
+                                timeTo = it
+                            })
 
-                    Divider()
+                        Divider()
+                    }
                 }
             }
         }
