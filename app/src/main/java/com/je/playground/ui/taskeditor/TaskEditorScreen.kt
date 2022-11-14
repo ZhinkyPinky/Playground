@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.je.playground.databaseV2.tasks.entity.Exercise
 import com.je.playground.databaseV2.tasks.entity.ExerciseProgram
 import com.je.playground.databaseV2.tasks.entity.SimpleTask
+import com.je.playground.ui.taskeditor.datetimepicker.DateTimePicker
 import com.je.playground.ui.tasklist.viewmodel.Priority
 import com.je.playground.ui.tasklist.viewmodel.TaskType
 import com.je.playground.ui.tasklist.viewmodel.TasksViewModelV2
@@ -167,7 +168,6 @@ private fun TaskEditorScreen(
                     )
                 )
         ) {
-
             TaskTypeComponent {
                 taskType = it
             }
@@ -185,6 +185,12 @@ private fun TaskEditorScreen(
                 if (taskType == "SimpleTask") {
                     PrioritySliderComponent {
                         priority = it
+                    }
+
+                    Divider()
+
+                    NoteEditComponent {
+                        note = it
                     }
 
                     Divider()
@@ -212,12 +218,6 @@ private fun TaskEditorScreen(
                         onTimeValueChange = {
                             timeTo = it
                         })
-
-                    Divider()
-
-                    NoteEditComponent {
-                        note = it
-                    }
 
                     Divider()
                 }

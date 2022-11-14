@@ -64,10 +64,10 @@ fun SimpleTaskComponent(
                             )
                         }
                     }),
-                subContent = mutableListOf(
+                subContent = if (taskWithOccasions.simpleTask.note != null) mutableListOf(
                     {
-                        taskWithOccasions.simpleTask.note?.let { it1 -> NoteComponent(note = it1) }
-                    }),
+                        taskWithOccasions.simpleTask.note?.let { it -> NoteComponent(note = it) }
+                    }) else mutableListOf(),
                 updateTaskOccasion = updateTaskOccasion,
                 deleteTask = deleteTask
             )

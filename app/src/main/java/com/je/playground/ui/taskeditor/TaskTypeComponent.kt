@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
@@ -34,6 +35,7 @@ fun TaskTypeComponent(
         mutableStateOf(false)
     }
 
+
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -61,30 +63,23 @@ fun TaskTypeComponent(
                 backgroundColor = MaterialTheme.colors.background
             ),
             trailingIcon = {
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = "Show task types",
-                    modifier = Modifier.clickable { expanded = !expanded }
-                )
+                if (textFieldValue != "") {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "Clear task type.",
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable {
+                                textFieldValue = ""
+                                onValueChange(textFieldValue)}
+                    )
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged {
                     /* TODO: Make consistent. */
-                    /*
-                    if (it.isFocused) {
-                        expanded = true
-                        val text = textFieldState
-                        textFieldState.value = textFieldState.value.copy(
-                            selection = TextRange(
-                                0,
-                                text.length
-                            )
-                        )
-                    } else {
-                        expanded = false
-                    }
-                     */
+                    expanded = it.isFocused
                 }
                 .padding(
                     start = 4.dp,

@@ -1,4 +1,4 @@
-package com.je.playground.ui.taskeditor
+package com.je.playground.ui.taskeditor.datetimepicker
 
 import android.app.TimePickerDialog
 import android.content.Context
@@ -24,7 +24,6 @@ fun TimePickerComponent(context : Context) {
     var timeFrom by remember {
         mutableStateOf("")
     }
-
 
     var timeTo by remember {
         mutableStateOf("")

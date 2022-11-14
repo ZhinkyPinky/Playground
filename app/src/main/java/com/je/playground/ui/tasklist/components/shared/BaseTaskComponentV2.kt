@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -104,12 +105,21 @@ fun BaseTaskComponentV2(
             mainContent?.let { MainContentComponent(content = it) }
 
             if (subContent != null) {
-                ExpandButtonComponent(
-                    isExpanded,
-                    Modifier.padding(end = 6.dp)
-                ) {
-                    isExpanded = !isExpanded
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                if(subContent.size > 0) {
+                    ExpandButtonComponent(
+                        isExpanded,
+                        Modifier.padding(end = 6.dp)
+                    ) {
+                        isExpanded = !isExpanded
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                } else {
+                    Spacer(
+                        modifier = Modifier
+                            .padding(end = 6.dp)
+                            .width(49.dp)
+                            .height(49.dp)
+                    )
                 }
             }
         }
