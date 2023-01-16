@@ -3,20 +3,20 @@ package com.je.playground.ui.taskeditor.datetimepicker
 import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.TimePicker
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.je.playground.ui.theme.regularText
+import com.je.playground.ui.theme.subcontent
 import java.time.LocalTime
 
 @Composable
@@ -103,3 +103,66 @@ private fun timePicker(
         true
     ).show()
 }
+
+
+@Composable
+fun OuterCircleTextButtons(onClick: (LocalTime) -> Unit) {
+    val angleBetweenButtons = 360f / 12
+
+    Box(contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()) {
+        (12..23).forEachIndexed { index, hour ->
+            TextButton(
+                onClick = { onClick(LocalTime.of(hour, 0)) },
+                modifier = Modifier
+                    .rotate(angleBetweenButtons * index.toFloat())
+                    .size(35.dp)
+                    .padding(64.dp)
+                    .align(Alignment.Center)
+                    .background(MaterialTheme.colors.background)
+            ) {
+                Text(text = "$hour",
+                     textAlign = TextAlign.Center,
+                     style = subcontent(MaterialTheme.colors.secondary))
+            }
+        }
+    }
+}
+
+@Composable
+fun InnerCircleTextButtons(onClick: (LocalTime) -> Unit) {
+    val angleBetweenButtons = 360f / 12
+
+    Box(contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()) {
+        (0..11).forEachIndexed { index, hour ->
+            TextButton(
+                onClick = { onClick(LocalTime.of(hour, 0)) },
+                modifier = Modifier.rotate(angleBetweenButtons * index.toFloat())
+                    .size(35.dp)
+                    .padding(8.dp)
+                    .align(Alignment.Center)
+                    .background(MaterialTheme.colors.background)
+            ) {
+                Text(text = "$hour",
+                     textAlign = TextAlign.Center,
+                     style = subcontent(MaterialTheme.colors.secondary))
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewCircleTextButtons() {
+    OuterCircleTextButtons(onClick = { localTime ->
+        // handle LocalTime here
+    })
+    InnerCircleTextButtons(onClick = { localTime ->
+        // handle LocalTime here
+    })
+}
+
+
+
+

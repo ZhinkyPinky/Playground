@@ -23,7 +23,6 @@ class TasksRepositoryV2 @Inject constructor(
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-
     //region Exercise
 
     fun insertExercise(exercise : Exercise) = coroutineScope.launch {
@@ -66,7 +65,7 @@ class TasksRepositoryV2 @Inject constructor(
 
     // region SimpleTask
 
-    suspend fun insertSimpleTask(simpleTask : SimpleTask) = coroutineScope.launch { simpleTaskDao.insertSimpleTask(simpleTask) }
+    suspend fun insertSimpleTask(simpleTask : SimpleTask) = coroutineScope.launch{ simpleTaskDao.insertSimpleTask(simpleTask) }
 
     fun updateSimpleTask(simpleTask : SimpleTask) = coroutineScope.launch { simpleTaskDao.update(simpleTask) }
 

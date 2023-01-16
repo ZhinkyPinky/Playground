@@ -203,13 +203,11 @@ private fun dateTimeToString(
 
     if (date != null) {
         if (date.year == currentYear) formattedString =
-            "${
-                date.dayOfWeek
-                    .toString()
-                    .substring(0..2)
-                    .lowercase()
-                    .replaceFirstChar { it.uppercase() }
-            }"
+            date.dayOfWeek
+                .toString()
+                .substring(0..2)
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
 
         if (date.year != currentYear
             ||

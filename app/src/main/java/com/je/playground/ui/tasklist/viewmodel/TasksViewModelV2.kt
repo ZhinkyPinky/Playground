@@ -1,10 +1,8 @@
 package com.je.playground.ui.tasklist.viewmodel
 
-import android.content.Context
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.Worker
-import androidx.work.WorkerParameters
 import com.je.playground.databaseV2.repository.TasksRepositoryV2
 import com.je.playground.databaseV2.tasks.entity.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -39,11 +38,12 @@ enum class Priority {
     Medium,
     Low
 }
-
 @HiltViewModel
 class TasksViewModelV2 @Inject constructor(
+    private val application: Application,
     private val tasksRepositoryV2 : TasksRepositoryV2
 ) : ViewModel() {
+    private val notifications = Notifications(application)
 
     private val priorities = MutableStateFlow(
         Priority
@@ -130,22 +130,35 @@ class TasksViewModelV2 @Inject constructor(
         dateTo : LocalDate?,
         timeTo : LocalTime?
     ) = viewModelScope.launch {
-        val simpleTask = SimpleTask(
-            id = insertTask(),
-            name = name,
-            priority = priority.ordinal,
-            note = note
-        )
+        when(val id = insertTask()){
+            ERROR_INSERT_FAILED -> {}
+            else -> {
+                val simpleTask = SimpleTask(
+                    id = id,
+                    name = name,
+                    priority = priority.ordinal,
+                    note = note
+                )
 
-        insertTaskOccasion(
-            taskId = simpleTask.id,
-            dateFrom = dateFrom,
-            timeFrom = timeFrom,
-            dateTo = dateTo,
-            timeTo = timeTo
-        )
+                insertTaskOccasion(
+                    taskId = simpleTask.id,
+                    dateFrom = dateFrom,
+                    timeFrom = timeFrom,
+                    dateTo = dateTo,
+                    timeTo = timeTo
+                )
 
-        tasksRepositoryV2.insertSimpleTask(simpleTask)
+                tasksRepositoryV2.insertSimpleTask(simpleTask)
+
+                if (dateFrom != null) {
+                    notifications.scheduleNotification(
+                        taskId = id,
+                        taskName =  name,
+                        notificationDateTime = if (timeFrom != null) LocalDateTime.of(dateFrom, timeFrom) else LocalDateTime.of(dateFrom, LocalTime.MIDNIGHT)
+                        )
+                }
+            }
+        }
     }
 
     fun updateSimpleTask(simpleTask : SimpleTask) = tasksRepositoryV2.updateSimpleTask(simpleTask)
@@ -156,7 +169,11 @@ class TasksViewModelV2 @Inject constructor(
 
     private suspend fun insertTask() : Long = withContext(viewModelScope.coroutineContext) { tasksRepositoryV2.insertTask() }
 
-    fun deleteTask(task : Task) = tasksRepositoryV2.deleteTask(task)
+    fun deleteTask(task : Task) = viewModelScope.launch {
+        notifications.cancelNotification(task.id)
+        tasksRepositoryV2.deleteTask(task)  }
+
+
 
     //endregion
 
@@ -240,8 +257,10 @@ class TasksViewModelV2 @Inject constructor(
 
     //endregion
 
-    /*
+
     companion object {
+        private const val ERROR_INSERT_FAILED : Long = -1
+        /*
         fun provideFactory(
             tasksRepositoryV2 : TasksRepositoryV2 = GraphV2.tasksRepositoryV2,
             application : PlaygroundApplication,
@@ -264,10 +283,11 @@ class TasksViewModelV2 @Inject constructor(
                     ) as T
                 }
             }
+         */
     }
-     */
 }
 
+/*
 class TestWorker(
     context : Context,
     workerParameters : WorkerParameters
@@ -275,8 +295,16 @@ class TestWorker(
     context,
     workerParameters
 ) {
-    override fun doWork() : Result {
-        TODO("Not yet implemented")
+    override fun doWork(): Result {
+        // Perform the task here
+
+        // Return Result.success() if the task was successful, or Result.failure() if it failed
+        return Result.success()
     }
 
+// Enqueue the worker to run every 15 minutes
+val workRequest = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES).build()
+WorkManager.getInstance(application).enqueue(workRequest)
+
 }
+ */

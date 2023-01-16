@@ -25,8 +25,9 @@ fun DateTimePicker(
     context : Context,
     title : String,
     savedDate : LocalDate?,
+    savedTime : LocalTime?,
     onDateValueChange : (LocalDate?) -> Unit,
-    onTimeValueChange : (LocalTime) -> Unit
+    onTimeValueChange : (LocalTime?) -> Unit
 ) {
 
     Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -49,8 +50,13 @@ fun DateTimePicker(
             mutableStateOf(false)
         }
 
-        var time : LocalTime? by remember {
+        var newTime : LocalTime? by remember {
             mutableStateOf(null)
+        }
+
+        val clearTime = {
+            newTime = null
+            onTimeValueChange(newTime)
         }
 
         var isTimeExpanded by remember {
@@ -70,13 +76,18 @@ fun DateTimePicker(
                 modifier = Modifier.weight(1f)
             )
             TimePickerComponent(
+                time = if(newTime != null) newTime.toString() else savedTime?.toString() ?: "",
                 context = context,
                 clickable = true,
                 onClick = {
+                    newDate = null
                     isDateExpanded = false
                     isTimeExpanded = !isTimeExpanded
                 },
-                onValueChange = {},
+                clearTime = clearTime,
+                onValueChange = {
+                    newTime = it
+                    onTimeValueChange(it)},
                 modifier = Modifier.weight(1f)
             )
         }
@@ -113,7 +124,6 @@ fun DateTimePicker(
                     )
                 }
             }
-
 
             Divider()
         }
@@ -163,10 +173,12 @@ fun DatePickerComponent(
 
 @Composable
 fun TimePickerComponent(
+    time : String,
     context : Context,
     clickable : Boolean,
     onClick : () -> Unit,
-    onValueChange : (String) -> Unit,
+    onValueChange : (LocalTime) -> Unit,
+    clearTime : () -> Unit,
     modifier : Modifier
 ) {
     var textFieldValue by remember {
@@ -175,11 +187,19 @@ fun TimePickerComponent(
 
     TextField(
         value = textFieldValue,
-        onValueChange = {
-            textFieldValue = it
-            onValueChange(it)
-        },
+        onValueChange = {},
         label = { Text(text = "Time") },
+        trailingIcon = {
+            if (time != "") {
+                Icon(
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = "Clear text-field",
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clickable { clearTime() }
+                )
+            }
+        },
         enabled = false,
         textStyle = regularText(MaterialTheme.colors.secondary),
         colors = TextFieldDefaults.textFieldColors(
@@ -193,12 +213,13 @@ fun TimePickerComponent(
         modifier = Modifier
             .clickable(clickable) {
                 timePicker(context = context) { _ : TimePicker, hour : Int, minute : Int ->
-                    textFieldValue = LocalTime
-                        .of(
-                            hour,
-                            minute
+                    val date = LocalTime.of(
+                        hour,
+                        minute
                         )
-                        .toString()
+
+                    textFieldValue = date.toString()
+                    onValueChange(date)
                 }
             }
             .then(modifier)
@@ -218,7 +239,6 @@ private fun timePicker(
         true
     ).show()
 }
-
 
 private fun datePicker(
     context : Context,
