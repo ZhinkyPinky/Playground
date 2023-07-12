@@ -22,6 +22,7 @@ import com.je.playground.ui.theme.title
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 /**
  * Base component for tasks to be shown in the task-list.
@@ -106,7 +107,7 @@ fun BaseTaskComponentV2(
             mainContent?.let { MainContentComponent(content = it) }
 
             if (subContent != null) {
-                if(subContent.size > 0) {
+                if (subContent.size > 0) {
                     ExpandButtonComponent(
                         isExpanded,
                         Modifier.padding(end = 6.dp)
@@ -118,16 +119,16 @@ fun BaseTaskComponentV2(
                     Spacer(
                         modifier = Modifier
                             .padding(end = 6.dp)
-                            .width(49.dp)
                             .height(49.dp)
                     )
                 }
+
             }
         }
 
         Divider(
             thickness = if (isExpanded) 3.dp else 1.dp,
-            color =  MaterialTheme.colors.primaryVariant,
+            color = MaterialTheme.colors.primaryVariant,
             modifier = Modifier.padding(
                 top = 1.dp,
                 bottom = 1.dp
@@ -158,36 +159,36 @@ private fun dateTimeToString(
     val currentYear = LocalDate.now().year
     val currentMonth = LocalDate.now().month
     val currentDay = LocalDate.now().dayOfYear
-
-    var formattedString = ""
+    val stringJoiner = StringJoiner(", ")
 
     if (date != null) {
-        if (date.year == currentYear) formattedString =
-            "${
-                date.dayOfWeek
+        if (date.year == currentYear && date.dayOfYear != currentDay) {
+            stringJoiner.add(date.dayOfWeek
+                                 .toString()
+                                 .substring(0..2)
+                                 .lowercase()
+                                 .replaceFirstChar { it.uppercase() })
+        }
+
+
+        if (date.year != currentYear || date.dayOfYear >= (currentDay + 7) || date.dayOfYear < currentDay) {
+            stringJoiner.add("${
+                date.month
                     .toString()
                     .substring(0..2)
                     .lowercase()
-                    .replaceFirstChar { it.uppercase() }
-            }"
+                    .replaceFirstChar { it.uppercaseChar() }
+            } ${date.dayOfMonth}")
+        }
 
-        if (date.year != currentYear
-            ||
-            date.dayOfYear >= currentDay && date.dayOfYear < currentDay + 7
-        ) formattedString += ", ${
-            date.month
-                .toString()
-                .substring(0..2)
-                .lowercase()
-                .replaceFirstChar { it.uppercaseChar() }
-        } ${date.dayOfMonth}"
-
-        if (date.year != currentYear) formattedString += ", ${date.year}"
+        if (date.year != currentYear) {
+            stringJoiner.add("${date.year}")
+        }
     }
 
     if (time != null) {
-        formattedString += ", ${time.format(DateTimeFormatter.ofPattern("HH:mm"))}"
+        stringJoiner.add(time.format(DateTimeFormatter.ofPattern("HH:mm")))
     }
 
-    return formattedString
+    return stringJoiner.toString()
 }

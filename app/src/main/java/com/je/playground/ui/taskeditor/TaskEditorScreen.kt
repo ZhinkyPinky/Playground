@@ -1,13 +1,11 @@
 package com.je.playground.ui.taskeditor
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -66,9 +64,7 @@ private fun TaskEditorScreen(
 ) {
     val context = LocalContext.current
 
-    var taskType by rememberSaveable {
-        mutableStateOf("")
-    }
+    var taskType by rememberSaveable { mutableStateOf("") }
 
     var title by rememberSaveable { mutableStateOf("") }
     var priority by rememberSaveable { mutableStateOf("Low") }
@@ -79,6 +75,7 @@ private fun TaskEditorScreen(
     var dateTo : LocalDate? by rememberSaveable { mutableStateOf(null) }
     var timeTo : LocalTime? by rememberSaveable { mutableStateOf(null) }
 
+    println(taskType)
     println(title)
     println(priority)
     println(note)
@@ -119,6 +116,38 @@ private fun TaskEditorScreen(
                                 )
                                 .weight(1f)
                         )
+
+                        IconButton(
+                            onClick = {
+                                if (title != "") {
+                                    when (taskType) {
+                                        "SimpleTask" -> insertSimpleTask(
+                                            title,
+                                            Priority.valueOf(priority),
+                                            note,
+                                            dateFrom,
+                                            timeFrom,
+                                            dateTo,
+                                            timeTo
+                                        )
+                                        "ExerciseProgram" -> insertExerciseProgram
+                                    }
+                                    onBackPress()
+                                } else Toast
+                                    .makeText(
+                                        context,
+                                        "Need title",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Save,
+                                contentDescription = "Save task",
+                                tint = MaterialTheme.colors.secondary,
+                            )
+                        }
                     }
                 }
 
@@ -126,41 +155,6 @@ private fun TaskEditorScreen(
                     color = MaterialTheme.colors.primaryVariant
                 )
             }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    if (title != "") {
-                        when (taskType) {
-                            "SimpleTask" -> insertSimpleTask(
-                                title,
-                                Priority.valueOf(priority),
-                                note,
-                                dateFrom,
-                                timeFrom,
-                                dateTo,
-                                timeTo
-                            )
-                            "ExerciseProgram" -> insertExerciseProgram
-                        }
-                        onBackPress()
-                    } else Toast
-                        .makeText(
-                            context,
-                            "Need title",
-                            Toast.LENGTH_SHORT
-                        )
-                        .show()
-                },
-                backgroundColor = MaterialTheme.colors.onPrimary,
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Save,
-                        contentDescription = "Add new task",
-                        tint = MaterialTheme.colors.secondary
-                    )
-                }
-            )
         },
         backgroundColor = MaterialTheme.colors.background
     ) { padding ->
@@ -173,66 +167,130 @@ private fun TaskEditorScreen(
                         dampingRatio = Spring.DampingRatioNoBouncy,
                         stiffness = Spring.StiffnessMedium,
                     )
-                ).padding(padding)
+                )
+                .padding(padding)
         ) {
-            TaskTypeComponent {
-                taskType = it
-            }
+            TaskTypeComponent(
+                taskType = taskType,
+                onValueChange = { taskType = it }
+            )
 
             if (TaskType
                     .values()
                     .any { it.name == taskType }
             ) {
-                TitleTextFieldComponent {
-                    title = it
-                }
+                TextFieldComponent(
+                    labelText = "Title*",
+                    value = title,
+                    isSingleLine = true,
+                    onValueChange = { title = it }
+                )
 
                 Divider()
 
-                if (taskType == "SimpleTask") {
-                    PrioritySliderComponent {
-                        priority = it
-                    }
-
-                    Divider()
-
-                    NoteEditComponent {
-                        note = it
-                    }
-
-                    Divider()
-
-                    DateTimePicker(
+                when (taskType) {
+                    "SimpleTask" -> SimpleTaskEditComponent(
                         context = context,
-                        title = "From",
-                        savedDate = dateFrom,
-                        savedTime = timeFrom,
-                        onDateValueChange = {
+                        note = note,
+                        dateFrom = dateFrom,
+                        dateTo = dateTo,
+                        timeFrom = timeFrom,
+                        timeTo = timeTo,
+                        onPriorityChanged = { priority = it },
+                        onNoteChanged = { note = it },
+                        onDateFromChanged = {
                             dateFrom = it
+                            if (dateTo?.isBefore(dateFrom) == true) {
+                                dateTo = dateFrom
+                            }
                         },
-                        onTimeValueChange = {
+                        onDateToChanged = {
+                            dateTo = it
+                            if (dateFrom?.isAfter(dateTo) == true) {
+                                dateFrom = dateTo
+                            }
+                        },
+                        onTimeFromChanged = {
+                            if (dateFrom == null) dateFrom = LocalDate.now();
                             timeFrom = it
-                        })
-
-                    Divider()
-
-                    if(dateFrom != null || timeFrom != null) {
-                        DateTimePicker(
-                            context = context,
-                            title = "To",
-                            savedDate = dateTo,
-                            savedTime = timeTo,
-                            onDateValueChange = {
-                                dateTo = it
-                            },
-                            onTimeValueChange = {
-                                timeTo = it
-                            })
-
-                        Divider()
-                    }
+                        },
+                        onTimeToChanged = {
+                            if (dateTo == null) dateTo = dateFrom;
+                            timeTo = it
+                        }
+                    )
+                    "ExerciseProgram" -> ExerciseProgramEditComponent()
                 }
             }
         }
+    }
+}
+
+@Composable fun ExerciseProgramEditComponent() {
+    TODO("Not yet implemented")
+}
+
+@Composable
+fun SimpleTaskEditComponent(
+    context : Context,
+    note : String?,
+    dateFrom : LocalDate?,
+    dateTo : LocalDate?,
+    timeFrom : LocalTime?,
+    timeTo : LocalTime?,
+    onPriorityChanged : (String) -> Unit,
+    onNoteChanged : (String) -> Unit,
+    onDateFromChanged : (LocalDate?) -> Unit,
+    onDateToChanged : (LocalDate?) -> Unit,
+    onTimeFromChanged : (LocalTime?) -> Unit,
+    onTimeToChanged : (LocalTime?) -> Unit,
+) {
+    PrioritySliderComponent(onPriorityChanged = onPriorityChanged)
+
+    Divider()
+
+    Column(
+        modifier = Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMedium,
+                )
+            )
+    ) {
+        TextFieldComponent(
+            labelText = "Note",
+            value = note ?: "",
+            isSingleLine = false,
+            onValueChange = onNoteChanged
+        )
+    }
+
+    Divider()
+
+    DateTimePicker(
+        context = context,
+        title = "From",
+        savedDate = dateFrom,
+        savedTime = timeFrom,
+        onDateValueChange = onDateFromChanged,
+        onTimeValueChange = onTimeFromChanged
+    )
+
+    Divider()
+
+    if (dateFrom != null || timeFrom != null) {
+        DateTimePicker(
+            context = context,
+            title = "To",
+            savedDate = dateTo,
+            savedTime = timeTo,
+            onDateValueChange = onDateToChanged,
+            onTimeValueChange = onTimeToChanged
+        )
+
+        Divider()
     }
 }

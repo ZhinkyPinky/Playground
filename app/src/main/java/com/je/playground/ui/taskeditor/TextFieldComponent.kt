@@ -1,12 +1,11 @@
 package com.je.playground.ui.taskeditor
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -17,25 +16,22 @@ import androidx.compose.ui.unit.dp
 import com.je.playground.ui.theme.regularText
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun TitleTextFieldComponent(
-    onValueChange : (String) -> Unit
+@Composable fun TextFieldComponent(
+    labelText : String,
+    value : String,
+    isSingleLine : Boolean,
+    onValueChange : (String) -> Unit,
+    modifier : Modifier? = Modifier
 ) {
-    var title by remember {
-        mutableStateOf("")
-    }
-
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-
     TextField(
-        value = title,
+        value = value,
         onValueChange = {
-            title = it
             onValueChange(it)
         },
-        label = { Text(text = "Title*") },
+        label = { Text(text = labelText) },
         textStyle = regularText(MaterialTheme.colors.secondary),
         keyboardActions = KeyboardActions(
             onDone = {
@@ -46,13 +42,32 @@ fun TitleTextFieldComponent(
         colors = TextFieldDefaults.textFieldColors(
             focusedLabelColor = MaterialTheme.colors.secondary,
             cursorColor = MaterialTheme.colors.secondaryVariant,
+            trailingIconColor = MaterialTheme.colors.secondary,
             unfocusedIndicatorColor = Color.Transparent,
             backgroundColor = MaterialTheme.colors.background
         ),
-        singleLine = true,
+        singleLine = isSingleLine,
+        trailingIcon = {
+            if (value != "") {
+                Icon(
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = "Clear text-field.",
+                    modifier = Modifier
+                        .size(16.dp)
+                        .clickable {
+                            onValueChange("")
+                        }
+                )
+            }
+        },
         modifier = Modifier
+            .wrapContentHeight()
             .fillMaxWidth()
-            .height(54.dp)
+            .padding(
+                start = 4.dp,
+                end = 6.dp,
+            )
+            .then(modifier ?: Modifier)
     )
-
 }
+

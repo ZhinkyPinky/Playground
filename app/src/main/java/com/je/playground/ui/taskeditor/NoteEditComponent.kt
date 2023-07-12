@@ -2,7 +2,6 @@ package com.je.playground.ui.taskeditor
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -10,9 +9,9 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,7 +24,7 @@ import com.je.playground.ui.theme.regularText
 @Composable fun NoteEditComponent(
     onValueChange : (String) -> Unit
 ) {
-    var note : String by remember {
+    var note by remember {
         mutableStateOf("")
     }
 
@@ -52,7 +51,9 @@ import com.je.playground.ui.theme.regularText
             unfocusedIndicatorColor = Color.Transparent,
             backgroundColor = MaterialTheme.colors.background
         ),
+        singleLine = false,
         modifier = Modifier
             .fillMaxWidth()
+            .height(54.dp)
     )
 }

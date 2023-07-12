@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun PrioritySliderComponent(
-    onValueChangeFinished : (String) -> Unit
+    onPriorityChanged : (String) -> Unit
 ) {
     var sliderPosition by remember {
         mutableStateOf(0f)
@@ -23,9 +23,10 @@ fun PrioritySliderComponent(
         else if ((0.5..1.5).contains(sliderPosition.toDouble())) Color(0xFFFFAB00)
         else Color.Red
 
-    val priority = if ((0.0..0.5).contains(sliderPosition.toDouble())) "Low"
-    else if ((0.5..1.5).contains(sliderPosition.toDouble())) "Medium"
-    else "High"
+    val priority =
+        if ((0.0..0.5).contains(sliderPosition.toDouble())) "Low"
+        else if ((0.5..1.5).contains(sliderPosition.toDouble())) "Medium"
+        else "High"
 
     var isFocused by remember {
         mutableStateOf(false)
@@ -61,7 +62,7 @@ fun PrioritySliderComponent(
             },
             onValueChangeFinished = {
                 isFocused = false
-                onValueChangeFinished(priority)
+                onPriorityChanged(priority)
             },
             valueRange = 0f..2f,
             steps = 1,

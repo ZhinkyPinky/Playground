@@ -25,7 +25,6 @@ import com.je.playground.ui.tasklist.viewmodel.Priority
 import com.je.playground.ui.tasklist.viewmodel.TasksUiStateV2
 import com.je.playground.ui.tasklist.viewmodel.TasksViewModelV2
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
 
@@ -94,6 +93,16 @@ fun TasksScreen(
                             .weight(1f)
                     )
 
+                    IconButton(
+                        onClick = { navigateToTaskEditWindow() },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Add new task",
+                            tint = MaterialTheme.colors.secondary,
+                        )
+                    }
+
                     IconButton(onClick = {/* TODO */ }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
@@ -109,6 +118,7 @@ fun TasksScreen(
                 )
             }
         },
+        /* TODO: Remove?
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -124,6 +134,7 @@ fun TasksScreen(
                 }
             )
         },
+         */
 
         content = {
             LazyColumn(
