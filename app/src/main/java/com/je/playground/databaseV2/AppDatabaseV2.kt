@@ -19,7 +19,8 @@ import com.je.playground.databaseV2.tasks.entity.*
         TaskOccasion::class,
         WeekdaySchedule::class
     ],
-    version = 1
+    version = 2,
+    exportSchema = false //TODO: fix?
 )
 @TypeConverters(DateTimeTypeConverters::class)
 abstract class AppDatabaseV2 : RoomDatabase() {

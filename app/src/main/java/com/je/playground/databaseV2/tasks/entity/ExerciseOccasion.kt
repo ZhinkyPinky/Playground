@@ -1,6 +1,5 @@
 package com.je.playground.databaseV2.tasks.entity
 
-import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -24,7 +23,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class ExerciseOccasion(
-    @NonNull @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_occasion_id") val taskOccasionId : Long,
-    @NonNull @ColumnInfo(name = "exercise_id") val exerciseId : Long,
-    @NonNull @ColumnInfo(name = "is_completed") var isCompleted : Boolean = false
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_occasion_id") val taskOccasionId : Long,
+    @ColumnInfo(name = "exercise_id", index = true) val exerciseId : Long,
+    @ColumnInfo(name = "is_completed") var isCompleted : Boolean = false
 )

@@ -1,6 +1,5 @@
 package com.je.playground.databaseV2.tasks.entity
 
-import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -19,8 +18,8 @@ import java.time.LocalTime
         )]
 )
 data class TaskOccasion(
-    @NonNull @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_occasion_id") val id : Long = 0,
-    @NonNull @ColumnInfo(name = "task_id") val taskId : Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_occasion_id") val id : Long = 0,
+    @ColumnInfo(name = "task_id", index = true) val taskId : Long,
     @ColumnInfo(name = "date_from") val dateFrom : LocalDate? = null,
     @ColumnInfo(name = "time_from") val timeFrom : LocalTime? = null,
     @ColumnInfo(name = "date_to") val dateTo : LocalDate? = null,

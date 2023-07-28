@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 
 sealed class Screen(val route : String) {
     object Home : Screen("Home")
+    object Habits : Screen("Habits")
     object TaskList : Screen("TaskList")
     object TaskEdit : Screen("TaskEdit")
 }
@@ -35,7 +36,7 @@ class PlaygroundAppState(
 ) {
 
     fun navigateToTaskEditWindow(from : NavBackStackEntry) {
-        if (from.licecycleIsResumed()) {
+        if (from.lifecycleIsResumed()) {
             navController.navigate(Screen.TaskEdit.route)
         }
     }
@@ -45,4 +46,4 @@ class PlaygroundAppState(
     }
 }
 
-private fun NavBackStackEntry.licecycleIsResumed() = this.lifecycle.currentState == Lifecycle.State.RESUMED
+private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState == Lifecycle.State.RESUMED
