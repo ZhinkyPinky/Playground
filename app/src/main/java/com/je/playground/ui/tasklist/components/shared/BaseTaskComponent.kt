@@ -65,7 +65,6 @@ fun BaseTaskComponent(
             deleteTask?.let { it(taskWithOccasions.task) }
         }
 
-
         Box(
             modifier = Modifier
                 .swipeable(

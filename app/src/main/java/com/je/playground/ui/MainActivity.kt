@@ -3,7 +3,6 @@ package com.je.playground.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.je.playground.PlaygroundApplication
 import com.je.playground.ui.theme.PlaygroundTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,7 +16,6 @@ class MainActivity : ComponentActivity() {
             PlaygroundTheme {
                 // A surface container using the 'background' color from the theme
                 PlaygroundApp(
-                    tasksViewModelV2 = hiltViewModel(),
                     application = application as PlaygroundApplication,
                     activity = this
                 )

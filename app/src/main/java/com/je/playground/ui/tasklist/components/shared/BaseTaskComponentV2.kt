@@ -4,13 +4,25 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Divider
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
@@ -22,7 +34,7 @@ import com.je.playground.ui.theme.title
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.StringJoiner
 
 /**
  * Base component for tasks to be shown in the task-list.
@@ -51,6 +63,7 @@ fun BaseTaskComponentV2(
                     stiffness = Spring.StiffnessMedium,
                 )
             )
+            .padding(top = 1.dp)
     ) {
 
         Row(
@@ -58,15 +71,29 @@ fun BaseTaskComponentV2(
             modifier = Modifier
                 .background(if (isExpanded) MaterialTheme.colors.primaryVariant else MaterialTheme.colors.primary)
                 .then(mainRowModifier)
-                .padding(
-                    start = 20.dp,
-                    top = 2.dp,
-                    bottom = 2.dp
-                )
         )
 
         {
-            Column(modifier = Modifier.weight(1f)) {
+            Box(
+                modifier = Modifier
+                    .clip(RectangleShape)
+                    .background(
+                        when (taskWithOccasions.simpleTask?.priority) {
+                            0 -> Color.Red
+                            1 -> Color(0xFFFFAB00)
+                            2 -> MaterialTheme.colors.onPrimary
+                            else -> Color.Transparent
+                        }
+                    )
+                    .height(60.dp)
+                    .width(2.dp)
+            )
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
+            ) {
                 Text(
                     text = title,
                     style = title(MaterialTheme.colors.secondary),
@@ -126,27 +153,8 @@ fun BaseTaskComponentV2(
             }
         }
 
-        Divider(
-            thickness = if (isExpanded) 3.dp else 1.dp,
-            color = MaterialTheme.colors.primaryVariant,
-            modifier = Modifier.padding(
-                top = 1.dp,
-                bottom = 1.dp
-            )
-        )
-
         if (isExpanded) {
             subContent?.let { SubContentComponent(content = it) }
-
-            Divider(
-                thickness = 3.dp,
-                color = MaterialTheme.colors.primaryVariant,
-                modifier = Modifier.padding(
-                    top = 1.dp,
-                    bottom = 1.dp
-                )
-            )
-
         }
     }
 }

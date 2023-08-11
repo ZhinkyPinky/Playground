@@ -4,7 +4,15 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.je.playground.databaseV2.repository.TasksRepositoryV2
-import com.je.playground.databaseV2.tasks.entity.*
+import com.je.playground.databaseV2.tasks.entity.Exercise
+import com.je.playground.databaseV2.tasks.entity.ExerciseOccasion
+import com.je.playground.databaseV2.tasks.entity.ExerciseProgram
+import com.je.playground.databaseV2.tasks.entity.ExerciseProgramWithExercises
+import com.je.playground.databaseV2.tasks.entity.SimpleTask
+import com.je.playground.databaseV2.tasks.entity.Task
+import com.je.playground.databaseV2.tasks.entity.TaskOccasion
+import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
+import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +21,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -32,6 +39,8 @@ enum class TaskType(type : String) {
     SimpleTask("Basic Task"),
     ExerciseProgram("Exercise Program")
 }
+
+
 
 enum class Priority {
     High,
@@ -120,46 +129,6 @@ class TasksViewModelV2 @Inject constructor(
     //endregion
 
     //region SimpleTask
-
-    fun insertSimpleTask(
-        name : String,
-        priority : Priority,
-        note : String?,
-        dateFrom : LocalDate?,
-        timeFrom : LocalTime?,
-        dateTo : LocalDate?,
-        timeTo : LocalTime?
-    ) = viewModelScope.launch {
-        when(val id = insertTask()){
-            ERROR_INSERT_FAILED -> {}
-            else -> {
-                val simpleTask = SimpleTask(
-                    id = id,
-                    name = name,
-                    priority = priority.ordinal,
-                    note = note
-                )
-
-                insertTaskOccasion(
-                    taskId = simpleTask.id,
-                    dateFrom = dateFrom,
-                    timeFrom = timeFrom,
-                    dateTo = dateTo,
-                    timeTo = timeTo
-                )
-
-                tasksRepositoryV2.insertSimpleTask(simpleTask)
-
-                if (dateFrom != null) {
-                    notifications.scheduleNotification(
-                        taskId = id,
-                        taskName =  name,
-                        notificationDateTime = if (timeFrom != null) LocalDateTime.of(dateFrom, timeFrom) else LocalDateTime.of(dateFrom, LocalTime.MIDNIGHT)
-                        )
-                }
-            }
-        }
-    }
 
     fun updateSimpleTask(simpleTask : SimpleTask) = tasksRepositoryV2.updateSimpleTask(simpleTask)
 
@@ -287,24 +256,3 @@ class TasksViewModelV2 @Inject constructor(
     }
 }
 
-/*
-class TestWorker(
-    context : Context,
-    workerParameters : WorkerParameters
-) : Worker(
-    context,
-    workerParameters
-) {
-    override fun doWork(): Result {
-        // Perform the task here
-
-        // Return Result.success() if the task was successful, or Result.failure() if it failed
-        return Result.success()
-    }
-
-// Enqueue the worker to run every 15 minutes
-val workRequest = PeriodicWorkRequestBuilder<TestWorker>(15, TimeUnit.MINUTES).build()
-WorkManager.getInstance(application).enqueue(workRequest)
-
-}
- */

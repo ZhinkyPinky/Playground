@@ -54,8 +54,6 @@ fun CompletableTaskComponent(
         deleteTask(taskWithOccasions.task)
     }
 
-
-
     Box(
         modifier = Modifier
             .swipeable(

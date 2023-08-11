@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.SimpleTask
+package com.je.playground.ui.tasklist.components.simpletask
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
@@ -47,7 +47,6 @@ fun SimpleTaskComponent(
                 enabled = taskWithOccasions.taskOccasions.first().isCompleted,
                 thresholds = { _, _ -> FractionalThreshold(0.7f) }
             )
-
     )
     {
         taskWithOccasions.simpleTask?.let {

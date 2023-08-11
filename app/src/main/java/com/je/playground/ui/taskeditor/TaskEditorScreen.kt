@@ -5,10 +5,21 @@ import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
@@ -29,26 +40,25 @@ import com.je.playground.databaseV2.tasks.entity.SimpleTask
 import com.je.playground.ui.taskeditor.datetimepicker.DateTimePicker
 import com.je.playground.ui.tasklist.viewmodel.Priority
 import com.je.playground.ui.tasklist.viewmodel.TaskType
-import com.je.playground.ui.tasklist.viewmodel.TasksViewModelV2
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
 @Composable
 fun TaskEditorScreen(
-    tasksViewModelV2 : TasksViewModelV2,
+    taskEditorViewModel : TaskEditorViewModel,
     onBackPress : () -> Unit,
 ) {
     val taskEditorUiState : String /*TODO*/
 
     TaskEditorScreen(
         onBackPress = onBackPress,
-        insertSimpleTask = tasksViewModelV2::insertSimpleTask,
-        updateSimpleTask = tasksViewModelV2::updateSimpleTask,
-        insertExerciseProgram = tasksViewModelV2::insertExerciseProgram,
-        updateExerciseProgram = tasksViewModelV2::updateExerciseProgram,
-        insertExercise = tasksViewModelV2::insertExercise,
-        updateExercise = tasksViewModelV2::updateExercise
+        insertSimpleTask = taskEditorViewModel::insertSimpleTask,
+        updateSimpleTask = taskEditorViewModel::updateSimpleTask,
+        insertExerciseProgram = taskEditorViewModel::insertExerciseProgram,
+        updateExerciseProgram = taskEditorViewModel::updateExerciseProgram,
+        insertExercise = taskEditorViewModel::insertExercise,
+        updateExercise = taskEditorViewModel::updateExercise
     )
 }
 
@@ -130,6 +140,7 @@ private fun TaskEditorScreen(
                                             dateTo,
                                             timeTo
                                         )
+
                                         "ExerciseProgram" -> insertExerciseProgram
                                     }
                                     onBackPress()
@@ -219,6 +230,7 @@ private fun TaskEditorScreen(
                             timeTo = it
                         }
                     )
+
                     "ExerciseProgram" -> ExerciseProgramEditComponent()
                 }
             }
