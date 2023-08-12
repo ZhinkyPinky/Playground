@@ -178,7 +178,6 @@ private fun dateTimeToString(
                                  .replaceFirstChar { it.uppercase() })
         }
 
-
         if (date.year != currentYear || date.dayOfYear >= (currentDay + 7) || date.dayOfYear < currentDay) {
             stringJoiner.add("${
                 date.month

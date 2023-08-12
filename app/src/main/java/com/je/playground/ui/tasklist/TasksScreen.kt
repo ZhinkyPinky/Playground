@@ -1,10 +1,12 @@
 package com.je.playground.ui.tasklist
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Divider
@@ -12,6 +14,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -80,7 +83,7 @@ fun TasksScreen(
                     title = {
                         Text(
                             text = "Tasks",
-                            color = MaterialTheme.colors.secondary,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 22.sp,
                             maxLines = 1,
                             textAlign = TextAlign.Start,
@@ -106,7 +109,7 @@ fun TasksScreen(
                             Icon(
                                 imageVector = Icons.Filled.Menu,
                                 contentDescription = "Menu",
-                                tint = MaterialTheme.colors.secondary,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
                     },
@@ -116,7 +119,7 @@ fun TasksScreen(
                             Icon(
                                 imageVector = Icons.Filled.Add,
                                 contentDescription = "Add new task",
-                                tint = MaterialTheme.colors.secondary,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
 
@@ -124,52 +127,54 @@ fun TasksScreen(
                             Icon(
                                 imageVector = Icons.Filled.MoreVert,
                                 contentDescription = "Config",
-                                tint = MaterialTheme.colors.secondary,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.padding(end = 2.dp)
                             )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colors.primary
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
                 )
 
                 Divider(
-                    color = MaterialTheme.colors.primaryVariant
+                    color = MaterialTheme.colorScheme.background
                 )
             }
         },
-        containerColor = MaterialTheme.colors.primaryVariant,
-        content = {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(top = 1.dp)
-            ) {
-                items(items = tasksUiState.tasksWithOccasions) { taskWithOccasions ->
-                    key(taskWithOccasions.task.id) {
+        containerColor = MaterialTheme.colorScheme.background
+    ) {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(1.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(it)
+        ) {
 
-                        taskWithOccasions.simpleTask?.let {
-                            SimpleTaskComponent(
-                                taskWithOccasions = taskWithOccasions,
-                                updateTaskOccasion = updateTaskOccasion,
-                                deleteTask = deleteTask
-                            )
-                        }
+            items(items = tasksUiState.tasksWithOccasions) { taskWithOccasions ->
+                key(taskWithOccasions.task.id) {
+                    taskWithOccasions.simpleTask?.let {
+                        SimpleTaskComponent(
+                            taskWithOccasions = taskWithOccasions,
+                            updateTaskOccasion = updateTaskOccasion,
+                            deleteTask = deleteTask
+                        )
+                    }
 
-                        taskWithOccasions.exerciseProgramWithExercises?.let {
-                            ExerciseProgramComponent(
-                                name = taskWithOccasions.exerciseProgramWithExercises.exerciseProgram.name,
-                                taskWithOccasions = taskWithOccasions,
-                                updateExerciseOccasion = updateExerciseOccasion,
-                                insertWeekdayScheduleEntry = insertWeekdayScheduleEntry,
-                                deleteWeekdayScheduleEntry = deleteWeekdayScheduleEntry
-                            )
-                        }
+                    taskWithOccasions.exerciseProgramWithExercises?.let {
+                        ExerciseProgramComponent(
+                            name = taskWithOccasions.exerciseProgramWithExercises.exerciseProgram.name,
+                            taskWithOccasions = taskWithOccasions,
+                            updateExerciseOccasion = updateExerciseOccasion,
+                            insertWeekdayScheduleEntry = insertWeekdayScheduleEntry,
+                            deleteWeekdayScheduleEntry = deleteWeekdayScheduleEntry
+                        )
                     }
                 }
             }
         }
-    )
+    }
 }
 
 /*

@@ -2,7 +2,6 @@ package com.je.playground.ui
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.Home
@@ -10,6 +9,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -30,7 +30,7 @@ fun NavigationDrawerContent(
     val mainScreens = MainScreen.values()
     ModalDrawerSheet(
         drawerShape = MaterialTheme.shapes.large.copy(CornerSize(0)),
-        drawerContainerColor = MaterialTheme.colors.primary,
+        drawerContainerColor = MaterialTheme.colorScheme.primary,
     ) {
         LazyColumn() {
             items(count = mainScreens.size) {
@@ -62,21 +62,21 @@ fun NavigationDrawerItem(
                     MainScreen.Settings -> Icons.Filled.Settings
                 },
                 contentDescription = mainScreen.route,
-                tint = MaterialTheme.colors.secondary
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         },
         label = {
             Text(
                 text = mainScreen.route,
-                color = MaterialTheme.colors.secondary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontSize = 22.sp,
                 maxLines = 1,
                 textAlign = TextAlign.Start
             )
         },
         colors = NavigationDrawerItemDefaults.colors(
-            selectedContainerColor = MaterialTheme.colors.primary,
-            unselectedContainerColor = MaterialTheme.colors.primary
+            selectedContainerColor = MaterialTheme.colorScheme.primary,
+            unselectedContainerColor = MaterialTheme.colorScheme.primary
         ),
         selected = false,
         onClick = {

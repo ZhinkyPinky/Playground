@@ -1,11 +1,19 @@
 package com.je.playground.ui.tasklist.components.exercise
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -50,7 +58,10 @@ fun ExercisesComponent(
                             .padding(start = 16.dp)
                     )
 
-                    CheckboxComponent(isCompleted) {
+                    CheckboxComponent(
+                        isChecked = isCompleted,
+                        modifier = Modifier
+                    ) {
                         isCompleted = !isCompleted
                         exerciseWithOccasions.exerciseOccasions.first().isCompleted = isCompleted
                         exerciseWithOccasions.exerciseOccasions

@@ -1,29 +1,30 @@
 package com.je.playground.ui.tasklist.components.simpletask
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.Composable
 import com.je.playground.databaseV2.tasks.entity.Task
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
-import com.je.playground.ui.sharedcomponents.PriorityIconComponent
-import com.je.playground.ui.tasklist.components.NoteComponent
-import com.je.playground.ui.tasklist.components.shared.*
+import com.je.playground.ui.tasklist.MainTaskComponent
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SimpleTaskComponent(
     taskWithOccasions : TaskWithOccasions,
     updateTaskOccasion : (TaskOccasion) -> Unit,
     deleteTask : (Task) -> Unit
 ) {
+    taskWithOccasions.simpleTask?.let { simpleTask ->
+        MainTaskComponent(
+            taskWithOccasions = taskWithOccasions,
+            updateTaskOccasion = updateTaskOccasion,
+            deleteTask = deleteTask,
+            subContent = if (simpleTask.note != null) mutableListOf(
+                {
+                    simpleTask.note?.let { NoteComponent(note = it) }
+                }) else mutableListOf(),
+        )
+    }
+
+    /*
     val hapticFeedback = LocalHapticFeedback.current
 
     val swipeableState = rememberSwipeableState(false)
@@ -111,6 +112,7 @@ fun SimpleTaskComponent(
             */
         }
     }
+     */
 }
 
 

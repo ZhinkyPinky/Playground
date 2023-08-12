@@ -3,14 +3,13 @@ package com.je.playground.ui.home
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -20,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.je.playground.ui.tasklist.components.TaskGroup
 
 @Composable
 fun HomeScreen(
@@ -44,7 +44,7 @@ fun HomeScreen(navigateToTaskScreen : () -> Unit) {
                     title = {
                         Text(
                             text = "Home",
-                            color = MaterialTheme.colors.secondary,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 22.sp,
                             maxLines = 1,
                             textAlign = TextAlign.Start,
@@ -66,25 +66,36 @@ fun HomeScreen(navigateToTaskScreen : () -> Unit) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
                                 contentDescription = "Menu",
-                                tint = MaterialTheme.colors.secondary,
+                                tint = MaterialTheme.colorScheme.onPrimary,
                             )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colors.primary
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
-                )
-
-                Divider(
-                    color = MaterialTheme.colors.primaryVariant,
                 )
             }
         },
-        containerColor = MaterialTheme.colors.primaryVariant,
+        containerColor = MaterialTheme.colorScheme.background,
         content = { paddingValues ->
             LazyColumn(
                 modifier = Modifier.padding(paddingValues)
-            ) {}
+            ) {
+                val testGroup = listOf(
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                )
+
+                items(count = 1) {
+                    TaskGroup(testGroup)
+                }
+
+            }
         }
     )
 }
