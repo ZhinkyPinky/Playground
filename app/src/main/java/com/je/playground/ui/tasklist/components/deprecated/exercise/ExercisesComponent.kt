@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.exercise
+package com.je.playground.ui.tasklist.components.deprecated.exercise
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

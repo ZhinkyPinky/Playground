@@ -1,7 +1,23 @@
-package com.je.playground.databaseV2.repository
+package com.je.playground.databaseV2.tasks.repository
 
-import com.je.playground.databaseV2.tasks.dao.*
-import com.je.playground.databaseV2.tasks.entity.*
+import com.je.playground.databaseV2.tasks.dao.ExerciseDao
+import com.je.playground.databaseV2.tasks.dao.ExerciseOccasionDao
+import com.je.playground.databaseV2.tasks.dao.ExerciseProgramDao
+import com.je.playground.databaseV2.tasks.dao.ExerciseProgramWithExercisesDao
+import com.je.playground.databaseV2.tasks.dao.SimpleTaskDao
+import com.je.playground.databaseV2.tasks.dao.TaskDao
+import com.je.playground.databaseV2.tasks.dao.TaskOccasionDao
+import com.je.playground.databaseV2.tasks.dao.TaskWithOccasionsDao
+import com.je.playground.databaseV2.tasks.dao.WeekdayScheduleDao
+import com.je.playground.databaseV2.tasks.entity.Exercise
+import com.je.playground.databaseV2.tasks.entity.ExerciseOccasion
+import com.je.playground.databaseV2.tasks.entity.ExerciseProgram
+import com.je.playground.databaseV2.tasks.entity.ExerciseProgramWithExercises
+import com.je.playground.databaseV2.tasks.entity.SimpleTask
+import com.je.playground.databaseV2.tasks.entity.Task
+import com.je.playground.databaseV2.tasks.entity.TaskOccasion
+import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
+import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

@@ -1,6 +1,9 @@
 package com.je.playground.hilt
 
 import com.je.playground.databaseV2.AppDatabaseV2
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramV2Dao
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramWithExercisesV2Dao
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseV2Dao
 import com.je.playground.databaseV2.tasks.dao.*
 import dagger.Module
 import dagger.Provides
@@ -63,5 +66,23 @@ class DaoModule {
     @Singleton
     fun bindWeekdayScheduleDao(appDatabaseV2 : AppDatabaseV2) : WeekdayScheduleDao {
         return appDatabaseV2.getWeekdayScheduleDao()
+    }
+
+    @Provides
+    @Singleton
+    fun bindExerciseProgramWithExercisesV2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramWithExercisesV2Dao {
+        return appDatabaseV2.getExerciseProgramWithExercisesV2Dao()
+    }
+
+    @Provides
+    @Singleton
+    fun bindExerciseProgramV2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramV2Dao {
+        return appDatabaseV2.getExerciseProgramV2Dao()
+    }
+
+    @Provides
+    @Singleton
+    fun bindExercise2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseV2Dao {
+        return appDatabaseV2.getExerciseV2Dao()
     }
 }

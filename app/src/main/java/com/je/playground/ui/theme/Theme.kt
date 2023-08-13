@@ -7,52 +7,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-/*
-private val DarkColorPalette = darkColors(
-    //Main colors
-    primary = darkPrimary,
-    primaryVariant = darkPrimaryVariant,
-
-    //Text
-    secondary = darkSecondary,
-    secondaryVariant = darkSecondaryVariant,
-
-    //Green/Red
-    onPrimary = onPrimary,
-    onSecondary = onSecondary,
-
-    background = darkPrimary,
-    onBackground = darkSecondary
-)
-
-
-private val LightColorPalette = lightColors(
-    //Main colors
-    primary = lightPrimary,
-    primaryVariant = lightPrimaryVariant,
-
-    //Text
-    secondary = lightSecondary,
-    secondaryVariant = lightSecondaryVariant,
-
-    //Green/Red
-    onPrimary = onPrimary,
-    onSecondary = onSecondary,
-
-    background = lightPrimary,
-    onBackground = lightSecondary
-
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
-)
- */
-
 private val DarkColorPalette = darkColorScheme(
     primary = primaryDark,
     onPrimary = onPrimaryDark,

@@ -31,6 +31,7 @@ enum class Route() {
 
 enum class MainScreen(val route : String) {
     Home("Home"),
+    ExerciseProgram("Exercise Program"),
     Habits("Habits"),
     TaskList("Tasks"),
     Settings("Settings")

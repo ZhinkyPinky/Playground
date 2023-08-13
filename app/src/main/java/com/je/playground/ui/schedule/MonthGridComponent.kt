@@ -1,10 +1,15 @@
-package com.je.playground.ui.tasklist.components.schedule
+package com.je.playground.ui.schedule
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +24,7 @@ import java.time.Month
 @Composable fun MonthGridComponent(
     year : Int,
     month : Month,
-    taskOccasions : List<TaskOccasion>
+    taskOccasions : List<TaskOccasion>?
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -102,7 +107,7 @@ fun dateColorSelection(
     day : Int,
     month : Month,
     year : Int,
-    taskOccasions : List<TaskOccasion>
+    taskOccasions : List<TaskOccasion>?
 ) : Color {
     if (day <= 0 || day > month.length(LocalDate.now().isLeapYear)) return Color.Transparent
 
@@ -115,20 +120,20 @@ fun dateColorSelection(
         day
     )
 
-    taskOccasions.forEach { taskOccasion ->
+    taskOccasions?.forEach { taskOccasion ->
         if (taskOccasion.dateFrom != null) {
             if (taskOccasion.dateFrom == date) {
                 return when (taskOccasion.isCompleted) {
-                    true -> MaterialTheme.colors.onPrimary
-                    false -> if (taskOccasion.dateFrom < LocalDate.now()) MaterialTheme.colors.onSecondary else Color(0xFFFFAB00)
+                    true -> MaterialTheme.colorScheme.onPrimary
+                    false -> if (taskOccasion.dateFrom < LocalDate.now()) Color(0xFF00C853) else Color(0xFFFFAB00)
                 }
             }
         }
     }
 
     return if ((date.dayOfMonth >= LocalDate.now().dayOfMonth && month.ordinal == currentMonth.ordinal || month.ordinal > currentMonth.ordinal) || year > currentYear) {
-        MaterialTheme.colors.secondary
-    } else MaterialTheme.colors.secondaryVariant
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else Color(0xFFCCCCCC)
 }
 
 fun containsDate(

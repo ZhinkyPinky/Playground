@@ -3,12 +3,12 @@ package com.je.playground.ui.taskeditor
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.je.playground.databaseV2.repository.TasksRepositoryV2
 import com.je.playground.databaseV2.tasks.entity.Exercise
 import com.je.playground.databaseV2.tasks.entity.ExerciseProgram
 import com.je.playground.databaseV2.tasks.entity.SimpleTask
 import com.je.playground.databaseV2.tasks.entity.Task
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
+import com.je.playground.databaseV2.tasks.repository.TasksRepositoryV2
 import com.je.playground.ui.tasklist.viewmodel.Notifications
 import com.je.playground.ui.tasklist.viewmodel.Priority
 import dagger.hilt.android.lifecycle.HiltViewModel

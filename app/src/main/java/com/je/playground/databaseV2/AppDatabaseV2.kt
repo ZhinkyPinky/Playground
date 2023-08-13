@@ -6,6 +6,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramV2Dao
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramWithExercisesV2Dao
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseV2Dao
+import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseProgramV2
+import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseV2
 import com.je.playground.databaseV2.tasks.dao.*
 import com.je.playground.databaseV2.tasks.entity.*
 
@@ -17,9 +22,11 @@ import com.je.playground.databaseV2.tasks.entity.*
         SimpleTask::class,
         Task::class,
         TaskOccasion::class,
-        WeekdaySchedule::class
+        WeekdaySchedule::class,
+        ExerciseProgramV2::class,
+        ExerciseV2::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false //TODO: fix?
 )
 @TypeConverters(DateTimeTypeConverters::class)
@@ -33,6 +40,13 @@ abstract class AppDatabaseV2 : RoomDatabase() {
     abstract fun getTaskOccasionDao() : TaskOccasionDao
     abstract fun getTaskWithOccasionDao() : TaskWithOccasionsDao
     abstract fun getWeekdayScheduleDao() : WeekdayScheduleDao
+
+
+    abstract fun getExerciseProgramWithExercisesV2Dao() : ExerciseProgramWithExercisesV2Dao
+    abstract fun getExerciseProgramV2Dao() : ExerciseProgramV2Dao
+
+    abstract fun getExerciseV2Dao() : ExerciseV2Dao
+
 
     companion object {
         @Volatile

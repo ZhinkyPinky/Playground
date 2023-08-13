@@ -3,7 +3,6 @@ package com.je.playground.ui.tasklist.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.je.playground.databaseV2.repository.TasksRepositoryV2
 import com.je.playground.databaseV2.tasks.entity.Exercise
 import com.je.playground.databaseV2.tasks.entity.ExerciseOccasion
 import com.je.playground.databaseV2.tasks.entity.ExerciseProgram
@@ -13,6 +12,7 @@ import com.je.playground.databaseV2.tasks.entity.Task
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
 import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
+import com.je.playground.databaseV2.tasks.repository.TasksRepositoryV2
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

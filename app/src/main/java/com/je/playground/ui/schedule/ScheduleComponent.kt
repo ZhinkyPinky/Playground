@@ -1,11 +1,19 @@
-package com.je.playground.ui.tasklist.components.schedule
+package com.je.playground.ui.schedule
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -18,7 +26,7 @@ import com.je.playground.ui.theme.title
 
 @Composable
 fun ScheduleComponent(
-    taskWithOccasions : TaskWithOccasions,
+    taskWithOccasions : TaskWithOccasions?,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
     deleteWeekdayScheduleEntry : (WeekdaySchedule) -> Unit
 ) {
@@ -30,6 +38,7 @@ fun ScheduleComponent(
 
     Column(
         modifier = Modifier
+            .background(if (isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer)
             .animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
@@ -44,7 +53,7 @@ fun ScheduleComponent(
         Row {
             Text(
                 text = "Schedule",
-                style = title(MaterialTheme.colors.secondary),
+                style = title(MaterialTheme.colorScheme.onPrimary),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .weight(1f)
@@ -69,14 +78,9 @@ fun ScheduleComponent(
         )
 
         if (isExpanded) {
-            MonthAndYearComponent(taskWithOccasions.taskOccasions)
+            MonthAndYearComponent(taskWithOccasions?.taskOccasions)
         }
     }
-
-    Divider(
-        color = MaterialTheme.colors.primaryVariant,
-        thickness = if (isExpanded) 3.dp else 1.dp
-    )
 }
 
 

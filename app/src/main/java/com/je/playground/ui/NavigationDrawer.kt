@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChecklistRtl
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
@@ -60,6 +61,7 @@ fun NavigationDrawerItem(
                     MainScreen.Habits -> Icons.Filled.List
                     MainScreen.TaskList -> Icons.Filled.ChecklistRtl
                     MainScreen.Settings -> Icons.Filled.Settings
+                    MainScreen.ExerciseProgram -> Icons.Filled.DirectionsRun
                 },
                 contentDescription = mainScreen.route,
                 tint = MaterialTheme.colorScheme.onPrimary

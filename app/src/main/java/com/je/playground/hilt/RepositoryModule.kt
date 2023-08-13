@@ -1,7 +1,11 @@
 package com.je.playground.hilt
 
-import com.je.playground.databaseV2.repository.TasksRepositoryV2
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramV2Dao
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramWithExercisesV2Dao
+import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseV2Dao
+import com.je.playground.databaseV2.exerciseprogram.repository.ExerciseProgramRepository
 import com.je.playground.databaseV2.tasks.dao.*
+import com.je.playground.databaseV2.tasks.repository.TasksRepositoryV2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,6 +38,20 @@ class RepositoryModule {
             taskOccasionDao,
             taskWithOccasionsDao,
             weekdayScheduleDao
+        )
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun providesExerciseProgramRepository(
+        exerciseProgramWithExercisesV2Dao : ExerciseProgramWithExercisesV2Dao,
+        exerciseProgramV2Dao : ExerciseProgramV2Dao,
+        exerciseV2Dao : ExerciseV2Dao,
+    ) : ExerciseProgramRepository {
+        return ExerciseProgramRepository(
+            exerciseProgramWithExercisesV2Dao,
+            exerciseProgramV2Dao,
+            exerciseV2Dao
         )
     }
 }

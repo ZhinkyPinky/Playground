@@ -1,17 +1,21 @@
-package com.je.playground.ui.tasklist.components.schedule
+package com.je.playground.ui.schedule
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -23,7 +27,7 @@ import java.time.LocalDate
 
 @Composable
 fun MonthAndYearComponent(
-    taskOccasions : List<TaskOccasion>
+    taskOccasions : List<TaskOccasion>?
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -49,7 +53,7 @@ fun MonthAndYearComponent(
                 Icon(
                     imageVector = Icons.Filled.NavigateBefore,
                     contentDescription = stringResource(R.string.previous_month),
-                    tint = MaterialTheme.colors.secondary
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
@@ -61,7 +65,7 @@ fun MonthAndYearComponent(
                         .lowercase()
                         .replaceFirstChar { it.uppercase() }
                 } $year",
-                color = MaterialTheme.colors.secondary,
+                color = MaterialTheme.colorScheme.onPrimary,
             )
 
             IconButton(onClick = {
@@ -72,7 +76,7 @@ fun MonthAndYearComponent(
                 Icon(
                     imageVector = Icons.Filled.NavigateNext,
                     contentDescription = stringResource(R.string.next_month),
-                    tint = MaterialTheme.colors.secondary
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }

@@ -1,13 +1,18 @@
-package com.je.playground.ui.tasklist.components.schedule
+package com.je.playground.ui.schedule
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
@@ -18,7 +23,7 @@ import java.time.DayOfWeek
 
 @Composable
 fun WeekComponent(
-    taskWithOccasions : TaskWithOccasions,
+    taskWithOccasions : TaskWithOccasions?,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
     deleteWeekdayScheduleEntry : (WeekdaySchedule) -> Unit
 ) {
@@ -31,14 +36,15 @@ fun WeekComponent(
                 end = 8.dp,
                 bottom = 8.dp
             )
-            .fillMaxSize()
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
         DayOfWeek
             .values()
             .toList()
             .forEach { dayOfWeek ->
                 var weekdayScheduleEntry : WeekdaySchedule? = null
-                taskWithOccasions.weekdaySchedule.forEach { if (it.weekday == dayOfWeek) weekdayScheduleEntry = it }
+                taskWithOccasions?.weekdaySchedule?.forEach { if (it.weekday == dayOfWeek) weekdayScheduleEntry = it }
 
                 WeekdayComponent(
                     taskWithOccasions,
@@ -53,7 +59,7 @@ fun WeekComponent(
 
 @Composable
 fun WeekdayComponent(
-    taskWithOccasions : TaskWithOccasions,
+    taskWithOccasions : TaskWithOccasions?,
     dayOfWeek : DayOfWeek,
     weekdayScheduleEntry : WeekdaySchedule?,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
@@ -64,22 +70,24 @@ fun WeekdayComponent(
     TextButton(
         shape = CircleShape,
         onClick = {
-            if (weekdayScheduleEntry == null) insertWeekdayScheduleEntry(
-                WeekdaySchedule(
-                    taskWithOccasions.task.id,
-                    dayOfWeek
+            if (taskWithOccasions != null) {
+                if (weekdayScheduleEntry == null) insertWeekdayScheduleEntry(
+                    WeekdaySchedule(
+                        taskWithOccasions.task.id,
+                        dayOfWeek
+                    )
                 )
-            )
-            else deleteWeekdayScheduleEntry(weekdayScheduleEntry)
+                else deleteWeekdayScheduleEntry(weekdayScheduleEntry)
+            }
 
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
         },
         modifier = Modifier
-            .size(35.dp)
+            .size(36.dp)
     ) {
         Text(
             text = dayOfWeek.name.substring(0..0),
-            style = subcontent(if (weekdayScheduleEntry != null) MaterialTheme.colors.secondary else MaterialTheme.colors.secondaryVariant),
+            style = subcontent(if (weekdayScheduleEntry != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimary), //TODO: Fix color
             modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
