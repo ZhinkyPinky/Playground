@@ -26,7 +26,9 @@ class RepositoryModule {
         taskDao : TaskDao,
         taskOccasionDao : TaskOccasionDao,
         taskWithOccasionsDao : TaskWithOccasionsDao,
-        weekdayScheduleDao : WeekdayScheduleDao
+        weekdayScheduleDao : WeekdayScheduleDao,
+        taskGroupDao : TaskGroupDao,
+        taskV2Dao : TaskV2Dao
     ) : TasksRepositoryV2 {
         return TasksRepositoryV2(
             exerciseDao,
@@ -37,8 +39,10 @@ class RepositoryModule {
             taskDao,
             taskOccasionDao,
             taskWithOccasionsDao,
-            weekdayScheduleDao
-        )
+            weekdayScheduleDao,
+            taskGroupDao,
+            taskV2Dao
+            )
     }
 
     @Provides

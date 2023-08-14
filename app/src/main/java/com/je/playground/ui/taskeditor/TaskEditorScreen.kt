@@ -289,7 +289,8 @@ fun SimpleTaskEditComponent(
 
     DateTimePicker(
         context = context,
-        title = "From",
+        dateLabel = "From",
+        timeLabel = "From",
         savedDate = dateFrom,
         savedTime = timeFrom,
         onDateValueChange = onDateFromChanged,
@@ -301,7 +302,8 @@ fun SimpleTaskEditComponent(
     if (dateFrom != null || timeFrom != null) {
         DateTimePicker(
             context = context,
-            title = "To",
+            dateLabel = "To",
+            timeLabel = "To",
             savedDate = dateTo,
             savedTime = timeTo,
             onDateValueChange = onDateToChanged,

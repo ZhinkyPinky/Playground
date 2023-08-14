@@ -6,7 +6,9 @@ import com.je.playground.databaseV2.tasks.dao.ExerciseProgramDao
 import com.je.playground.databaseV2.tasks.dao.ExerciseProgramWithExercisesDao
 import com.je.playground.databaseV2.tasks.dao.SimpleTaskDao
 import com.je.playground.databaseV2.tasks.dao.TaskDao
+import com.je.playground.databaseV2.tasks.dao.TaskGroupDao
 import com.je.playground.databaseV2.tasks.dao.TaskOccasionDao
+import com.je.playground.databaseV2.tasks.dao.TaskV2Dao
 import com.je.playground.databaseV2.tasks.dao.TaskWithOccasionsDao
 import com.je.playground.databaseV2.tasks.dao.WeekdayScheduleDao
 import com.je.playground.databaseV2.tasks.entity.Exercise
@@ -35,7 +37,9 @@ class TasksRepositoryV2 @Inject constructor(
     private val taskDao : TaskDao,
     private val taskOccasionDao : TaskOccasionDao,
     private val taskWithOccasionsDao : TaskWithOccasionsDao,
-    private val weekdayScheduleDao : WeekdayScheduleDao
+    private val weekdayScheduleDao : WeekdayScheduleDao,
+    private val taskGroupDao : TaskGroupDao,
+    private val taskV2Dao : TaskV2Dao
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -81,7 +85,7 @@ class TasksRepositoryV2 @Inject constructor(
 
     // region SimpleTask
 
-    suspend fun insertSimpleTask(simpleTask : SimpleTask) = coroutineScope.launch{ simpleTaskDao.insertSimpleTask(simpleTask) }
+    suspend fun insertSimpleTask(simpleTask : SimpleTask) = coroutineScope.launch { simpleTaskDao.insertSimpleTask(simpleTask) }
 
     fun updateSimpleTask(simpleTask : SimpleTask) = coroutineScope.launch { simpleTaskDao.update(simpleTask) }
 

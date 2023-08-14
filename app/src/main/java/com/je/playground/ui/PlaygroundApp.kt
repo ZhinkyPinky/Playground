@@ -9,7 +9,8 @@ import androidx.navigation.compose.navigation
 import com.je.playground.PlaygroundApplication
 import com.je.playground.ui.exerciseprogram.ExerciseProgramScreen
 import com.je.playground.ui.home.HomeScreen
-import com.je.playground.ui.taskeditor.TaskEditorScreen
+import com.je.playground.ui.navigationdrawer.NavigationDrawerContent
+import com.je.playground.ui.taskeditor.v2.TaskEditorScreenV2
 import com.je.playground.ui.tasklist.TasksScreen
 
 
@@ -56,19 +57,25 @@ fun PlaygroundApp(
 
                 composable(MainScreen.TaskList.route) { navBackStackEntry ->
                     TasksScreen(
-                        tasksViewModelV2 = hiltViewModel(),
+                        tasksViewModel = hiltViewModel(),
                         drawerState = appState.drawerState,
                         navigateToTaskEditWindow = {
-                            appState.navigateToTaskEditWindow(navBackStackEntry)
+                            appState.navigateToTaskEditWindowV2(navBackStackEntry)
                         }
                     )
                 }
 
-                composable(SubScreen.TaskEdit.route) {
+                composable(SubScreen.TaskEditV2.route) {
+                    TaskEditorScreenV2(
+                        tasksViewModel = hiltViewModel(),
+                        onBackPress = appState::navigateBack
+                    )
+                    /*
                     TaskEditorScreen(
                         taskEditorViewModel = hiltViewModel(),
                         onBackPress = appState::navigateBack
                     )
+                     */
                 }
             }
         }

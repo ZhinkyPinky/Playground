@@ -3,16 +3,16 @@ package com.je.playground.ui.taskeditor
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.je.playground.ui.theme.regularText
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable fun NoteEditComponent(
     onValueChange : (String) -> Unit
 ) {
@@ -38,18 +38,20 @@ import com.je.playground.ui.theme.regularText
             onValueChange(it)
         },
         label = { Text(text = "Note") },
-        textStyle = regularText(MaterialTheme.colors.secondary),
+        textStyle = regularText(MaterialTheme.colorScheme.onPrimaryContainer),
         keyboardActions = KeyboardActions(
             onDone = {
                 focusManager.clearFocus()
                 keyboardController?.hide()
             }
         ),
-        colors = TextFieldDefaults.textFieldColors(
-            focusedLabelColor = MaterialTheme.colors.secondary,
-            cursorColor = MaterialTheme.colors.secondaryVariant,
+        colors = TextFieldDefaults.colors(
+            focusedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
             unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = MaterialTheme.colors.background
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer
         ),
         singleLine = false,
         modifier = Modifier

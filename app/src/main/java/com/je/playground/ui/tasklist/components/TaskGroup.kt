@@ -12,10 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.tasks.entity.SimpleTask
-import com.je.playground.databaseV2.tasks.entity.Task
-import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
-import com.je.playground.ui.tasklist.MainTaskComponent
 
 @Composable
 fun TaskGroup(testGroup : List<Int>) {
@@ -40,7 +36,7 @@ fun TaskGroup(testGroup : List<Int>) {
             )
     ) {
 
-        testGroup.forEach {
+        /*testGroup.forEach {
             MainTaskComponent(
                 taskWithOccasions = TaskWithOccasions(
                     task = Task(id = it.toLong()),
@@ -57,7 +53,7 @@ fun TaskGroup(testGroup : List<Int>) {
                 updateTaskOccasion = {},
                 deleteTask = {}
             )
-        }
+        }*/
 
     }
 }

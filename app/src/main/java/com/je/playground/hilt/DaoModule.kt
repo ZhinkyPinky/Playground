@@ -76,6 +76,18 @@ class DaoModule {
 
     @Provides
     @Singleton
+    fun bindTaskGroupDao(appDatabaseV2 : AppDatabaseV2) : TaskGroupDao {
+        return appDatabaseV2.getTaskGroupDao()
+    }
+
+    @Provides
+    @Singleton
+    fun bindTaskV2Dao(appDatabaseV2 : AppDatabaseV2) : TaskV2Dao {
+        return appDatabaseV2.getTaskV2Dao()
+    }
+
+    @Provides
+    @Singleton
     fun bindExerciseProgramV2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramV2Dao {
         return appDatabaseV2.getExerciseProgramV2Dao()
     }

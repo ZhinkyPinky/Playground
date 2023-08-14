@@ -2,13 +2,11 @@ package com.je.playground.ui.taskeditor
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +20,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import com.je.playground.ui.theme.regularText
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable fun TextFieldComponent(
     labelText : String,
     value : String,
@@ -72,10 +69,6 @@ import com.je.playground.ui.theme.regularText
         modifier = Modifier
             .wrapContentHeight()
             .fillMaxWidth()
-            .padding(
-                start = 4.dp,
-                end = 6.dp,
-            )
             .then(modifier ?: Modifier)
     )
 }

@@ -30,13 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.je.playground.databaseV2.tasks.entity.ExerciseOccasion
 import com.je.playground.databaseV2.tasks.entity.Task
+import com.je.playground.databaseV2.tasks.entity.TaskGroup
+import com.je.playground.databaseV2.tasks.entity.TaskGroupWithTasks
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
+import com.je.playground.databaseV2.tasks.entity.TaskV2
 import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
-import com.je.playground.ui.tasklist.components.ExerciseProgramComponent
-import com.je.playground.ui.tasklist.components.simpletask.SimpleTaskComponent
 import com.je.playground.ui.tasklist.viewmodel.Priority
-import com.je.playground.ui.tasklist.viewmodel.TasksUiStateV2
-import com.je.playground.ui.tasklist.viewmodel.TasksViewModelV2
+import com.je.playground.ui.tasklist.viewmodel.TaskTypeV2
+import com.je.playground.ui.tasklist.viewmodel.TasksViewModel
 import kotlinx.coroutines.launch
 
 
@@ -44,28 +45,70 @@ import kotlinx.coroutines.launch
 fun TasksScreen(
     navigateToTaskEditWindow : () -> Unit,
     drawerState : DrawerState,
-    tasksViewModelV2 : TasksViewModelV2
+    tasksViewModel : TasksViewModel
 ) {
-    val tasksUiState by tasksViewModelV2.tasksUiState.collectAsState()
+    val tasksUiState by tasksViewModel.tasksUiState.collectAsState()
 
     TasksScreen(
-        tasksUiState = tasksUiState,
-        priorities = tasksUiState.priorities,
+        //tasksUiState = tasksUiState,
+        taskGroupsWithTasks =
+        listOf(
+            TaskGroupWithTasks(
+                taskGroup = TaskGroup(
+                    taskGroupId = 0L,
+                    title = "TestGroup",
+                    type = TaskTypeV2.RegularTask.ordinal,
+                    priority = Priority.Medium.ordinal
+                ),
+                tasks = mutableListOf(
+                    TaskV2(
+                        taskId = 0L,
+                        taskGroupId = 0L,
+                        title = "TestTask",
+                    ),
+                    TaskV2(
+                        taskId = 1L,
+                        taskGroupId = 0L,
+                        title = "TestTask",
+                        note = "The quick brown fox jumped over the lazy dog."
+                    ),
+                    TaskV2(
+                        taskId = 2L,
+                        taskGroupId = 0L,
+                        title = "TestTask"
+                    ),
+                )
+            ),
+            TaskGroupWithTasks(
+                taskGroup = TaskGroup(
+                    taskGroupId = 1L,
+                    title = "TestGroup",
+                    type = TaskTypeV2.RegularTask.ordinal,
+                    priority = Priority.Medium.ordinal
+                ),
+                tasks = mutableListOf(
+                    TaskV2(
+                        taskId = 4L,
+                        taskGroupId = 1L,
+                        title = "TestTask"
+                    )
+                )
+            )
+        ),
         drawerState = drawerState,
         navigateToTaskEditWindow = navigateToTaskEditWindow,
-        updateTaskOccasion = tasksViewModelV2::updateTaskOccasion,
-        insertWeekdayScheduleEntry = tasksViewModelV2::insertWeekdayScheduleEntry,
-        deleteWeekdayScheduleEntry = tasksViewModelV2::deleteWeekdayScheduleEntry,
-        deleteTask = tasksViewModelV2::deleteTask,
-        updateExerciseOccasion = tasksViewModelV2::updateExerciseOccasion,
+        updateTaskOccasion = tasksViewModel::updateTaskOccasion,
+        insertWeekdayScheduleEntry = tasksViewModel::insertWeekdayScheduleEntry,
+        deleteWeekdayScheduleEntry = tasksViewModel::deleteWeekdayScheduleEntry,
+        deleteTask = tasksViewModel::deleteTask,
+        updateExerciseOccasion = tasksViewModel::updateExerciseOccasion,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
-    tasksUiState : TasksUiStateV2,
-    priorities : List<Priority>,
+    taskGroupsWithTasks : List<TaskGroupWithTasks>,
     drawerState : DrawerState,
     navigateToTaskEditWindow : () -> Unit,
     updateTaskOccasion : (TaskOccasion) -> Unit,
@@ -77,7 +120,6 @@ fun TasksScreen(
     Scaffold(
         topBar = {
             val coroutineScope = rememberCoroutineScope()
-
             Column {
                 TopAppBar(
                     title = {
@@ -151,8 +193,17 @@ fun TasksScreen(
                 .fillMaxWidth()
                 .padding(it)
         ) {
+            items(items = taskGroupsWithTasks) { taskGroupWithTasks ->
+                key(taskGroupWithTasks.taskGroup.taskGroupId) {
+                    MainTaskComponent(
+                        taskGroupWithTasks = taskGroupWithTasks,
+                        updateTaskOccasion = {},
+                        deleteTask = {}
+                    )
+                }
+            }
 
-            items(items = tasksUiState.tasksWithOccasions) { taskWithOccasions ->
+            /*items(items = tasksUiState.tasksWithOccasions) { taskWithOccasions ->
                 key(taskWithOccasions.task.id) {
                     taskWithOccasions.simpleTask?.let {
                         SimpleTaskComponent(
@@ -172,7 +223,7 @@ fun TasksScreen(
                         )
                     }
                 }
-            }
+            }*/
         }
     }
 }

@@ -9,6 +9,7 @@ import com.je.playground.databaseV2.tasks.entity.ExerciseProgram
 import com.je.playground.databaseV2.tasks.entity.ExerciseProgramWithExercises
 import com.je.playground.databaseV2.tasks.entity.SimpleTask
 import com.je.playground.databaseV2.tasks.entity.Task
+import com.je.playground.databaseV2.tasks.entity.TaskGroupWithTasks
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
 import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
@@ -24,9 +25,10 @@ import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
-data class TasksUiStateV2(
+data class TasksUiState(
     val simpleTasks : List<SimpleTask> = emptyList(),
     val exerciseProgramsWithExercises : List<ExerciseProgramWithExercises> = emptyList(),
+    val taskGroupsWithTasks : List<TaskGroupWithTasks> = emptyList(),
     val tasks : List<Task> = emptyList(),
     val taskOccasions : List<TaskOccasion> = emptyList(),
     val tasksWithOccasions : List<TaskWithOccasions> = emptyList(),
@@ -40,6 +42,12 @@ enum class TaskType(type : String) {
     ExerciseProgram("Exercise Program")
 }
 
+enum class TaskTypeV2(type : String) {
+    RegularTask("Regular Task"),
+    ExerciseTask("Exercise Task"),
+    HabitTask("Habit Task"),
+    ShoppingTask("Shopping Task")
+}
 
 
 enum class Priority {
@@ -47,9 +55,10 @@ enum class Priority {
     Medium,
     Low
 }
+
 @HiltViewModel
-class TasksViewModelV2 @Inject constructor(
-    private val application: Application,
+class TasksViewModel @Inject constructor(
+    private val application : Application,
     private val tasksRepositoryV2 : TasksRepositoryV2
 ) : ViewModel() {
     private val notifications = Notifications(application)
@@ -60,10 +69,10 @@ class TasksViewModelV2 @Inject constructor(
             .asList()
     )
 
-    private val _tasksUiStateV2 = MutableStateFlow(TasksUiStateV2())
+    private val _tasksUiState = MutableStateFlow(TasksUiState())
 
-    val tasksUiState : StateFlow<TasksUiStateV2>
-        get() = _tasksUiStateV2
+    val tasksUiState : StateFlow<TasksUiState>
+        get() = _tasksUiState
 
     init {
         viewModelScope.launch {
@@ -74,7 +83,7 @@ class TasksViewModelV2 @Inject constructor(
                 tasksRepositoryV2.getAllTaskOccasions(),
                 tasksRepositoryV2.getAllTasksWithOccasions()
             ) { simpleTasks, exerciseProgramWithExercises, tasks, taskOccasions, tasksWithOccasions ->
-                TasksUiStateV2(
+                TasksUiState(
                     simpleTasks = simpleTasks,
                     exerciseProgramsWithExercises = exerciseProgramWithExercises,
                     tasks = tasks,
@@ -86,7 +95,7 @@ class TasksViewModelV2 @Inject constructor(
                     throwable.printStackTrace()
                 }
                 .collect {
-                    _tasksUiStateV2.value = it
+                    _tasksUiState.value = it
                 }
         }
     }
@@ -140,8 +149,8 @@ class TasksViewModelV2 @Inject constructor(
 
     fun deleteTask(task : Task) = viewModelScope.launch {
         notifications.cancelNotification(task.id)
-        tasksRepositoryV2.deleteTask(task)  }
-
+        tasksRepositoryV2.deleteTask(task)
+    }
 
 
     //endregion

@@ -1,4 +1,4 @@
-package com.je.playground.ui
+package com.je.playground.ui.navigationdrawer
 
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
@@ -21,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.je.playground.ui.MainScreen
+import com.je.playground.ui.Route
 import kotlinx.coroutines.launch
 
 @Composable

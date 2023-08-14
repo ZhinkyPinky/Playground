@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,11 +47,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.je.playground.databaseV2.tasks.entity.Task
+import com.je.playground.databaseV2.tasks.entity.TaskGroupWithTasks
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
-import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
 import com.je.playground.ui.sharedcomponents.CheckboxComponent
 import com.je.playground.ui.sharedcomponents.ExpandButtonComponent
 import com.je.playground.ui.tasklist.components.shared.*
+import com.je.playground.ui.tasklist.components.simpletask.NoteComponent
 import com.je.playground.ui.theme.title
 import java.time.LocalDate
 import java.time.LocalTime
@@ -67,7 +70,7 @@ enum class DragAnchors {
 )
 @Composable
 fun MainTaskComponent(
-    taskWithOccasions : TaskWithOccasions,
+    taskGroupWithTasks : TaskGroupWithTasks,
     updateTaskOccasion : (TaskOccasion) -> Unit,
     deleteTask : (Task) -> Unit,
     subContent : MutableList<@Composable () -> Unit>? = null,
@@ -96,10 +99,9 @@ fun MainTaskComponent(
         )
     }
 
-
     if (state.currentValue == DragAnchors.End) {
         hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-        deleteTask(taskWithOccasions.task)
+        //deleteTask(taskWithOccasions.task)
     }
 
     Box(
@@ -134,76 +136,92 @@ fun MainTaskComponent(
             }
     )
     {
-        taskWithOccasions.simpleTask?.let { simpleTask ->
-            Row(
-                modifier = Modifier
-                    .height(IntrinsicSize.Max)
-                    .offset {
-                        IntOffset(
-                            x = state
-                                .requireOffset()
-                                .roundToInt(),
-                            y = 0
-                        )
-                    }
-                    .anchoredDraggable(
-                        state,
-                        Orientation.Horizontal
-                    )
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clip(RectangleShape)
-                        .background(
-                            when (simpleTask.priority) {
-                                0 -> Color.Red
-                                1 -> Color(0xFFFFAB00)
-                                2 -> Color(0xFF00C853)
-                                else -> Color.Transparent
-                            }
-                        )
-                        .fillMaxHeight()
-                        .width(2.dp)
-                )
 
-                Column {
+        Row(
+            modifier = Modifier
+                .height(IntrinsicSize.Max)
+                .offset {
+                    IntOffset(
+                        x = state
+                            .requireOffset()
+                            .roundToInt(),
+                        y = 0
+                    )
+                }
+                .anchoredDraggable(
+                    state = state,
+                    enabled = taskGroupWithTasks.taskGroup.isCompleted,
+                    orientation = Orientation.Horizontal
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RectangleShape)
+                    .background(
+                        when (taskGroupWithTasks.taskGroup.priority) {
+                            0 -> Color.Red
+                            1 -> Color(0xFFFFAB00)
+                            2 -> Color(0xFF00C853)
+                            else -> Color.Transparent
+                        }
+                    )
+                    .fillMaxHeight()
+                    .width(2.dp)
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(1.dp)
+            ) {
+                if (taskGroupWithTasks.tasks.size > 1) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (taskWithOccasions.taskOccasions.size == 1) {
-                            CheckboxComponent(
-                                isChecked = taskWithOccasions.taskOccasions.first().isCompleted,
-                                modifier = Modifier
-                            ) {
-                                taskWithOccasions.taskOccasions.first().isCompleted = !taskWithOccasions.taskOccasions.first().isCompleted
-                                updateTaskOccasion(taskWithOccasions.taskOccasions.first())
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                            }
+                        /*
+                        CheckboxComponent(
+                            isChecked = taskGroupWithTasks.taskGroup.isCompleted,
+                            modifier = Modifier
+                        ) {
+                            taskGroupWithTasks.taskGroup.isCompleted = !taskGroupWithTasks.taskGroup.isCompleted
+                            //updateTaskOccasion(taskWithOccasions.taskOccasions.first())
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                         }
+                         */
+
 
                         Column(
                             modifier = Modifier
+                                .padding(start = 12.dp)
                                 .weight(1f)
                         ) {
                             Text(
-                                text = simpleTask.name,
+                                text = taskGroupWithTasks.taskGroup.title,
                                 style = title(MaterialTheme.colorScheme.onPrimary),
                                 textAlign = TextAlign.Start,
                             )
 
-                            if (!taskWithOccasions.taskOccasions.isEmpty()) {
+                            LinearProgressIndicator(
+                                progress = 0.5f,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                trackColor = MaterialTheme.colorScheme.background,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                            )
+
+                            /*
+                            if (task.dateFrom != null || task.timeFrom != null || task.dateTo != null || task.timeTo != null) {
                                 Text(
                                     text = dateTimeToString(
-                                        startDate = taskWithOccasions.taskOccasions.first().dateFrom,
-                                        startTime = taskWithOccasions.taskOccasions.first().timeFrom,
-                                        endDate = taskWithOccasions.taskOccasions.first().dateTo,
-                                        endTime = taskWithOccasions.taskOccasions.first().timeTo
+                                        startDate = task.dateFrom,
+                                        startTime = task.timeFrom,
+                                        endDate = task.dateTo,
+                                        endTime = task.timeTo
                                     ),
                                     color = Color(0xFFCCCCCC),
                                     fontSize = 12.sp,
                                     textAlign = TextAlign.Start
                                 )
                             }
+                             */
                         }
 
                         if (subContent != null) {
@@ -228,10 +246,74 @@ fun MainTaskComponent(
                         subContent?.let { SubContentComponent(content = it) }
                     }
                 }
+
+                taskGroupWithTasks.tasks.forEach { task ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+
+                        CheckboxComponent(
+                            isChecked = task.isCompleted,
+                            modifier = Modifier
+                        ) {
+                            task.isCompleted = !task.isCompleted
+                            //updateTaskOccasion(taskWithOccasions.taskOccasions.first())
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = task.title,
+                                style = title(MaterialTheme.colorScheme.onPrimary),
+                                textAlign = TextAlign.Start,
+                            )
+
+                            if (task.dateFrom != null || task.timeFrom != null || task.dateTo != null || task.timeTo != null) {
+                                Text(
+                                    text = dateTimeToString(
+                                        startDate = task.dateFrom,
+                                        startTime = task.timeFrom,
+                                        endDate = task.dateTo,
+                                        endTime = task.timeTo
+                                    ),
+                                    color = Color(0xFFCCCCCC),
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Start
+                                )
+                            }
+                        }
+
+                        if (task.note != null) {
+                            ExpandButtonComponent(
+                                isExpanded = isExpanded,
+                            ) {
+                                isExpanded = !isExpanded
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+
+                        } else {
+                            Spacer(
+                                modifier = Modifier
+                                    .padding(end = 6.dp)
+                                    .height(49.dp)
+                            )
+                        }
+                    }
+
+                    if (isExpanded) {
+                        task.note?.let { NoteComponent(note = it) }
+                        subContent?.let { SubContentComponent(content = it) }
+                    }
+                }
             }
         }
     }
 }
+
 
 private fun dateTimeToString(
     startDate : LocalDate?,

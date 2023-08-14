@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import com.je.playground.databaseV2.tasks.entity.Task
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
-import com.je.playground.ui.tasklist.MainTaskComponent
 
 @Composable
 fun SimpleTaskComponent(
@@ -13,6 +12,7 @@ fun SimpleTaskComponent(
     deleteTask : (Task) -> Unit
 ) {
     taskWithOccasions.simpleTask?.let { simpleTask ->
+        /*
         MainTaskComponent(
             taskWithOccasions = taskWithOccasions,
             updateTaskOccasion = updateTaskOccasion,
@@ -22,7 +22,9 @@ fun SimpleTaskComponent(
                     simpleTask.note?.let { NoteComponent(note = it) }
                 }) else mutableListOf(),
         )
+        */
     }
+
 
     /*
     val hapticFeedback = LocalHapticFeedback.current

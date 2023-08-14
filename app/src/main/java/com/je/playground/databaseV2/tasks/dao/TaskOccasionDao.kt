@@ -4,7 +4,6 @@ import androidx.room.*
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Dao
 interface TaskOccasionDao {

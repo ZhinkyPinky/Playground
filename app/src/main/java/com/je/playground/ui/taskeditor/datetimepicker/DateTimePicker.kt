@@ -4,17 +4,24 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.TimePicker
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.je.playground.R
 import com.je.playground.ui.theme.regularText
 import java.time.LocalDate
@@ -23,19 +30,25 @@ import java.time.LocalTime
 @Composable
 fun DateTimePicker(
     context : Context,
-    title : String,
+    dateLabel : String,
+    timeLabel : String,
     savedDate : LocalDate?,
     savedTime : LocalTime?,
     onDateValueChange : (LocalDate?) -> Unit,
     onTimeValueChange : (LocalTime?) -> Unit
 ) {
 
-    Column(modifier = Modifier.padding(start = 16.dp)) {
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
+    ) {
+        /*
         Text(
             text = title,
             fontSize = 12.sp,
-            color = MaterialTheme.colors.secondaryVariant
+            color = MaterialTheme.colorScheme.onPrimary
         )
+         */
 
         var newDate : LocalDate? by remember {
             mutableStateOf(null)
@@ -65,7 +78,7 @@ fun DateTimePicker(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             DatePickerComponent(
-                date = if (newDate != null) newDate.toString() else savedDate?.toString() ?: "",
+                date = if (newDate != null) newDate.toString() else savedDate?.toString() ?: dateLabel,
                 clickable = true,
                 onClick = {
                     newDate = null
@@ -76,7 +89,7 @@ fun DateTimePicker(
                 modifier = Modifier.weight(1f)
             )
             TimePickerComponent(
-                time = if(newTime != null) newTime.toString() else savedTime?.toString() ?: "",
+                time = if (newTime != null) newTime.toString() else savedTime?.toString() ?: "",
                 context = context,
                 clickable = true,
                 onClick = {
@@ -87,7 +100,8 @@ fun DateTimePicker(
                 clearTime = clearTime,
                 onValueChange = {
                     newTime = it
-                    onTimeValueChange(it)},
+                    onTimeValueChange(it)
+                },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -109,7 +123,7 @@ fun DateTimePicker(
                 ) {
                     Text(
                         text = "Cancel",
-                        color = MaterialTheme.colors.secondary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 TextButton(
@@ -120,7 +134,7 @@ fun DateTimePicker(
                 ) {
                     Text(
                         text = "OK",
-                        color = MaterialTheme.colors.secondary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -141,7 +155,7 @@ fun DatePickerComponent(
     TextField(
         value = date,
         onValueChange = {},
-        label = { Text(text = "Date") },
+        label = { Text(text = date) },
         trailingIcon = {
             if (date != "") {
                 Icon(
@@ -154,13 +168,13 @@ fun DatePickerComponent(
             }
         },
         enabled = false,
-        textStyle = regularText(MaterialTheme.colors.secondary),
-        colors = TextFieldDefaults.textFieldColors(
-            disabledLabelColor = MaterialTheme.colors.secondaryVariant,
-            focusedLabelColor = MaterialTheme.colors.secondary,
-            cursorColor = MaterialTheme.colors.secondaryVariant,
+        textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
+        colors = TextFieldDefaults.colors(
+            disabledLabelColor = MaterialTheme.colorScheme.onPrimary,
+            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            cursorColor = MaterialTheme.colorScheme.onPrimary,
             unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = MaterialTheme.colors.background
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         singleLine = true,
         modifier = Modifier
@@ -171,6 +185,7 @@ fun DatePickerComponent(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimePickerComponent(
     time : String,
@@ -201,13 +216,13 @@ fun TimePickerComponent(
             }
         },
         enabled = false,
-        textStyle = regularText(MaterialTheme.colors.secondary),
-        colors = TextFieldDefaults.textFieldColors(
-            disabledLabelColor = MaterialTheme.colors.secondaryVariant,
-            focusedLabelColor = MaterialTheme.colors.secondary,
-            cursorColor = MaterialTheme.colors.secondaryVariant,
+        textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
+        colors = TextFieldDefaults.colors(
+            disabledLabelColor = MaterialTheme.colorScheme.onPrimary,
+            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+            cursorColor = MaterialTheme.colorScheme.onPrimary,
             unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = MaterialTheme.colors.background
+            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
         ),
         singleLine = true,
         modifier = Modifier
@@ -216,7 +231,7 @@ fun TimePickerComponent(
                     val date = LocalTime.of(
                         hour,
                         minute
-                        )
+                    )
 
                     textFieldValue = date.toString()
                     onValueChange(date)
