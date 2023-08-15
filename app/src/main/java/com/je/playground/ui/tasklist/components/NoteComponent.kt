@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.simpletask
+package com.je.playground.ui.tasklist.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding

@@ -23,9 +23,9 @@ data class TaskV2(
     @ColumnInfo(name = "title") var title : String,
     //@ColumnInfo(name = "priority") var priority : Int = -1
     @ColumnInfo(name = "note") var note : String? = null,
-    @ColumnInfo(name = "date_from") val dateFrom : LocalDate? = null,
-    @ColumnInfo(name = "time_from") val timeFrom : LocalTime? = null,
-    @ColumnInfo(name = "date_to") val dateTo : LocalDate? = null,
-    @ColumnInfo(name = "time_to") val timeTo : LocalTime? = null,
+    @ColumnInfo(name = "date_from") var startDate : LocalDate? = null,
+    @ColumnInfo(name = "time_from") var startTime : LocalTime? = null,
+    @ColumnInfo(name = "date_to") var endDate : LocalDate? = null,
+    @ColumnInfo(name = "time_to") var endTime : LocalTime? = null,
     @ColumnInfo(name = "is_completed") var isCompleted : Boolean = false,
 )

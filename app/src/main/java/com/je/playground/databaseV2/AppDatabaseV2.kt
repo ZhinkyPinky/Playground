@@ -29,7 +29,7 @@ import com.je.playground.databaseV2.tasks.entity.*
         TaskGroup::class,
         TaskV2::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false //TODO: fix?
 )
 @TypeConverters(DateTimeTypeConverters::class)

@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.simpletask
+package com.je.playground.ui.tasklist.components.deprecated.exercise.simpletask
 
 import androidx.compose.runtime.Composable
 import com.je.playground.databaseV2.tasks.entity.Task

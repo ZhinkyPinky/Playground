@@ -51,8 +51,9 @@ import com.je.playground.databaseV2.tasks.entity.TaskGroupWithTasks
 import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.ui.sharedcomponents.CheckboxComponent
 import com.je.playground.ui.sharedcomponents.ExpandButtonComponent
+import com.je.playground.ui.tasklist.components.NoteComponent
+import com.je.playground.ui.tasklist.components.deprecated.shared.SubContentComponent
 import com.je.playground.ui.tasklist.components.shared.*
-import com.je.playground.ui.tasklist.components.simpletask.NoteComponent
 import com.je.playground.ui.theme.title
 import java.time.LocalDate
 import java.time.LocalTime
@@ -272,13 +273,13 @@ fun MainTaskComponent(
                                 textAlign = TextAlign.Start,
                             )
 
-                            if (task.dateFrom != null || task.timeFrom != null || task.dateTo != null || task.timeTo != null) {
+                            if (task.startDate != null || task.startTime != null || task.endDate != null || task.endTime != null) {
                                 Text(
                                     text = dateTimeToString(
-                                        startDate = task.dateFrom,
-                                        startTime = task.timeFrom,
-                                        endDate = task.dateTo,
-                                        endTime = task.timeTo
+                                        startDate = task.startDate,
+                                        startTime = task.startTime,
+                                        endDate = task.endDate,
+                                        endTime = task.endTime
                                     ),
                                     color = Color(0xFFCCCCCC),
                                     fontSize = 12.sp,

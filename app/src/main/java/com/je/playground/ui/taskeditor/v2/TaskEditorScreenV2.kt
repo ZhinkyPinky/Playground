@@ -48,14 +48,11 @@ import com.je.playground.databaseV2.tasks.entity.TaskV2
 import com.je.playground.ui.taskeditor.NoteEditComponent
 import com.je.playground.ui.taskeditor.PrioritySliderComponent
 import com.je.playground.ui.taskeditor.TextFieldComponent
-import com.je.playground.ui.taskeditor.datetimepicker.DateTimePicker
+import com.je.playground.ui.taskeditor.daterangepicker.DateRangePicker
 import com.je.playground.ui.tasklist.viewmodel.Priority
 import com.je.playground.ui.tasklist.viewmodel.TaskTypeV2
 import com.je.playground.ui.tasklist.viewmodel.TasksUiState
 import com.je.playground.ui.tasklist.viewmodel.TasksViewModel
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalTime
 
 @Composable
 fun TaskEditorScreenV2(
@@ -389,12 +386,10 @@ fun TaskEditor(
 ) {
     var title by rememberSaveable { mutableStateOf(task.title) }
     var note by rememberSaveable { mutableStateOf(task.note) }
-
-    var weekdays : List<DayOfWeek>? by rememberSaveable { mutableStateOf(null) }
-    var dateFrom : LocalDate? by rememberSaveable { mutableStateOf(null) }
-    var timeFrom : LocalTime? by rememberSaveable { mutableStateOf(null) }
-    var dateTo : LocalDate? by rememberSaveable { mutableStateOf(null) }
-    var timeTo : LocalTime? by rememberSaveable { mutableStateOf(null) }
+    var startDate by rememberSaveable { mutableStateOf(task.startDate) }
+    var startTime by rememberSaveable { mutableStateOf(task.startTime) }
+    var endDate by rememberSaveable { mutableStateOf(task.endDate) }
+    var endTime by rememberSaveable { mutableStateOf(task.endTime) }
 
     Column {
         TextFieldComponent(
@@ -423,13 +418,27 @@ fun TaskEditor(
             task.note = note
         })
 
+        DateRangePicker(
+            startDate = task.startDate,
+            endDate = task.endDate,
+            onStartDateValueChange = {
+                startDate = it
+                task.startDate = startDate
+            },
+            onEndDateValueChange = {
+                endDate = it
+                task.endDate = endDate
+            },
+        )
+
+        /*
         DateTimePicker(
             context = LocalContext.current,
             dateLabel = "Start date",
             timeLabel = "Start time",
             savedDate = task.dateFrom,
             savedTime = task.timeFrom,
-            onDateValueChange = {},
+            onDateValueChange = { task.dateFrom = it },
             onTimeValueChange = {}
         )
 
@@ -444,5 +453,6 @@ fun TaskEditor(
                 onTimeValueChange = { }
             )
         //}
+         */
     }
 }

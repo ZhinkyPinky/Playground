@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.shared
+package com.je.playground.ui.tasklist.components.deprecated.shared
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

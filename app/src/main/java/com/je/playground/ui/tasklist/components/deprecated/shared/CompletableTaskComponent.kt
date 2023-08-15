@@ -1,4 +1,4 @@
-package com.je.playground.ui.tasklist.components.shared
+package com.je.playground.ui.tasklist.components.deprecated.shared
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box

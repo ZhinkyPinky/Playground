@@ -3,13 +3,29 @@ package com.je.playground.ui.taskeditor.datetimepicker
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +44,7 @@ import com.je.playground.ui.theme.title
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
+import java.time.Year
 
 
 @Composable
@@ -57,7 +74,7 @@ fun ScheduleComponent(
         Row {
             Text(
                 text = "Schedule",
-                style = title(MaterialTheme.colors.secondary),
+                style = title(MaterialTheme.colorScheme.onPrimaryContainer),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .weight(1f)
@@ -75,7 +92,7 @@ fun ScheduleComponent(
             }
         }
 
-        weekComponent(
+        WeekComponent(
             weekdaySchedule = taskWithOccasions?.weekdaySchedule
         )
 
@@ -89,14 +106,16 @@ fun ScheduleComponent(
          */
     }
 
+    /*
     Divider(
-        color = MaterialTheme.colors.primaryVariant,
+        color = MaterialTheme.colorScheme.background,
         thickness = if (isExpanded) 3.dp else 1.dp
     )
+     */
 }
 
 @Composable
-fun weekComponent(
+fun WeekComponent(
     weekdaySchedule : List<WeekdaySchedule>? = null
 ) : MutableList<DayOfWeek> {
     val weekDays : MutableList<DayOfWeek> = emptyList<DayOfWeek>().toMutableList()
@@ -132,7 +151,7 @@ fun weekComponent(
                 ) {
                     Text(
                         text = dayOfWeek.name.substring(0..0),
-                        style = subcontent(if (weekDays.contains(dayOfWeek)) MaterialTheme.colors.secondary else MaterialTheme.colors.secondaryVariant),
+                        style = subcontent(if (weekDays.contains(dayOfWeek)) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer),
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
@@ -170,7 +189,7 @@ fun WeekdayComponent(
     ) {
         Text(
             text = dayOfWeek.name.substring(0..0),
-            style = subcontent(if (weekdayScheduleEntry != null) MaterialTheme.colors.secondary else MaterialTheme.colors.secondaryVariant),
+            style = subcontent(if (weekdayScheduleEntry != null) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer),
             modifier = Modifier.align(Alignment.CenterVertically)
         )
     }
@@ -195,7 +214,7 @@ fun MonthAndYearComponent(
         mutableStateOf(LocalDate.now().dayOfMonth)
     }
 
-    var date : LocalDate? by remember { mutableStateOf(null) }
+    var date : LocalDate by remember { mutableStateOf(LocalDate.now()) }
 
     Column {
         Row(
@@ -211,7 +230,7 @@ fun MonthAndYearComponent(
                 Icon(
                     imageVector = Icons.Filled.NavigateBefore,
                     contentDescription = stringResource(R.string.previous_month),
-                    tint = MaterialTheme.colors.secondary
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 
@@ -223,7 +242,7 @@ fun MonthAndYearComponent(
                         .lowercase()
                         .replaceFirstChar { it.uppercase() }
                 } $year",
-                color = MaterialTheme.colors.secondary,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
 
             IconButton(onClick = {
@@ -234,12 +253,13 @@ fun MonthAndYearComponent(
                 Icon(
                     imageVector = Icons.Filled.NavigateNext,
                     contentDescription = stringResource(R.string.next_month),
-                    tint = MaterialTheme.colors.secondary
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }
 
         MonthGridComponent(
+            date = date,
             year = year,
             month = month,
             day = day,
@@ -250,6 +270,7 @@ fun MonthAndYearComponent(
 
 @Composable
 fun MonthGridComponent(
+    date : LocalDate,
     year : Int,
     month : Month,
     day : Int?,
@@ -276,14 +297,30 @@ fun MonthGridComponent(
         days.forEach { println(it) }
 
         val monthGridButton = @Composable { day : Int ->
-            MonthGridButton(
-                taskOccasions = taskOccasions,
-                year = year,
-                month = month,
-                day = day,
-                isEnabled = dayCounter in 1 .. lengthOfMonth,
-                onDateChosen = onDateChosen
-            )
+            if (day > 0 && day < month.length(Year.of(year).isLeap)
+            ) {
+                MonthGridButton(
+                    taskOccasions = taskOccasions,
+                    day = day,
+                    date = date,
+                    startDate = LocalDate.now(),
+                    endDate = LocalDate
+                        .now()
+                        .plusDays(10),
+                    isEnabled = dayCounter in 1..lengthOfMonth,
+                    isSelected = LocalDate.now() == LocalDate.of(
+                        year,
+                        month,
+                        day
+                    ),
+                    onDateChosen = onDateChosen
+                )
+            } else {
+                Spacer(
+                    modifier = Modifier
+                        .size(50.dp)
+                )
+            }
         }
 
         while (dayCounter < lengthOfMonth) {
@@ -304,27 +341,31 @@ fun MonthGridComponent(
 @Composable
 fun MonthGridButton(
     taskOccasions : List<TaskOccasion>? = null,
-    year : Int,
-    month : Month,
-    isEnabled : Boolean,
     day : Int,
-    onDateChosen : (LocalDate) -> Unit
+    startDate : LocalDate = LocalDate.MIN,
+    endDate : LocalDate = LocalDate.MAX,
+    date : LocalDate,
+    isEnabled : Boolean,
+    onDateChosen : (LocalDate) -> Unit,
+    isSelected : Boolean
 ) {
     val hapticFeedback = LocalHapticFeedback.current
-    println(day)
 
     TextButton(
         onClick = {
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            if (date.isAfter(startDate)) {
+
+            }
+
             onDateChosen(
-                LocalDate.of(
-                    year,
-                    month,
-                    day
-                )
+                date
             )
         },
         enabled = isEnabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (date.isAfter(startDate) && date.isBefore(endDate)) Color(0xFFFFAB00) else Color.Transparent
+        ),
         shape = CircleShape,
         modifier = Modifier
             .size(50.dp)
@@ -332,10 +373,7 @@ fun MonthGridButton(
         Text(
             text = "$day",
             color = dateColorSelection(
-                day = day,
-                month = month,
-                year = year,
-                taskOccasions = taskOccasions
+                date = date
             ),
             textAlign = TextAlign.Center,
         )
@@ -344,22 +382,12 @@ fun MonthGridButton(
 
 @Composable
 fun dateColorSelection(
-    day : Int,
-    month : Month,
-    year : Int,
-    taskOccasions : List<TaskOccasion>? = null
+    date : LocalDate
 ) : Color {
-    if (day <= 0 || day > month.length(LocalDate.now().isLeapYear)) return Color.Transparent
-
     val currentYear = LocalDate.now().year
     val currentMonth = LocalDate.now().month
 
-    val date = LocalDate.of(
-        year,
-        month,
-        day
-    )
-
+    /*
     taskOccasions?.forEach { taskOccasion ->
         if (taskOccasion.dateFrom != null) {
             if (taskOccasion.dateFrom == date) {
@@ -370,10 +398,12 @@ fun dateColorSelection(
             }
         }
     }
+     */
 
-    return if ((date.dayOfMonth >= LocalDate.now().dayOfMonth && month.ordinal == currentMonth.ordinal || month.ordinal > currentMonth.ordinal) || year > currentYear) {
-        MaterialTheme.colors.secondary
-    } else MaterialTheme.colors.secondaryVariant
+    return if ((date.dayOfMonth >= LocalDate.now().dayOfMonth && date.month.ordinal == currentMonth.ordinal || date.month.ordinal > currentMonth.ordinal) || date.year > currentYear
+    ) {
+        MaterialTheme.colorScheme.onPrimary
+    } else MaterialTheme.colorScheme.onSecondaryContainer
 }
 
 fun containsDate(
