@@ -1,4 +1,4 @@
-package com.je.playground.ui.taskeditor.daterangepicker
+package com.je.playground.ui.taskeditor.datetimerangepicker
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

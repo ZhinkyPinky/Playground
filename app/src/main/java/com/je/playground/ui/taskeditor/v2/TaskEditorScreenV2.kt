@@ -49,7 +49,8 @@ import com.je.playground.databaseV2.tasks.entity.TaskV2
 import com.je.playground.ui.taskeditor.NoteEditComponent
 import com.je.playground.ui.taskeditor.PrioritySliderComponent
 import com.je.playground.ui.taskeditor.TextFieldComponent
-import com.je.playground.ui.taskeditor.daterangepicker.DateRangePicker
+import com.je.playground.ui.taskeditor.datetimerangepicker.DateRangePicker
+import com.je.playground.ui.taskeditor.datetimerangepicker.TimeRangePicker
 import com.je.playground.ui.tasklist.viewmodel.Priority
 import com.je.playground.ui.tasklist.viewmodel.TaskTypeV2
 import com.je.playground.ui.tasklist.viewmodel.TasksUiState
@@ -438,6 +439,19 @@ fun TaskEditor(
                     "$endDate"
                 )
             },
+        )
+
+        TimeRangePicker(
+            startTime = startTime,
+            endTime = startTime,
+            onStartTimeValueChange = {
+                startTime = it
+                task.startTime = startTime
+            },
+            onEndTimeValueChange = {
+                endTime = it
+                task.endTime = endTime
+            }
         )
     }
 }
