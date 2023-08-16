@@ -1,5 +1,6 @@
 package com.je.playground.ui.taskeditor.v2
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -372,9 +373,7 @@ fun TaskGroupEditor(
             taskGroup = taskGroup,
             task = task
         )
-        Divider()
     }
-
 }
 
 
@@ -419,40 +418,26 @@ fun TaskEditor(
         })
 
         DateRangePicker(
-            startDate = task.startDate,
-            endDate = task.endDate,
+            startDate = startDate,
+            endDate = endDate,
             onStartDateValueChange = {
                 startDate = it
                 task.startDate = startDate
+
+                Log.i(
+                    "startDate",
+                    "$startDate"
+                )
             },
             onEndDateValueChange = {
                 endDate = it
                 task.endDate = endDate
+
+                Log.i(
+                    "endDate",
+                    "$endDate"
+                )
             },
         )
-
-        /*
-        DateTimePicker(
-            context = LocalContext.current,
-            dateLabel = "Start date",
-            timeLabel = "Start time",
-            savedDate = task.dateFrom,
-            savedTime = task.timeFrom,
-            onDateValueChange = { task.dateFrom = it },
-            onTimeValueChange = {}
-        )
-
-        //if (task.dateFrom != null || task.timeFrom != null) {
-            DateTimePicker(
-                context = LocalContext.current,
-                dateLabel = "End date",
-                timeLabel = "End Time",
-                savedDate = task.dateTo,
-                savedTime = task.timeTo,
-                onDateValueChange = { },
-                onTimeValueChange = { }
-            )
-        //}
-         */
     }
 }

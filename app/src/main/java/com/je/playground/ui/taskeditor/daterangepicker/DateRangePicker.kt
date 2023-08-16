@@ -1,6 +1,5 @@
 package com.je.playground.ui.taskeditor.daterangepicker
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,71 +52,128 @@ fun DateRangePicker(
     onStartDateValueChange : (LocalDate?) -> Unit,
     onEndDateValueChange : (LocalDate?) -> Unit
 ) {
-    var showDateRangeSelection by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var showStartDateSelection by rememberSaveable { mutableStateOf(false) }
+    var showEndDateSelection by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
     ) {
-        TextField(
-            value = startDate?.toString() ?: "",
-            onValueChange = { },
-            label = { Text(text = "Date") },
-            trailingIcon = {
-                if (startDate != null) {
+        Row {
+            TextField(
+                value = startDate?.toString() ?: "",
+                onValueChange = { },
+                label = { Text(text = "Start Date") },
+                enabled = false,
+                textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
+                colors = TextFieldDefaults.colors(
+                    disabledLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable { showStartDateSelection = !showStartDateSelection }
+            )
+
+            TextField(
+                value = endDate?.toString() ?: "",
+                onValueChange = { },
+                label = { Text(text = "End Date") },
+                enabled = false,
+                textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
+                colors = TextFieldDefaults.colors(
+                    disabledLabelColor = if (startDate != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
+                ),
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clickable {
+                        if (startDate != null) {
+                            showEndDateSelection = !showEndDateSelection
+                        }
+                    }
+            )
+
+            if (startDate != null) {
+                IconButton(onClick = {
+                    onStartDateValueChange(null)
+                    onEndDateValueChange(null)
+                }) {
                     Icon(
                         imageVector = Icons.Filled.Clear,
-                        contentDescription = "Clear text-field",
-                        modifier = Modifier
-                            .size(16.dp)
-                            .clickable { onStartDateValueChange(null) }
+                        contentDescription = "Clear date selection"
                     )
-                }
-            },
-            enabled = false,
-            textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
-            colors = TextFieldDefaults.colors(
-                disabledLabelColor = MaterialTheme.colorScheme.onPrimary,
-                focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                cursorColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDateRangeSelection = !showDateRangeSelection }
-        )
-
-        if (showDateRangeSelection) {
-            AlertDialog(
-                onDismissRequest = { showDateRangeSelection = !showDateRangeSelection },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .wrapContentSize()
-            ) {
-                MonthAndYearComponent {
-                    print(it.toString())
-                    if (startDate == null || it.isBefore(startDate)) {
-                        onStartDateValueChange(it)
-                    }
                 }
             }
         }
 
+        if (showStartDateSelection) {
+            AlertDialog(
+                onDismissRequest = { showStartDateSelection = !showStartDateSelection },
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .wrapContentSize()
+            ) {
+                MonthAndYearComponent(
+                    startDate = startDate,
+                    endDate = endDate,
+                    startDateOrEndDate = true,
+                    onSave = {
+                        showStartDateSelection = !showStartDateSelection
+                        onStartDateValueChange(it)
+                    },
+                    onCancel = { showStartDateSelection = !showStartDateSelection }
+                )
+            }
+        }
+    }
+
+    if (showEndDateSelection) {
+        AlertDialog(
+            onDismissRequest = { showEndDateSelection = !showEndDateSelection },
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .wrapContentSize()
+        ) {
+            MonthAndYearComponent(
+                startDate = startDate,
+                endDate = endDate,
+                startDateOrEndDate = false,
+                onSave = {
+                    showEndDateSelection = !showEndDateSelection
+                    onEndDateValueChange(it)
+                },
+                onCancel = { showEndDateSelection = !showEndDateSelection }
+            )
+        }
     }
 }
 
 @Composable
 fun MonthAndYearComponent(
-    onDateChosen : (LocalDate) -> Unit
+    startDate : LocalDate?,
+    endDate : LocalDate?,
+    startDateOrEndDate : Boolean,
+    onSave : (LocalDate) -> Unit,
+    onCancel : () -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
     var date : LocalDate by remember { mutableStateOf(LocalDate.now()) }
+    var newStartDate by rememberSaveable { mutableStateOf(startDate) }
+    var newEndDate by rememberSaveable { mutableStateOf(endDate) }
 
     Column(
         modifier = Modifier
@@ -167,12 +223,32 @@ fun MonthAndYearComponent(
 
         MonthGridComponent(
             date = date,
-            onDateChosen = onDateChosen
+            startDate = newStartDate,
+            endDate = newEndDate,
+            onDateChosen = {
+                if (startDateOrEndDate) {
+                    if (newEndDate == null) {
+                        newStartDate = it
+                    } else if (newEndDate!!.isEqual(it) || newEndDate!!.isAfter(it)) {
+                        newStartDate = it
+                    }
+                } else {
+                    if (newStartDate == null || newStartDate!!.isEqual(it) || newStartDate!!.isBefore(it)) {
+                        newEndDate = it
+                    }
+                }
+            }
         )
 
         Row {
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    if (startDateOrEndDate) {
+                        newStartDate?.let { onSave(it) }
+                    } else {
+                        newEndDate?.let { onSave(it) }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -183,7 +259,7 @@ fun MonthAndYearComponent(
             }
 
             TextButton(
-                onClick = { /*TODO*/ },
+                onClick = { onCancel() },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimary
@@ -199,6 +275,8 @@ fun MonthAndYearComponent(
 @Composable
 fun MonthGridComponent(
     date : LocalDate,
+    startDate : LocalDate?,
+    endDate : LocalDate?,
     onDateChosen : (LocalDate) -> Unit
 ) {
     Column {
@@ -223,10 +301,8 @@ fun MonthGridComponent(
                         date.month,
                         day
                     ),
-                    startDate = LocalDate.now(),
-                    endDate = LocalDate
-                        .now()
-                        .plusDays(10),
+                    startDate = startDate,
+                    endDate = endDate,
                     isSelected = LocalDate.now() == LocalDate.of(
                         date.year,
                         date.month,
@@ -251,7 +327,9 @@ fun MonthGridComponent(
                 .values()
                 .forEach {
                     Text(
-                        text = it.name.first().toString(),
+                        text = it.name
+                            .first()
+                            .toString(),
                         modifier = Modifier.size(40.dp)
                     )
                 }
@@ -275,8 +353,8 @@ fun MonthGridComponent(
 @Composable
 fun MonthGridButton(
     date : LocalDate,
-    startDate : LocalDate = LocalDate.MIN,
-    endDate : LocalDate = LocalDate.MAX,
+    startDate : LocalDate?,
+    endDate : LocalDate?,
     isSelected : Boolean,
     onDateChosen : (LocalDate) -> Unit
 ) {
@@ -285,15 +363,17 @@ fun MonthGridButton(
     TextButton(
         onClick = {
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-            Log.i(
-                "Day",
-                date.toString()
-            )
             onDateChosen(date)
         },
         enabled = true,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (date.isAfter(startDate) && date.isBefore(endDate)) Color(0xFFFFAB00) else Color.Transparent
+            containerColor = if (startDate != null && endDate == null && startDate.isEqual(date)) {
+                Color(0xFFFFAB00)
+            } else if (startDate != null && endDate != null && startDate.isBefore(date.plusDays(1)) && endDate.isAfter(date.minusDays(1))) {
+                Color(0xFFFFAB00)
+            } else {
+                Color.Transparent
+            }
         ),
         shape = CircleShape,
         modifier = Modifier

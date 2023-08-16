@@ -52,8 +52,6 @@ import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import com.je.playground.ui.sharedcomponents.CheckboxComponent
 import com.je.playground.ui.sharedcomponents.ExpandButtonComponent
 import com.je.playground.ui.tasklist.components.NoteComponent
-import com.je.playground.ui.tasklist.components.deprecated.shared.SubContentComponent
-import com.je.playground.ui.tasklist.components.shared.*
 import com.je.playground.ui.theme.title
 import java.time.LocalDate
 import java.time.LocalTime
@@ -74,7 +72,7 @@ fun MainTaskComponent(
     taskGroupWithTasks : TaskGroupWithTasks,
     updateTaskOccasion : (TaskOccasion) -> Unit,
     deleteTask : (Task) -> Unit,
-    subContent : MutableList<@Composable () -> Unit>? = null,
+    //subContent : MutableList<@Composable () -> Unit>? = null,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -176,18 +174,6 @@ fun MainTaskComponent(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        /*
-                        CheckboxComponent(
-                            isChecked = taskGroupWithTasks.taskGroup.isCompleted,
-                            modifier = Modifier
-                        ) {
-                            taskGroupWithTasks.taskGroup.isCompleted = !taskGroupWithTasks.taskGroup.isCompleted
-                            //updateTaskOccasion(taskWithOccasions.taskOccasions.first())
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                        }
-                         */
-
-
                         Column(
                             modifier = Modifier
                                 .padding(start = 12.dp)
@@ -225,15 +211,14 @@ fun MainTaskComponent(
                              */
                         }
 
-                        if (subContent != null) {
-                            if (subContent.size > 0) {
-                                ExpandButtonComponent(
-                                    isExpanded = isExpanded,
-                                ) {
-                                    isExpanded = !isExpanded
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                }
+                        if (taskGroupWithTasks.taskGroup.note != null) {
+                            ExpandButtonComponent(
+                                isExpanded = isExpanded,
+                            ) {
+                                isExpanded = !isExpanded
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                             }
+
                         } else {
                             Spacer(
                                 modifier = Modifier
@@ -244,7 +229,8 @@ fun MainTaskComponent(
                     }
 
                     if (isExpanded) {
-                        subContent?.let { SubContentComponent(content = it) }
+                        taskGroupWithTasks.taskGroup.note?.let { NoteComponent(note = it) }
+                        //subContent?.let { SubContentComponent(content = it) }
                     }
                 }
 
@@ -307,7 +293,7 @@ fun MainTaskComponent(
 
                     if (isExpanded) {
                         task.note?.let { NoteComponent(note = it) }
-                        subContent?.let { SubContentComponent(content = it) }
+                        //subContent?.let { SubContentComponent(content = it) }
                     }
                 }
             }
