@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -29,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -287,6 +289,7 @@ fun TaskEditorScreenV2(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskGroupEditor(
     taskGroup : TaskGroup,
@@ -334,6 +337,10 @@ fun TaskGroupEditor(
 
     Divider()
 
+    var test by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -352,12 +359,15 @@ fun TaskGroupEditor(
 
         IconButton(
             onClick = {
+                test = !test
+                /*
                 tasks.add(
                     TaskV2(
                         taskGroupId = -1L,
                         title = ""
                     )
                 )
+                 */
             },
         ) {
             Icon(
@@ -366,6 +376,20 @@ fun TaskGroupEditor(
                 tint = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
+    }
+
+    if (test) {
+        TaskEditorDialog(
+            task = TaskV2(
+                taskGroupId = taskGroup.taskGroupId,
+                title = ""
+            ),
+            taskGroup = taskGroup,
+            isNewTask = true,
+            onSave = { tasks.add(it) },
+            onDismissRequest = { test = !test }
+        )
+
     }
 
     tasks.forEach { task ->
@@ -377,6 +401,65 @@ fun TaskGroupEditor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TaskEditorDialog(
+    task : TaskV2,
+    taskGroup : TaskGroup,
+    isNewTask : Boolean,
+    onSave : (TaskV2) -> Unit,
+    onDismissRequest : () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
+    ) {
+
+
+        Column {
+            Text(
+                text = "New task",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 12.dp,
+                        top = 12.dp
+                    )
+            )
+
+            TaskEditor(
+                isGroup = true,
+                taskGroup = taskGroup,
+                task = task
+            )
+
+            Row {
+                TextButton(
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Save")
+                }
+
+                TextButton(
+                    onClick = onDismissRequest,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Cancel")
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun TaskEditor(
@@ -391,7 +474,9 @@ fun TaskEditor(
     var endDate by rememberSaveable { mutableStateOf(task.endDate) }
     var endTime by rememberSaveable { mutableStateOf(task.endTime) }
 
-    Column {
+    Column(
+        modifier = Modifier.wrapContentHeight()
+    ) {
         TextFieldComponent(
             labelText = "Title*",
             value = title,
@@ -443,14 +528,18 @@ fun TaskEditor(
 
         TimeRangePicker(
             startTime = startTime,
-            endTime = startTime,
+            endTime = endTime,
             onStartTimeValueChange = {
                 startTime = it
                 task.startTime = startTime
             },
             onEndTimeValueChange = {
-                endTime = it
-                task.endTime = endTime
+                if ((startTime?.isBefore(it) == true)) {
+
+                } else {
+                    endTime = it
+                    task.endTime = endTime
+                }
             }
         )
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
@@ -107,55 +108,89 @@ fun DateRangePicker(
             )
 
             if (startDate != null) {
-                IconButton(onClick = {
-                    onStartDateValueChange(null)
-                    onEndDateValueChange(null)
-                }) {
+                IconButton(
+                    onClick = {
+                        onStartDateValueChange(null)
+                        onEndDateValueChange(null)
+                    },
+                    modifier = Modifier.size(50.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Clear,
                         contentDescription = "Clear date selection"
                     )
                 }
-            }
-        }
-
-        if (showStartDateSelection) {
-            AlertDialog(
-                onDismissRequest = { showStartDateSelection = !showStartDateSelection },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .wrapContentSize()
-            ) {
-                MonthAndYearComponent(
-                    startDate = startDate,
-                    endDate = endDate,
-                    startDateOrEndDate = true,
-                    onSave = {
-                        showStartDateSelection = !showStartDateSelection
-                        onStartDateValueChange(it)
-                    },
-                    onCancel = { showStartDateSelection = !showStartDateSelection }
-                )
+            } else {
+                Spacer(modifier = Modifier.size(50.dp))
             }
         }
     }
 
+    if (showStartDateSelection) {
+        DateSelectionDialog(
+            title = "Select start date",
+            startDate = startDate,
+            endDate = endDate,
+            startDateOrEndDate = true,
+            onDismissRequest = { showStartDateSelection = !showStartDateSelection },
+            onSave = {
+                showStartDateSelection = !showStartDateSelection
+                onStartDateValueChange(it)
+            },
+            onCancel = { showStartDateSelection = !showStartDateSelection }
+        )
+    }
+
     if (showEndDateSelection) {
-        AlertDialog(
+        DateSelectionDialog(
+            title = "Select end date",
+            startDate = startDate,
+            endDate = endDate,
+            startDateOrEndDate = false,
             onDismissRequest = { showEndDateSelection = !showEndDateSelection },
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .wrapContentSize()
-        ) {
+            onSave = {
+                showEndDateSelection = !showEndDateSelection
+                onEndDateValueChange(it)
+            },
+            onCancel = { showEndDateSelection = !showEndDateSelection }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DateSelectionDialog(
+    title : String,
+    startDate : LocalDate?,
+    endDate : LocalDate?,
+    startDateOrEndDate : Boolean,
+    onDismissRequest : () -> Unit,
+    onSave : (LocalDate) -> Unit,
+    onCancel : () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .wrapContentSize()
+    ) {
+        Column {
+            Text(
+                text = title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 12.dp,
+                        top = 12.dp
+                    )
+            )
+
             MonthAndYearComponent(
                 startDate = startDate,
                 endDate = endDate,
-                startDateOrEndDate = false,
-                onSave = {
-                    showEndDateSelection = !showEndDateSelection
-                    onEndDateValueChange(it)
-                },
-                onCancel = { showEndDateSelection = !showEndDateSelection }
+                startDateOrEndDate = startDateOrEndDate,
+                onSave = onSave,
+                onCancel = onCancel
             )
         }
     }
@@ -330,6 +365,7 @@ fun MonthGridComponent(
                         text = it.name
                             .first()
                             .toString(),
+                        textAlign = TextAlign.Center,
                         modifier = Modifier.size(40.dp)
                     )
                 }

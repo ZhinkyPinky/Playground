@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -26,8 +29,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.je.playground.ui.theme.regularText
 import java.time.LocalTime
 
@@ -94,62 +99,80 @@ fun TimeRangePicker(
             )
 
             if (startTime != null) {
-                IconButton(onClick = {
-                    onStartTimeValueChange(null)
-                    onEndTimeValueChange(null)
-                }) {
+                IconButton(
+                    onClick = {
+                        onStartTimeValueChange(null)
+                        onEndTimeValueChange(null)
+                    },
+                    modifier = Modifier.size(50.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Filled.Clear,
                         contentDescription = "Clear date selection"
                     )
                 }
+            } else {
+                Spacer(modifier = Modifier.size(50.dp))
             }
         }
 
         if (showStartTimeSelection) {
-            AlertDialog(
-                onDismissRequest = { showStartTimeSelection = !showStartTimeSelection },
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .wrapContentSize()
-            ) {
-                TimeSelectionComponent(
-                    startTime = startTime,
-                    endTime = endTime,
-                    startTimeOrEndTime = true,
-                    onSave = {
-                        showStartTimeSelection = !showStartTimeSelection
-                        onStartTimeValueChange(it)
-                    },
-                    onCancel = { showStartTimeSelection = !showStartTimeSelection }
-                )
-            }
+            TimeSelectionDialog(
+                title = "Select start time",
+                startTime = startTime,
+                endTime = endTime,
+                onSave = {
+                    showStartTimeSelection = !showStartTimeSelection
+                    onStartTimeValueChange(it)
+                },
+                onCancel = { showStartTimeSelection = !showStartTimeSelection }
+            )
         }
     }
 
     if (showEndTimeSelection) {
-        AlertDialog(
-            onDismissRequest = { showEndTimeSelection = !showEndTimeSelection },
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .wrapContentSize()
-        ) {
-            TimeSelectionComponent(
-                startTime = startTime,
-                endTime = endTime,
-                startTimeOrEndTime = false,
-                onSave = {
-                    showEndTimeSelection = !showEndTimeSelection
-                    onEndTimeValueChange(it)
-                },
-                onCancel = { showEndTimeSelection = !showEndTimeSelection }
-            )
-        }
+        TimeSelectionDialog(
+            title = "Select end time",
+            startTime = startTime,
+            endTime = endTime,
+            onSave = {
+                showEndTimeSelection = !showEndTimeSelection
+                onEndTimeValueChange(it)
+            },
+            onCancel = { showEndTimeSelection = !showEndTimeSelection }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimeSelectionDialog(
+    title : String,
+    startTime : LocalTime?,
+    endTime : LocalTime?,
+    onSave : (LocalTime) -> Unit,
+    onCancel : () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .wrapContentSize()
+    ) {
+        TimeSelectionComponent(
+            title = title,
+            startTime = startTime,
+            endTime = endTime,
+            startTimeOrEndTime = false,
+            onSave = onSave,
+            onCancel = onCancel
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun TimeSelectionComponent(
+    title : String,
     startTime : LocalTime?,
     endTime : LocalTime?,
     startTimeOrEndTime : Boolean,
@@ -159,30 +182,35 @@ fun TimeRangePicker(
     val state = rememberTimePickerState(
         initialHour = if (startTimeOrEndTime && startTime != null) {
             startTime.hour
-        } else if (endTime != null) {
-            endTime.hour
-        } else {
-            0
-        },
+        } else endTime?.hour ?: 0,
 
         initialMinute = if (startTimeOrEndTime && startTime != null) {
             startTime.minute
-        } else if (endTime != null) {
-            endTime.minute
-        } else {
-            0
-        },
+        } else endTime?.minute ?: 0,
     )
 
-    Column {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 12.dp,
+                    top = 12.dp
+                )
+        )
+
         TimePicker(
             state = state,
             colors = TimePickerDefaults.colors(
-                clockDialColor = MaterialTheme.colorScheme.secondary,
+                clockDialColor = MaterialTheme.colorScheme.secondaryContainer,
                 clockDialSelectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
 
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
+                selectorColor = MaterialTheme.colorScheme.primaryContainer,
 
                 periodSelectorBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -200,11 +228,12 @@ fun TimeRangePicker(
         Row {
             TextButton(
                 onClick = {
-                    if (startTimeOrEndTime) {
-                        startTime?.let { onSave(it) }
-                    } else {
-                        endTime?.let { onSave(it) }
-                    }
+                    onSave(
+                        LocalTime.of(
+                            state.hour,
+                            state.minute
+                        )
+                    )
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
