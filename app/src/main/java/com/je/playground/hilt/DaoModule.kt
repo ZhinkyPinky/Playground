@@ -1,10 +1,10 @@
 package com.je.playground.hilt
 
-import com.je.playground.databaseV2.AppDatabaseV2
-import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramV2Dao
-import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramWithExercisesV2Dao
-import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseV2Dao
-import com.je.playground.databaseV2.tasks.dao.*
+import com.je.playground.database.AppDatabase
+import com.je.playground.database.exerciseprogram.dao.ExerciseDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithExercisesDao
+import com.je.playground.database.tasks.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,85 +16,37 @@ import javax.inject.Singleton
 class DaoModule {
     @Provides
     @Singleton
-    fun provideExerciseDao(appDatabaseV2 : AppDatabaseV2) : ExerciseDao {
-        return appDatabaseV2.getExerciseDao()
+    fun provideTaskDao(appDatabase : AppDatabase) : TaskDao {
+        return appDatabase.getTaskDao()
     }
 
     @Provides
     @Singleton
-    fun bindExerciseOccasionDao(appDatabaseV2 : AppDatabaseV2) : ExerciseOccasionDao {
-        return appDatabaseV2.getExerciseOccasionDao()
+    fun provideTaskGroupDao(appDatabase : AppDatabase) : TaskGroupDao {
+        return appDatabase.getTaskGroupDao()
     }
 
     @Provides
     @Singleton
-    fun bindExerciseProgramDao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramDao {
-        return appDatabaseV2.getExerciseProgramDao()
+    fun provideExerciseDao(appDatabase : AppDatabase) : ExerciseDao {
+        return appDatabase.getExerciseDao()
     }
 
     @Provides
     @Singleton
-    fun bindExerciseProgramWithExercisesDao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramWithExercisesDao {
-        return appDatabaseV2.getExerciseProgramWithExercisesDao()
+    fun bindExerciseProgramDao(appDatabase : AppDatabase) : ExerciseProgramDao {
+        return appDatabase.getExerciseProgramDao()
     }
 
     @Provides
     @Singleton
-    fun bindSimpleTaskDao(appDatabaseV2 : AppDatabaseV2) : SimpleTaskDao {
-        return appDatabaseV2.getSimpleTaskDao()
+    fun bindExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithExercisesDao {
+        return appDatabase.getExerciseProgramWithExercisesDao()
     }
 
     @Provides
     @Singleton
-    fun bindTaskDao(appDatabaseV2 : AppDatabaseV2) : TaskDao {
-        return appDatabaseV2.getTaskDao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindTaskOccasionDao(appDatabaseV2 : AppDatabaseV2) : TaskOccasionDao {
-        return appDatabaseV2.getTaskOccasionDao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindTaskWithOccasionsDao(appDatabaseV2 : AppDatabaseV2) : TaskWithOccasionsDao {
-        return appDatabaseV2.getTaskWithOccasionDao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindWeekdayScheduleDao(appDatabaseV2 : AppDatabaseV2) : WeekdayScheduleDao {
-        return appDatabaseV2.getWeekdayScheduleDao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindExerciseProgramWithExercisesV2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramWithExercisesV2Dao {
-        return appDatabaseV2.getExerciseProgramWithExercisesV2Dao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindTaskGroupDao(appDatabaseV2 : AppDatabaseV2) : TaskGroupDao {
-        return appDatabaseV2.getTaskGroupDao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindTaskV2Dao(appDatabaseV2 : AppDatabaseV2) : TaskV2Dao {
-        return appDatabaseV2.getTaskV2Dao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindExerciseProgramV2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseProgramV2Dao {
-        return appDatabaseV2.getExerciseProgramV2Dao()
-    }
-
-    @Provides
-    @Singleton
-    fun bindExercise2Dao(appDatabaseV2 : AppDatabaseV2) : ExerciseV2Dao {
-        return appDatabaseV2.getExerciseV2Dao()
+    fun bindWeekdayScheduleDao(appDatabase : AppDatabase) : WeekdayScheduleDao {
+        return appDatabase.getWeekdayScheduleDao()
     }
 }

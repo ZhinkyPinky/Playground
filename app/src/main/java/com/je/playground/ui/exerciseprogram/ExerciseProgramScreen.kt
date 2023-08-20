@@ -24,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseProgramV2
-import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseProgramWithExercisesV2
-import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseV2
+import com.je.playground.database.exerciseprogram.entity.Exercise
+import com.je.playground.database.exerciseprogram.entity.ExerciseProgram
+import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithExercises
 import com.je.playground.ui.exerciseprogram.exercise.ExercisesV2Component
 import com.je.playground.ui.schedule.ScheduleComponent
 import kotlinx.coroutines.launch
@@ -41,14 +41,14 @@ fun ExerciseProgramScreen(
     val exerciseProgramUiState by exerciseProgramViewModel.exerciseProgramUiState.collectAsState()
 
     ExerciseProgramScreen(
-        exerciseProgramWithExercisesV2 = ExerciseProgramWithExercisesV2(
-            exerciseProgramV2 = ExerciseProgramV2(
+        exerciseProgramWithExercises = ExerciseProgramWithExercises(
+            exerciseProgram = ExerciseProgram(
                 id = 1L,
                 name = "Test",
                 isActive = true
             ),
             listOf(
-                ExerciseV2(
+                Exercise(
                     id = 1L,
                     exerciseProgramId = 1L,
                     name = "Row",
@@ -56,7 +56,7 @@ fun ExerciseProgramScreen(
                     reps = 3,
                     restTime = Duration.ofSeconds(90)
                 ),
-                ExerciseV2(
+                Exercise(
                     id = 2L,
                     exerciseProgramId = 1L,
                     name = "Pull ups",
@@ -64,7 +64,7 @@ fun ExerciseProgramScreen(
                     reps = 3,
                     restTime = Duration.ofSeconds(90)
                 ),
-                ExerciseV2(
+                Exercise(
                     id = 3L,
                     exerciseProgramId = 1L,
                     name = "Push ups",
@@ -82,7 +82,7 @@ fun ExerciseProgramScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExerciseProgramScreen(
-    exerciseProgramWithExercisesV2 : ExerciseProgramWithExercisesV2,
+    exerciseProgramWithExercises : ExerciseProgramWithExercises,
     drawerState : DrawerState,
     navigateToExerciseProgramEditScreen : () -> Unit
 ) {
@@ -93,7 +93,7 @@ fun ExerciseProgramScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = exerciseProgramWithExercisesV2.exerciseProgramV2.name,
+                        text = exerciseProgramWithExercises.exerciseProgram.name,
                         color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 22.sp,
                         maxLines = 1,
@@ -156,14 +156,13 @@ fun ExerciseProgramScreen(
                 .padding(top = 1.dp)
         ) {
             ScheduleComponent(
-                taskWithOccasions = null,
+                //taskWithOccasions = null,
                 insertWeekdayScheduleEntry = { },
                 deleteWeekdayScheduleEntry = { }
             )
 
             ExercisesV2Component(
-                exercises = exerciseProgramWithExercisesV2.exerciseV2,
-                updateExerciseOccasion = {}
+                exercises = exerciseProgramWithExercises.exercises,
             )
         }
     }

@@ -1,11 +1,11 @@
 package com.je.playground.hilt
 
-import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramV2Dao
-import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseProgramWithExercisesV2Dao
-import com.je.playground.databaseV2.exerciseprogram.dao.ExerciseV2Dao
-import com.je.playground.databaseV2.exerciseprogram.repository.ExerciseProgramRepository
-import com.je.playground.databaseV2.tasks.dao.*
-import com.je.playground.databaseV2.tasks.repository.TasksRepositoryV2
+import com.je.playground.database.exerciseprogram.dao.ExerciseDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithExercisesDao
+import com.je.playground.database.exerciseprogram.repository.ExerciseProgramRepository
+import com.je.playground.database.tasks.dao.*
+import com.je.playground.database.tasks.repository.TasksRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,44 +18,26 @@ class RepositoryModule {
     @Provides
     @ViewModelScoped
     fun providesTasksRepository(
-        exerciseDao : ExerciseDao,
-        exerciseOccasionDao : ExerciseOccasionDao,
-        exerciseProgramDao : ExerciseProgramDao,
-        exerciseProgramWithExercisesDao : ExerciseProgramWithExercisesDao,
-        simpleTaskDao : SimpleTaskDao,
         taskDao : TaskDao,
-        taskOccasionDao : TaskOccasionDao,
-        taskWithOccasionsDao : TaskWithOccasionsDao,
-        weekdayScheduleDao : WeekdayScheduleDao,
         taskGroupDao : TaskGroupDao,
-        taskV2Dao : TaskV2Dao
-    ) : TasksRepositoryV2 {
-        return TasksRepositoryV2(
-            exerciseDao,
-            exerciseOccasionDao,
-            exerciseProgramDao,
-            exerciseProgramWithExercisesDao,
-            simpleTaskDao,
-            taskDao,
-            taskOccasionDao,
-            taskWithOccasionsDao,
-            weekdayScheduleDao,
-            taskGroupDao,
-            taskV2Dao
-            )
+    ) : TasksRepository {
+        return TasksRepository(
+            taskGroupDao = taskGroupDao,
+            taskDao = taskDao
+        )
     }
 
     @Provides
     @ViewModelScoped
     fun providesExerciseProgramRepository(
-        exerciseProgramWithExercisesV2Dao : ExerciseProgramWithExercisesV2Dao,
-        exerciseProgramV2Dao : ExerciseProgramV2Dao,
-        exerciseV2Dao : ExerciseV2Dao,
+        exerciseDao : ExerciseDao,
+        exerciseProgramDao : ExerciseProgramDao,
+        exerciseProgramWithExercisesDao : ExerciseProgramWithExercisesDao,
     ) : ExerciseProgramRepository {
         return ExerciseProgramRepository(
-            exerciseProgramWithExercisesV2Dao,
-            exerciseProgramV2Dao,
-            exerciseV2Dao
+            exerciseDao = exerciseDao,
+            exerciseProgramDao = exerciseProgramDao,
+            exerciseProgramWithExercisesDao = exerciseProgramWithExercisesDao
         )
     }
 }

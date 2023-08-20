@@ -24,9 +24,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseV2
+import com.je.playground.database.exerciseprogram.entity.Exercise
 
-@Composable fun ExerciseComponentV2(exercise : ExerciseV2) {
+@Composable fun ExerciseComponentV2(exercise : Exercise) {
     Column(
         verticalArrangement = Arrangement.spacedBy(1.dp),
         modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer)
@@ -38,7 +38,7 @@ import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseV2
 }
 
 @Composable
-fun SetsComponent(exercise : ExerciseV2) {
+fun SetsComponent(exercise : Exercise) {
     Text(
         text = "Sets:  ${exercise.sets}",
         color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -51,7 +51,7 @@ fun SetsComponent(exercise : ExerciseV2) {
 }
 
 @Composable
-fun RepsComponent(exercise : ExerciseV2) {
+fun RepsComponent(exercise : Exercise) {
     Text(
         text = "Reps: ${exercise.reps}",
         color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -64,7 +64,7 @@ fun RepsComponent(exercise : ExerciseV2) {
 }
 
 @Composable
-fun RestComponent(exercise : ExerciseV2) {
+fun RestComponent(exercise : Exercise) {
     Row {
         var isTimerOn by remember { mutableStateOf(false) }
         var restTime by remember {

@@ -1,7 +1,7 @@
 package com.je.playground.hilt
 
 import android.content.Context
-import com.je.playground.databaseV2.AppDatabaseV2
+import com.je.playground.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class DatabaseModule {
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context : Context) : AppDatabaseV2 {
-        return AppDatabaseV2.getDatabase(context)
+    fun provideDatabase(@ApplicationContext context : Context) : AppDatabase {
+        return AppDatabase.getDatabase(context)
     }
 }

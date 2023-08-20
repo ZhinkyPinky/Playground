@@ -19,14 +19,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
-import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
+import com.je.playground.database.tasks.entity.WeekdaySchedule
 import com.je.playground.ui.sharedcomponents.ExpandButtonComponent
 import com.je.playground.ui.theme.title
 
 @Composable
 fun ScheduleComponent(
-    taskWithOccasions : TaskWithOccasions?,
+    //taskWithOccasions : TaskWithOccasions?,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
     deleteWeekdayScheduleEntry : (WeekdaySchedule) -> Unit
 ) {
@@ -72,13 +71,15 @@ fun ScheduleComponent(
         }
 
         WeekComponent(
-            taskWithOccasions = taskWithOccasions,
+            //taskWithOccasions = taskWithOccasions,
             insertWeekdayScheduleEntry = insertWeekdayScheduleEntry,
             deleteWeekdayScheduleEntry = deleteWeekdayScheduleEntry
         )
 
         if (isExpanded) {
-            MonthAndYearComponent(taskWithOccasions?.taskOccasions)
+            MonthAndYearComponent(
+                //taskWithOccasions?.taskOccasions
+            )
         }
     }
 }

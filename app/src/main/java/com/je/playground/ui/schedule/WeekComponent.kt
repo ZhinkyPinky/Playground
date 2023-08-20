@@ -16,14 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.tasks.entity.TaskWithOccasions
-import com.je.playground.databaseV2.tasks.entity.WeekdaySchedule
+import com.je.playground.database.tasks.entity.WeekdaySchedule
 import com.je.playground.ui.theme.subcontent
 import java.time.DayOfWeek
 
 @Composable
 fun WeekComponent(
-    taskWithOccasions : TaskWithOccasions?,
+    //taskWithOccasions : TaskWithOccasions?,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
     deleteWeekdayScheduleEntry : (WeekdaySchedule) -> Unit
 ) {
@@ -44,10 +43,10 @@ fun WeekComponent(
             .toList()
             .forEach { dayOfWeek ->
                 var weekdayScheduleEntry : WeekdaySchedule? = null
-                taskWithOccasions?.weekdaySchedule?.forEach { if (it.weekday == dayOfWeek) weekdayScheduleEntry = it }
+                //taskWithOccasions?.weekdaySchedule?.forEach { if (it.weekday == dayOfWeek) weekdayScheduleEntry = it }
 
                 WeekdayComponent(
-                    taskWithOccasions,
+                    //taskWithOccasions,
                     dayOfWeek,
                     weekdayScheduleEntry,
                     insertWeekdayScheduleEntry,
@@ -59,7 +58,7 @@ fun WeekComponent(
 
 @Composable
 fun WeekdayComponent(
-    taskWithOccasions : TaskWithOccasions?,
+    //taskWithOccasions : TaskWithOccasions?,
     dayOfWeek : DayOfWeek,
     weekdayScheduleEntry : WeekdaySchedule?,
     insertWeekdayScheduleEntry : (WeekdaySchedule) -> Unit,
@@ -70,6 +69,7 @@ fun WeekdayComponent(
     TextButton(
         shape = CircleShape,
         onClick = {
+            /*
             if (taskWithOccasions != null) {
                 if (weekdayScheduleEntry == null) insertWeekdayScheduleEntry(
                     WeekdaySchedule(
@@ -79,6 +79,7 @@ fun WeekdayComponent(
                 )
                 else deleteWeekdayScheduleEntry(weekdayScheduleEntry)
             }
+             */
 
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
         },

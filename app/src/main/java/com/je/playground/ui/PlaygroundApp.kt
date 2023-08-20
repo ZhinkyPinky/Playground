@@ -10,8 +10,8 @@ import com.je.playground.PlaygroundApplication
 import com.je.playground.ui.exerciseprogram.ExerciseProgramScreen
 import com.je.playground.ui.home.HomeScreen
 import com.je.playground.ui.navigationdrawer.NavigationDrawerContent
-import com.je.playground.ui.taskeditor.v2.TaskEditorScreenV2
-import com.je.playground.ui.tasklist.TasksScreen
+import com.je.playground.ui.taskview.taskeditor.TaskEditorScreenV2
+import com.je.playground.ui.taskview.tasklist.TasksScreen
 
 
 @Composable
@@ -34,7 +34,7 @@ fun PlaygroundApp(
             startDestination = Route.Main.name
         ) {
             navigation(
-                startDestination = MainScreen.Home.name,
+                startDestination = MainScreen.TaskList.route,
                 route = Route.Main.name
             ) {
                 composable(MainScreen.Home.route) { navBackStackEntry ->

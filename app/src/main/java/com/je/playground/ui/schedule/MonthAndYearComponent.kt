@@ -22,12 +22,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import com.je.playground.R
-import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import java.time.LocalDate
 
 @Composable
 fun MonthAndYearComponent(
-    taskOccasions : List<TaskOccasion>?
+   // taskOccasions : List<Unit>?
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -84,7 +83,7 @@ fun MonthAndYearComponent(
         MonthGridComponent(
             year,
             month,
-            taskOccasions
+            //taskOccasions
         )
     }
 }

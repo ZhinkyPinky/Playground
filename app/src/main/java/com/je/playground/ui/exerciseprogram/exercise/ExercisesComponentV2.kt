@@ -21,16 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseV2
-import com.je.playground.databaseV2.tasks.entity.ExerciseOccasion
+import com.je.playground.database.exerciseprogram.entity.Exercise
 import com.je.playground.ui.sharedcomponents.CheckboxComponent
 import com.je.playground.ui.sharedcomponents.ExpandButtonComponent
 import com.je.playground.ui.theme.subcontent
 
 @Composable
 fun ExercisesV2Component(
-    exercises : List<ExerciseV2>,
-    updateExerciseOccasion : (ExerciseOccasion) -> Unit
+    exercises : List<Exercise>,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 

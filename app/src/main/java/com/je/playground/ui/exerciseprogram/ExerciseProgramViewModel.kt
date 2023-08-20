@@ -3,8 +3,8 @@ package com.je.playground.ui.exerciseprogram
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.je.playground.databaseV2.exerciseprogram.entity.ExerciseProgramWithExercisesV2
-import com.je.playground.databaseV2.exerciseprogram.repository.ExerciseProgramRepository
+import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithExercises
+import com.je.playground.database.exerciseprogram.repository.ExerciseProgramRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class ExerciseProgramUiState(
-    val exerciseProgramWithExercisesV2 : ExerciseProgramWithExercisesV2? = null
+    val exerciseProgramWithExercises : ExerciseProgramWithExercises? = null
 )
 
 @HiltViewModel
@@ -33,7 +33,7 @@ class ExerciseProgramViewModel @Inject constructor(
                 exerciseProgramRepository.getExerciseWithExercises(),
             ) { exerciseProgramWithExercisesV2 ->
                 ExerciseProgramUiState(
-                    exerciseProgramWithExercisesV2 = exerciseProgramWithExercisesV2[0][0]
+                    exerciseProgramWithExercises = exerciseProgramWithExercisesV2[0][0]
                 )
             }
                 .catch { throwable ->

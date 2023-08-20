@@ -17,14 +17,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.je.playground.databaseV2.tasks.entity.TaskOccasion
 import java.time.LocalDate
 import java.time.Month
 
 @Composable fun MonthGridComponent(
     year : Int,
     month : Month,
-    taskOccasions : List<TaskOccasion>?
+    //taskOccasions : List<Unit>?
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -69,7 +68,7 @@ import java.time.Month
                                 day = dayCounter,
                                 month = month,
                                 year = year,
-                                taskOccasions = taskOccasions
+                                //taskOccasions = taskOccasions
                             )
 
                             /*
@@ -107,7 +106,7 @@ fun dateColorSelection(
     day : Int,
     month : Month,
     year : Int,
-    taskOccasions : List<TaskOccasion>?
+    //taskOccasions : List<TaskOccasion>?
 ) : Color {
     if (day <= 0 || day > month.length(LocalDate.now().isLeapYear)) return Color.Transparent
 
@@ -120,6 +119,7 @@ fun dateColorSelection(
         day
     )
 
+    /*
     taskOccasions?.forEach { taskOccasion ->
         if (taskOccasion.dateFrom != null) {
             if (taskOccasion.dateFrom == date) {
@@ -130,6 +130,7 @@ fun dateColorSelection(
             }
         }
     }
+     */
 
     return if ((date.dayOfMonth >= LocalDate.now().dayOfMonth && month.ordinal == currentMonth.ordinal || month.ordinal > currentMonth.ordinal) || year > currentYear) {
         MaterialTheme.colorScheme.onPrimaryContainer
@@ -138,12 +139,14 @@ fun dateColorSelection(
 
 fun containsDate(
     date : LocalDate,
-    taskOccasions : List<TaskOccasion>
+    //taskOccasions : List<TaskOccasion>
 ) : Boolean {
+    /*
     taskOccasions.forEach { taskOccasion ->
         print("$date : ${taskOccasion.dateFrom}")
         if (taskOccasion.dateFrom == date) return true
     }
+     */
 
     return false
 }

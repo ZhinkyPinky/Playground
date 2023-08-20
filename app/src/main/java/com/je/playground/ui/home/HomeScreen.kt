@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.je.playground.ui.tasklist.components.TaskGroup
 
 @Composable
 fun HomeScreen(
@@ -81,20 +80,6 @@ fun HomeScreen(navigateToTaskScreen : () -> Unit) {
             LazyColumn(
                 modifier = Modifier.padding(paddingValues)
             ) {
-                val testGroup = listOf(
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7
-                )
-
-                items(count = 1) {
-                    TaskGroup(testGroup)
-                }
-
             }
         }
     )
