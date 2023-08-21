@@ -30,19 +30,13 @@ import java.time.LocalTime
 @Composable
 fun TaskGroupEditorDialog(
     taskGroupTitle : String,
-    updateTaskGroupTitle : (String) -> Unit,
     taskGroupNote : String,
-    updateTaskGroupNote : (String) -> Unit,
     taskGroupPriority : Int,
-    updateTaskGroupPriority : (Int) -> Unit,
     taskGroupStartDate : LocalDate?,
-    updateTaskGroupStartDate : (LocalDate) -> Unit,
     taskGroupStartTime : LocalTime?,
-    updateTaskGroupStartTime : (LocalTime) -> Unit,
     taskGroupEndDate : LocalDate?,
-    updateTaskGroupEndDate : (LocalDate) -> Unit,
     taskGroupEndTime : LocalTime?,
-    updateTaskGroupEndTime : (LocalTime) -> Unit,
+    updateTaskGroup : (String, String, Int, LocalDate?, LocalTime?, LocalDate?, LocalTime?) -> Unit,
     onDismissRequest : () -> Unit,
 ) {
     var title by rememberSaveable { mutableStateOf(taskGroupTitle) }
@@ -140,13 +134,15 @@ fun TaskGroupEditorDialog(
 
                     TextButton(
                         onClick = {
-                            updateTaskGroupTitle(title)
-                            updateTaskGroupNote(note)
-                            updateTaskGroupPriority(priority)
-                            startDate?.let { updateTaskGroupStartDate(it) }
-                            startTime?.let { updateTaskGroupStartTime(it) }
-                            endDate?.let { updateTaskGroupEndDate(it) }
-                            endTime?.let { updateTaskGroupEndTime(it) }
+                            updateTaskGroup(
+                                title,
+                                note,
+                                priority,
+                                startDate,
+                                startTime,
+                                endDate,
+                                endTime
+                            )
                             onDismissRequest()
                         },
                         colors = ButtonDefaults.buttonColors(

@@ -73,7 +73,15 @@ fun TaskEditorScreen(
     tasksViewModel : TasksViewModel,
     taskGroupWithTasks : TaskGroupWithTasks = TaskGroupWithTasks(
         TaskGroup(
-            priority = 2
+            priority = 2,
+            startDate = LocalDate
+                .now()
+                .plusDays(12),
+            startTime = LocalTime.MIDNIGHT,
+            note = "The quick brown fox jumped over the lazy dog." +
+                    "The quick brown fox jumped over the lazy dog." +
+                    "The quick brown fox jumped over the lazy dog." +
+                    "The quick brown fox jumped over the lazy dog.",
         ),
         mutableListOf(
             Task(
@@ -101,7 +109,7 @@ fun TaskEditorScreen(
     var taskGroupStartDate by rememberSaveable { mutableStateOf(taskGroup.startDate) }
     var taskGroupStartTime by rememberSaveable { mutableStateOf(taskGroup.startTime) }
     var taskGroupEndDate by rememberSaveable { mutableStateOf(taskGroup.endDate) }
-    val taskGroupEndTime by rememberSaveable { mutableStateOf(taskGroup.endTime) }
+    var taskGroupEndTime by rememberSaveable { mutableStateOf(taskGroup.endTime) }
 
     val tasks = rememberSaveable(
         saver = listSaver(
@@ -136,19 +144,22 @@ fun TaskEditorScreen(
         deleteTaskGroupWithTasks = tasksViewModel::deleteTaskGroupWithTasks,
         taskGroup = taskGroup,
         taskGroupTitle = taskGroupTitle,
-        updateTaskGroupTitle = { taskGroupTitle = it },
         taskGroupNote = taskGroupNote,
-        updateTaskGroupNote = { taskGroupNote = it },
         taskGroupPriority = taskGroupPriority,
         updateTaskGroupPriority = { taskGroupPriority = it },
         taskGroupStartDate = taskGroupStartDate,
-        updateTaskGroupStartDate = { taskGroupStartDate = it },
         taskGroupStartTime = taskGroupStartTime,
-        updateTaskGroupStartTime = { taskGroupStartTime = it },
         taskGroupEndDate = taskGroupEndDate,
-        updateTaskGroupEndDate = { taskGroupEndDate = it },
         taskGroupEndTime = taskGroupEndTime,
-        updateTaskGroupEndTime = { taskGroupStartTime = it },
+        updateTaskGroup = { title, note, priority, startDate, startTime, endDate, endTime ->
+            taskGroupTitle = title
+            taskGroupNote = note
+            taskGroupPriority = priority
+            taskGroupStartDate = startDate
+            taskGroupStartTime = startTime
+            taskGroupEndDate = endDate
+            taskGroupEndTime = endTime
+        },
         tasks = tasks,
         showTaskGroupEditorDialog = showTaskGroupEditorDialog,
         toggleTaskGroupEditorDialog = { showTaskGroupEditorDialog = !showTaskGroupEditorDialog },
@@ -170,19 +181,14 @@ fun TaskEditorContent(
     deleteTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
     taskGroup : TaskGroup,
     taskGroupTitle : String,
-    updateTaskGroupTitle : (String) -> Unit,
     taskGroupNote : String,
-    updateTaskGroupNote : (String) -> Unit,
     taskGroupPriority : Int,
     updateTaskGroupPriority : (Int) -> Unit,
     taskGroupStartDate : LocalDate?,
-    updateTaskGroupStartDate : (LocalDate) -> Unit,
     taskGroupStartTime : LocalTime?,
-    updateTaskGroupStartTime : (LocalTime) -> Unit,
     taskGroupEndDate : LocalDate?,
-    updateTaskGroupEndDate : (LocalDate) -> Unit,
     taskGroupEndTime : LocalTime?,
-    updateTaskGroupEndTime : (LocalTime) -> Unit,
+    updateTaskGroup : (String, String, Int, LocalDate?, LocalTime?, LocalDate?, LocalTime?) -> Unit,
     tasks : SnapshotStateList<Task>,
     showTaskGroupEditorDialog : Boolean,
     toggleTaskGroupEditorDialog : () -> Unit,
@@ -195,19 +201,13 @@ fun TaskEditorContent(
     if (showTaskGroupEditorDialog) {
         TaskGroupEditorDialog(
             taskGroupTitle = taskGroupTitle,
-            updateTaskGroupTitle = updateTaskGroupTitle,
             taskGroupNote = taskGroupNote,
-            updateTaskGroupNote = updateTaskGroupNote,
             taskGroupPriority = taskGroupPriority,
-            updateTaskGroupPriority = updateTaskGroupPriority,
             taskGroupStartDate = taskGroupStartDate,
-            updateTaskGroupStartDate = updateTaskGroupStartDate,
             taskGroupStartTime = taskGroupStartTime,
-            updateTaskGroupStartTime = updateTaskGroupStartTime,
             taskGroupEndDate = taskGroupEndDate,
-            updateTaskGroupEndDate = updateTaskGroupEndDate,
             taskGroupEndTime = taskGroupEndTime,
-            updateTaskGroupEndTime = updateTaskGroupEndTime,
+            updateTaskGroup = updateTaskGroup,
             onDismissRequest = toggleTaskGroupEditorDialog
         )
     }
@@ -271,7 +271,7 @@ fun TaskEditorContent(
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = "Group",
-                        tint = if (isGroup) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primaryContainer,
+                        tint = if (isGroup) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.primaryContainer,
                     )
                     Text(text = "Group")
                 }
@@ -281,13 +281,13 @@ fun TaskEditorContent(
                 TaskGroupEditor(
                     taskGroup = taskGroup,
                     taskGroupTitle = taskGroupTitle,
-                    updateTaskGroupTitle = updateTaskGroupTitle,
                     taskGroupNote = taskGroupNote,
-                    updateTaskGroupNote = updateTaskGroupNote,
                     taskGroupPriority = taskGroupPriority,
-                    updateTaskGroupPriority = updateTaskGroupPriority,
+                    taskGroupStartDate = taskGroupStartDate,
+                    taskGroupStartTime = taskGroupStartTime,
+                    taskGroupEndDate = taskGroupEndDate,
+                    taskGroupEndTime = taskGroupEndTime,
                     tasks = tasks,
-                    showTaskGroupEditorDialog = showTaskGroupEditorDialog,
                     toggleTaskGroupEditorDialog = toggleTaskGroupEditorDialog,
                     showTaskEditorDialog = showTaskEditorDialog,
                     toggleTaskEditorDialog = toggleTaskEditorDialog
@@ -309,13 +309,13 @@ fun TaskEditorContent(
 fun TaskGroupEditor(
     taskGroup : TaskGroup,
     taskGroupTitle : String,
-    updateTaskGroupTitle : (String) -> Unit,
     taskGroupNote : String,
-    updateTaskGroupNote : (String) -> Unit,
     taskGroupPriority : Int,
-    updateTaskGroupPriority : (Int) -> Unit,
+    taskGroupStartDate : LocalDate?,
+    taskGroupStartTime : LocalTime?,
+    taskGroupEndDate : LocalDate?,
+    taskGroupEndTime : LocalTime?,
     tasks : SnapshotStateList<Task>,
-    showTaskGroupEditorDialog : Boolean,
     toggleTaskGroupEditorDialog : () -> Unit,
     showTaskEditorDialog : Boolean,
     toggleTaskEditorDialog : () -> Unit
@@ -335,12 +335,12 @@ fun TaskGroupEditor(
 
     TaskGroupComponent(
         taskGroupTitle = taskGroupTitle,
-        updateTaskGroupTitle = updateTaskGroupTitle,
         taskGroupNote = taskGroupNote,
-        updateTaskGroupNote = updateTaskGroupNote,
         taskGroupPriority = taskGroupPriority,
-        updateTaskGroupPriority = updateTaskGroupPriority,
-        showTaskGroupEditorDialog = showTaskGroupEditorDialog,
+        taskGroupStartDate = taskGroupStartDate,
+        taskGroupStartTime = taskGroupStartTime,
+        taskGroupEndDate = taskGroupEndDate,
+        taskGroupEndTime = taskGroupEndTime,
         toggleTaskGroupEditorDialog = toggleTaskGroupEditorDialog,
     )
 
@@ -353,21 +353,29 @@ fun TaskGroupEditor(
 @Composable
 fun TaskGroupComponent(
     taskGroupTitle : String,
-    updateTaskGroupTitle : (String) -> Unit,
     taskGroupNote : String,
-    updateTaskGroupNote : (String) -> Unit,
     taskGroupPriority : Int,
-    updateTaskGroupPriority : (Int) -> Unit,
-    showTaskGroupEditorDialog : Boolean,
+    taskGroupStartDate : LocalDate?,
+    taskGroupStartTime : LocalTime?,
+    taskGroupEndDate : LocalDate?,
+    taskGroupEndTime : LocalTime?,
     toggleTaskGroupEditorDialog : () -> Unit,
 ) {
+    var isExpanded by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(start = 12.dp)
     ) {
         Text(
             text = "Group",
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier
                 .weight(1f)
         )
@@ -377,7 +385,7 @@ fun TaskGroupComponent(
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
-                contentDescription = "Edit task group information",
+                contentDescription = "Edit task-group information",
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(16.dp)
             )
@@ -386,9 +394,10 @@ fun TaskGroupComponent(
 
     Row(
         modifier = Modifier
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable { isExpanded = !isExpanded }
     ) {
         Box(
             modifier = Modifier
@@ -408,26 +417,38 @@ fun TaskGroupComponent(
         Column(
             modifier = Modifier
                 .wrapContentHeight()
+                .padding(
+                    start = 12.dp,
+                    top = 6.dp,
+                    bottom = 6.dp
+                )
         ) {
             Text(
                 text = if (taskGroupTitle == "") "Title*" else taskGroupTitle,
                 style = title(if (taskGroupTitle == "") MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer),
-                textAlign = TextAlign.Start,
+                textAlign = TextAlign.Start
             )
 
-            PrioritySliderComponent(
-                priority = taskGroupPriority,
-                onPriorityChanged = updateTaskGroupPriority,
-                modifier = Modifier.padding(
-                    top = 6.dp,
-                    bottom = 6.dp
+            if (taskGroupStartDate != null || taskGroupStartTime != null || taskGroupEndDate != null || taskGroupEndTime != null) {
+                Text(
+                    text = dateTimeToString(
+                        startDate = taskGroupStartDate,
+                        startTime = taskGroupStartTime,
+                        endDate = taskGroupEndDate,
+                        endTime = taskGroupEndTime
+                    ),
+                    color = Color(0xFFCCCCCC),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Start
                 )
-            )
+            }
 
-            NoteEditComponent(
-                note = taskGroupNote,
-                onValueChange = updateTaskGroupNote
-            )
+            if (taskGroupNote != "") {
+                NoteComponent(
+                    note = taskGroupNote,
+                    isExpanded = isExpanded
+                )
+            }
         }
     }
 }
@@ -525,15 +546,16 @@ fun TasksComponent(
                 }
             }
 
-            taskNote?.let {
+            if (taskNote != "") {
                 NoteComponent(
-                    note = it,
+                    note = taskNote,
                     isExpanded = isExpanded,
                     modifier = Modifier.padding(
                         top = 6.dp,
                         bottom = 6.dp
                     )
                 )
+
             }
         }
     }
