@@ -171,6 +171,7 @@ fun TaskGroupComponent(
                     .fillMaxHeight()
                     .width(2.dp)
             )
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {

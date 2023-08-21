@@ -77,7 +77,8 @@ fun TaskGroupEditorDialog(
                 )
 
                 TextFieldComponent(
-                    placeHolderText = "Title*",
+                    label = "Title*",
+                    placeholder = "Enter a title for the group",
                     value = title,
                     isSingleLine = true,
                     onValueChange = { title = it }

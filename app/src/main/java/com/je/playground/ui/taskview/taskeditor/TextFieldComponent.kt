@@ -20,7 +20,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 
 @Composable fun TextFieldComponent(
-    placeHolderText : String,
+    label : String,
+    placeholder : String,
     value : String,
     isSingleLine : Boolean,
     onValueChange : (String) -> Unit,
@@ -34,7 +35,8 @@ import androidx.compose.ui.unit.dp
         onValueChange = {
             onValueChange(it)
         },
-        label = { Text(text = placeHolderText) },
+        label = { Text(text = label) },
+        placeholder =  { Text(text = placeholder) },
         keyboardActions = KeyboardActions(
             onDone = {
                 focusManager.clearFocus()

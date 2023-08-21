@@ -35,7 +35,7 @@ import com.je.playground.ui.theme.regularText
         ),
         colors = TextFieldDefaults.colors(
             focusedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
             cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
 
             selectionColors = TextSelectionColors(handleColor = MaterialTheme.colorScheme.onSecondaryContainer, backgroundColor = MaterialTheme.colorScheme.onSecondaryContainer),

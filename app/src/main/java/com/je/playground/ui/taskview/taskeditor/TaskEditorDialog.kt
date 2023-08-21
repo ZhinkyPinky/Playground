@@ -71,7 +71,8 @@ fun TaskEditorDialog(
                     modifier = Modifier.wrapContentHeight()
                 ) {
                     TextFieldComponent(
-                        placeHolderText = "Title*",
+                        label = "Title*",
+                        placeholder = "Enter a title for the task",
                         value = title,
                         isSingleLine = true,
                         onValueChange = {
@@ -83,9 +84,9 @@ fun TaskEditorDialog(
                     NoteEditComponent(
                         note = note,
                         onValueChange = {
-                        note = it
-                        task.note = note
-                    })
+                            note = it
+                            task.note = note
+                        })
 
                     DateRangePicker(
                         startDate = startDate,

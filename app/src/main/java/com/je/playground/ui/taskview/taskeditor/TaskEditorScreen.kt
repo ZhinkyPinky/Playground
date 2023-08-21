@@ -1,6 +1,5 @@
 package com.je.playground.ui.taskview.taskeditor
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,7 +50,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,7 +60,6 @@ import com.je.playground.ui.sharedcomponents.NoteComponent
 import com.je.playground.ui.taskview.dateTimeToString
 import com.je.playground.ui.taskview.taskeditor.datetimerangepicker.DateRangePicker
 import com.je.playground.ui.taskview.taskeditor.datetimerangepicker.TimeRangePicker
-import com.je.playground.ui.taskview.viewmodel.TasksUiState
 import com.je.playground.ui.taskview.viewmodel.TasksViewModel
 import com.je.playground.ui.theme.title
 import java.time.LocalDate
@@ -99,9 +96,6 @@ fun TaskEditorScreen(
     ),
     onBackPress : () -> Unit,
 ) {
-    val tasksUiState : TasksUiState
-    val context = LocalContext.current
-
     val taskGroup = taskGroupWithTasks.taskGroup.copy()
     var taskGroupTitle by rememberSaveable { mutableStateOf(taskGroup.title) }
     var taskGroupNote by rememberSaveable { mutableStateOf(taskGroup.note) }
@@ -137,8 +131,6 @@ fun TaskEditorScreen(
     var isGroup by rememberSaveable { mutableStateOf(tasks.size > 1) }
 
     TaskEditorContent(
-        context = context,
-        taskGroupWithTasks = taskGroupWithTasks,
         insertTaskGroupWithTasks = tasksViewModel::insertTaskGroupWithTasks,
         updateTaskGroupWithTasks = tasksViewModel::updateTaskGroupWithTasks,
         deleteTaskGroupWithTasks = tasksViewModel::deleteTaskGroupWithTasks,
@@ -171,11 +163,8 @@ fun TaskEditorScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskEditorContent(
-    context : Context,
-    taskGroupWithTasks : TaskGroupWithTasks,
     insertTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
     updateTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
     deleteTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
@@ -209,6 +198,19 @@ fun TaskEditorContent(
             taskGroupEndTime = taskGroupEndTime,
             updateTaskGroup = updateTaskGroup,
             onDismissRequest = toggleTaskGroupEditorDialog
+        )
+    }
+
+    if (showTaskEditorDialog) {
+        TaskEditorDialog(
+            task = Task(),
+            taskGroup = taskGroup,
+            isNewTask = true,
+            onSave = {
+                tasks.add(it)
+                toggleTaskEditorDialog()
+            },
+            onDismissRequest = toggleTaskEditorDialog
         )
     }
 
@@ -279,7 +281,6 @@ fun TaskEditorContent(
 
             if (isGroup) {
                 TaskGroupEditor(
-                    taskGroup = taskGroup,
                     taskGroupTitle = taskGroupTitle,
                     taskGroupNote = taskGroupNote,
                     taskGroupPriority = taskGroupPriority,
@@ -289,7 +290,6 @@ fun TaskEditorContent(
                     taskGroupEndTime = taskGroupEndTime,
                     tasks = tasks,
                     toggleTaskGroupEditorDialog = toggleTaskGroupEditorDialog,
-                    showTaskEditorDialog = showTaskEditorDialog,
                     toggleTaskEditorDialog = toggleTaskEditorDialog
                 )
             } else {
@@ -307,7 +307,6 @@ fun TaskEditorContent(
 
 @Composable
 fun TaskGroupEditor(
-    taskGroup : TaskGroup,
     taskGroupTitle : String,
     taskGroupNote : String,
     taskGroupPriority : Int,
@@ -317,22 +316,8 @@ fun TaskGroupEditor(
     taskGroupEndTime : LocalTime?,
     tasks : SnapshotStateList<Task>,
     toggleTaskGroupEditorDialog : () -> Unit,
-    showTaskEditorDialog : Boolean,
     toggleTaskEditorDialog : () -> Unit
 ) {
-    if (showTaskEditorDialog) {
-        TaskEditorDialog(
-            task = Task(),
-            taskGroup = taskGroup,
-            isNewTask = true,
-            onSave = {
-                tasks.add(it)
-                toggleTaskEditorDialog()
-            },
-            onDismissRequest = toggleTaskEditorDialog
-        )
-    }
-
     TaskGroupComponent(
         taskGroupTitle = taskGroupTitle,
         taskGroupNote = taskGroupNote,
@@ -396,8 +381,15 @@ fun TaskGroupComponent(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
             .fillMaxWidth()
-            .wrapContentHeight()
-            .clickable { isExpanded = !isExpanded }
+            .height(IntrinsicSize.Max)
+            .padding(
+                start = 6.dp,
+                top = 6.dp,
+                bottom = 6.dp
+            )
+            .clickable {
+                isExpanded = !isExpanded
+            }
     ) {
         Box(
             modifier = Modifier
@@ -418,7 +410,8 @@ fun TaskGroupComponent(
             modifier = Modifier
                 .wrapContentHeight()
                 .padding(
-                    start = 12.dp,
+                    start = 6.dp,
+                    end = 12.dp,
                     top = 6.dp,
                     bottom = 6.dp
                 )
@@ -581,7 +574,8 @@ fun TaskEditor(
             .wrapContentHeight()
     ) {
         TextFieldComponent(
-            placeHolderText = "Title*",
+            label = "Title*",
+            placeholder = "Enter a title for the group",
             value = title,
             isSingleLine = true,
             onValueChange = {
