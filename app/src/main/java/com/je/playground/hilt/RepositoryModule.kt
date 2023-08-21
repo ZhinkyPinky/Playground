@@ -18,12 +18,14 @@ class RepositoryModule {
     @Provides
     @ViewModelScoped
     fun providesTasksRepository(
-        taskDao : TaskDao,
+        taskGroupWithTasksDao : TaskGroupWithTasksDao,
         taskGroupDao : TaskGroupDao,
+        taskDao : TaskDao,
     ) : TasksRepository {
         return TasksRepository(
+            taskGroupWithTasksDao = taskGroupWithTasksDao,
             taskGroupDao = taskGroupDao,
-            taskDao = taskDao
+            taskDao = taskDao,
         )
     }
 

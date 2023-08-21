@@ -22,22 +22,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.je.playground.database.tasks.entity.TaskGroup
-import com.je.playground.ui.taskview.viewmodel.Priority
+import com.je.playground.ui.taskview.taskeditor.datetimerangepicker.DateRangePicker
+import com.je.playground.ui.taskview.taskeditor.datetimerangepicker.TimeRangePicker
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
 fun TaskGroupEditorDialog(
-    taskGroup : TaskGroup,
-    onSave : (TaskGroup) -> Unit,
-    onDismissRequest : () -> Unit
+    taskGroupTitle : String,
+    updateTaskGroupTitle : (String) -> Unit,
+    taskGroupNote : String,
+    updateTaskGroupNote : (String) -> Unit,
+    taskGroupPriority : Int,
+    updateTaskGroupPriority : (Int) -> Unit,
+    taskGroupStartDate : LocalDate?,
+    updateTaskGroupStartDate : (LocalDate) -> Unit,
+    taskGroupStartTime : LocalTime?,
+    updateTaskGroupStartTime : (LocalTime) -> Unit,
+    taskGroupEndDate : LocalDate?,
+    updateTaskGroupEndDate : (LocalDate) -> Unit,
+    taskGroupEndTime : LocalTime?,
+    updateTaskGroupEndTime : (LocalTime) -> Unit,
+    onDismissRequest : () -> Unit,
 ) {
-    var title by rememberSaveable { mutableStateOf(taskGroup.title) }
-    var note by rememberSaveable { mutableStateOf(taskGroup.note) }
-    var priority by rememberSaveable { mutableIntStateOf(taskGroup.priority) }
-    var startDate by rememberSaveable { mutableStateOf(taskGroup.startDate) }
-    var startTime by rememberSaveable { mutableStateOf(taskGroup.startTime) }
-    var endDate by rememberSaveable { mutableStateOf(taskGroup.endDate) }
-    var endTime by rememberSaveable { mutableStateOf(taskGroup.endTime) }
+    var title by rememberSaveable { mutableStateOf(taskGroupTitle) }
+    var note by rememberSaveable { mutableStateOf(taskGroupNote) }
+    var priority by rememberSaveable { mutableIntStateOf(taskGroupPriority) }
+    var startDate by rememberSaveable { mutableStateOf(taskGroupStartDate) }
+    var startTime by rememberSaveable { mutableStateOf(taskGroupStartTime) }
+    var endDate by rememberSaveable { mutableStateOf(taskGroupEndDate) }
+    var endTime by rememberSaveable { mutableStateOf(taskGroupEndTime) }
 
     Dialog(
         onDismissRequest = onDismissRequest,
@@ -69,30 +83,45 @@ fun TaskGroupEditorDialog(
                 )
 
                 TextFieldComponent(
-                    labelText = "Title*",
+                    placeHolderText = "Title*",
                     value = title,
                     isSingleLine = true,
-                    onValueChange = {
-                        title = it
-                        taskGroup.title = title
-                    }
+                    onValueChange = { title = it }
                 )
 
-                NoteEditComponent(onValueChange = {
-                    note = it
-                    taskGroup.note = note
-                })
+                NoteEditComponent(
+                    note = note,
+                    onValueChange = { note = it }
+                )
 
                 PrioritySliderComponent(
-                    onPriorityChanged = {
-                        priority = Priority.valueOf(it).ordinal
-                        taskGroup.priority = priority
-                    },
+                    priority = priority,
+                    onPriorityChanged = { priority = it },
                     modifier = Modifier.padding(
                         start = 16.dp,
                         end = 16.dp,
                         bottom = 6.dp
-                    )
+                    ),
+                )
+
+                DateRangePicker(
+                    startDate = startDate,
+                    endDate = endDate,
+                    onStartDateValueChange = { startDate = it },
+                    onEndDateValueChange = { endDate = it },
+                )
+
+                TimeRangePicker(
+                    startTime = startTime,
+                    endTime = endTime,
+                    onStartTimeValueChange = { startTime = it },
+                    onEndTimeValueChange = {
+                        if (startTime?.isBefore(it) == true && startDate?.isEqual(endDate) == true) {
+
+                        } else {
+                            endTime = it
+                        }
+                    }
                 )
 
                 Row(
@@ -111,7 +140,14 @@ fun TaskGroupEditorDialog(
 
                     TextButton(
                         onClick = {
-                            onSave(taskGroup)
+                            updateTaskGroupTitle(title)
+                            updateTaskGroupNote(note)
+                            updateTaskGroupPriority(priority)
+                            startDate?.let { updateTaskGroupStartDate(it) }
+                            startTime?.let { updateTaskGroupStartTime(it) }
+                            endDate?.let { updateTaskGroupEndDate(it) }
+                            endTime?.let { updateTaskGroupEndTime(it) }
+                            onDismissRequest()
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,

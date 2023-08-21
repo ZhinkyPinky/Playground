@@ -23,28 +23,44 @@ class Notifications(private val application : Application) {
         const val CHANNEL_ID = "task-reminders"
     }
 
-    private val notificationManager: NotificationManager by lazy {
+    private val notificationManager : NotificationManager by lazy {
         application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     }
 
-    fun scheduleNotification(taskId: Long, taskName: String, notificationDateTime: LocalDateTime) {
+    fun scheduleNotification(
+        taskId : Long,
+        taskName : String,
+        notificationDateTime : LocalDateTime
+    ) {
         // Create the notification channel, if necessary
         createNotificationChannel()
 
         // Convert the notification date and time to a timestamp
-        val notificationTimestamp = notificationDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val notificationTimestamp = notificationDateTime
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
 
         // Create the notification data
         val data = Data
             .Builder()
-            .putInt(NotificationWorker.NOTIFICATION_ID, 1)
-            .putString(NotificationWorker.TASK_NAME, taskName)
+            .putInt(
+                NotificationWorker.NOTIFICATION_ID,
+                1
+            )
+            .putString(
+                NotificationWorker.TASK_NAME,
+                taskName
+            )
             .build()
 
         // Create the work request
         val workRequest = OneTimeWorkRequest
             .Builder(NotificationWorker::class.java)
-            .setInitialDelay(notificationTimestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+            .setInitialDelay(
+                notificationTimestamp - System.currentTimeMillis(),
+                TimeUnit.MILLISECONDS
+            )
             .setInputData(data)
             .addTag(taskId.toString())
             .build()
@@ -55,7 +71,7 @@ class Notifications(private val application : Application) {
             .enqueue(workRequest)
     }
 
-    fun cancelNotification(taskId : Long){
+    fun cancelNotification(taskId : Long) {
         WorkManager
             .getInstance(application)
             .cancelAllWorkByTag(taskId.toString())
@@ -78,9 +94,12 @@ class Notifications(private val application : Application) {
 }
 
 class NotificationWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+    context : Context,
+    workerParams : WorkerParameters
+) : Worker(
+    context,
+    workerParams
+) {
 
     companion object {
         const val NOTIFICATION_ID = "notification-id"
@@ -88,17 +107,28 @@ class NotificationWorker(
         const val TASK_NAME = "task-name"
     }
 
-    override fun doWork(): Result {
+    override fun doWork() : Result {
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationId = inputData.getInt(NOTIFICATION_ID, 0)
+        val notificationId = inputData.getInt(
+            NOTIFICATION_ID,
+            0
+        )
         val taskName = inputData.getString(TASK_NAME)
 
         if (taskName != null && notificationId != 0) {
-            val resultIntent = Intent(applicationContext, MainActivity::class.java)
-            val resultPendingIntent: PendingIntent? = TaskStackBuilder.create(applicationContext).run {
-                addNextIntentWithParentStack(resultIntent)
-                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            }
+            val resultIntent = Intent(
+                applicationContext,
+                MainActivity::class.java
+            )
+            val resultPendingIntent : PendingIntent? = TaskStackBuilder
+                .create(applicationContext)
+                .run {
+                    addNextIntentWithParentStack(resultIntent)
+                    getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                }
 
             // Create the notification builder
             val builder = NotificationCompat
@@ -113,7 +143,10 @@ class NotificationWorker(
                 .setAutoCancel(true)
                 .setContentIntent(resultPendingIntent)
 
-            notificationManager.notify(notificationId, builder.build())
+            notificationManager.notify(
+                notificationId,
+                builder.build()
+            )
         }
 
         return Result.success()

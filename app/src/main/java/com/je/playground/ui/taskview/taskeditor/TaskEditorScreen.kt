@@ -1,7 +1,7 @@
 package com.je.playground.ui.taskview.taskeditor
 
+import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,8 +41,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,39 +62,22 @@ import com.je.playground.ui.sharedcomponents.NoteComponent
 import com.je.playground.ui.taskview.dateTimeToString
 import com.je.playground.ui.taskview.taskeditor.datetimerangepicker.DateRangePicker
 import com.je.playground.ui.taskview.taskeditor.datetimerangepicker.TimeRangePicker
-import com.je.playground.ui.taskview.viewmodel.Priority
-import com.je.playground.ui.taskview.viewmodel.TaskTypeV2
 import com.je.playground.ui.taskview.viewmodel.TasksUiState
 import com.je.playground.ui.taskview.viewmodel.TasksViewModel
 import com.je.playground.ui.theme.title
 import java.time.LocalDate
+import java.time.LocalTime
 
 @Composable
-fun TaskEditorScreenV2(
+fun TaskEditorScreen(
     tasksViewModel : TasksViewModel,
-    onBackPress : () -> Unit,
-) {
-    val tasksUiState : TasksUiState
-
-    TaskEditorScreenV2(
-        onBackPress = onBackPress,
-        insertTaskGroup = {},
-        updateTaskGroup = {}
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TaskEditorScreenV2(
     taskGroupWithTasks : TaskGroupWithTasks = TaskGroupWithTasks(
         TaskGroup(
-            title = "",
-            type = TaskTypeV2.RegularTask.ordinal,
-            priority = 1
+            priority = 2
         ),
         mutableListOf(
             Task(
-                taskGroupId = -1L,
+                taskGroupId = -1,
                 title = "Test",
                 note = "The quick brown fox jumped over the lazy dog." +
                         "The quick brown fox jumped over the lazy dog." +
@@ -104,86 +90,130 @@ fun TaskEditorScreenV2(
         )
     ),
     onBackPress : () -> Unit,
-    insertTaskGroup : () -> Unit,
-    updateTaskGroup : () -> Unit
 ) {
+    val tasksUiState : TasksUiState
     val context = LocalContext.current
 
-    val taskGroup = taskGroupWithTasks.taskGroup
-    val tasks = taskGroupWithTasks.tasks
+    val taskGroup = taskGroupWithTasks.taskGroup.copy()
+    var taskGroupTitle by rememberSaveable { mutableStateOf(taskGroup.title) }
+    var taskGroupNote by rememberSaveable { mutableStateOf(taskGroup.note) }
+    var taskGroupPriority by rememberSaveable { mutableIntStateOf(taskGroup.priority) }
+    var taskGroupStartDate by rememberSaveable { mutableStateOf(taskGroup.startDate) }
+    var taskGroupStartTime by rememberSaveable { mutableStateOf(taskGroup.startTime) }
+    var taskGroupEndDate by rememberSaveable { mutableStateOf(taskGroup.endDate) }
+    val taskGroupEndTime by rememberSaveable { mutableStateOf(taskGroup.endTime) }
+
+    val tasks = rememberSaveable(
+        saver = listSaver(
+            save = {
+                if (it.isNotEmpty()) {
+                    val first = it.first()
+                    if (!canBeSaved(first)) {
+                        throw IllegalStateException("${first::class} cannot be saved. By default only types which can be stored in the Bundle class can be saved.")
+                    }
+                }
+
+                it.toList()
+            },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
+        taskGroupWithTasks.tasks
+            .map { it.copy() }
+            .toMutableStateList()
+    }
 
     var showTaskGroupEditorDialog by rememberSaveable { mutableStateOf(false) }
+    var showTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
+
+    var isGroup by rememberSaveable { mutableStateOf(tasks.size > 1) }
+
+    TaskEditorContent(
+        context = context,
+        taskGroupWithTasks = taskGroupWithTasks,
+        insertTaskGroupWithTasks = tasksViewModel::insertTaskGroupWithTasks,
+        updateTaskGroupWithTasks = tasksViewModel::updateTaskGroupWithTasks,
+        deleteTaskGroupWithTasks = tasksViewModel::deleteTaskGroupWithTasks,
+        taskGroup = taskGroup,
+        taskGroupTitle = taskGroupTitle,
+        updateTaskGroupTitle = { taskGroupTitle = it },
+        taskGroupNote = taskGroupNote,
+        updateTaskGroupNote = { taskGroupNote = it },
+        taskGroupPriority = taskGroupPriority,
+        updateTaskGroupPriority = { taskGroupPriority = it },
+        taskGroupStartDate = taskGroupStartDate,
+        updateTaskGroupStartDate = { taskGroupStartDate = it },
+        taskGroupStartTime = taskGroupStartTime,
+        updateTaskGroupStartTime = { taskGroupStartTime = it },
+        taskGroupEndDate = taskGroupEndDate,
+        updateTaskGroupEndDate = { taskGroupEndDate = it },
+        taskGroupEndTime = taskGroupEndTime,
+        updateTaskGroupEndTime = { taskGroupStartTime = it },
+        tasks = tasks,
+        showTaskGroupEditorDialog = showTaskGroupEditorDialog,
+        toggleTaskGroupEditorDialog = { showTaskGroupEditorDialog = !showTaskGroupEditorDialog },
+        showTaskEditorDialog = showTaskEditorDialog,
+        toggleTaskEditorDialog = { showTaskEditorDialog = !showTaskEditorDialog },
+        isGroup = isGroup,
+        toggleIsGroup = { isGroup = !isGroup },
+        onBackPress = onBackPress,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TaskEditorContent(
+    context : Context,
+    taskGroupWithTasks : TaskGroupWithTasks,
+    insertTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
+    updateTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
+    deleteTaskGroupWithTasks : (TaskGroupWithTasks) -> Unit,
+    taskGroup : TaskGroup,
+    taskGroupTitle : String,
+    updateTaskGroupTitle : (String) -> Unit,
+    taskGroupNote : String,
+    updateTaskGroupNote : (String) -> Unit,
+    taskGroupPriority : Int,
+    updateTaskGroupPriority : (Int) -> Unit,
+    taskGroupStartDate : LocalDate?,
+    updateTaskGroupStartDate : (LocalDate) -> Unit,
+    taskGroupStartTime : LocalTime?,
+    updateTaskGroupStartTime : (LocalTime) -> Unit,
+    taskGroupEndDate : LocalDate?,
+    updateTaskGroupEndDate : (LocalDate) -> Unit,
+    taskGroupEndTime : LocalTime?,
+    updateTaskGroupEndTime : (LocalTime) -> Unit,
+    tasks : SnapshotStateList<Task>,
+    showTaskGroupEditorDialog : Boolean,
+    toggleTaskGroupEditorDialog : () -> Unit,
+    showTaskEditorDialog : Boolean,
+    toggleTaskEditorDialog : () -> Unit,
+    isGroup : Boolean,
+    toggleIsGroup : () -> Unit,
+    onBackPress : () -> Unit
+) {
     if (showTaskGroupEditorDialog) {
         TaskGroupEditorDialog(
-            taskGroup = taskGroup,
-            onSave = {},
-            onDismissRequest = {
-                showTaskGroupEditorDialog = false
-            }
+            taskGroupTitle = taskGroupTitle,
+            updateTaskGroupTitle = updateTaskGroupTitle,
+            taskGroupNote = taskGroupNote,
+            updateTaskGroupNote = updateTaskGroupNote,
+            taskGroupPriority = taskGroupPriority,
+            updateTaskGroupPriority = updateTaskGroupPriority,
+            taskGroupStartDate = taskGroupStartDate,
+            updateTaskGroupStartDate = updateTaskGroupStartDate,
+            taskGroupStartTime = taskGroupStartTime,
+            updateTaskGroupStartTime = updateTaskGroupStartTime,
+            taskGroupEndDate = taskGroupEndDate,
+            updateTaskGroupEndDate = updateTaskGroupEndDate,
+            taskGroupEndTime = taskGroupEndTime,
+            updateTaskGroupEndTime = updateTaskGroupEndTime,
+            onDismissRequest = toggleTaskGroupEditorDialog
         )
     }
 
     Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Edit",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = 22.sp,
-                            maxLines = 1,
-                            textAlign = TextAlign.Start,
-
-                            modifier = Modifier
-                                .padding(
-                                    start = 0.dp,
-                                    top = 4.dp,
-                                    end = 8.dp,
-                                    bottom = 4.dp
-                                )
-                                .weight(1f)
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBackPress) {
-                            Icon(
-                                imageVector = Icons.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(end = 2.dp)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    actions = {
-                        IconButton(
-                            onClick = {
-                                if (taskGroup.title != "") {
-                                    onBackPress()
-                                } else Toast
-                                    .makeText(
-                                        context,
-                                        "Need title",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                    .show()
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Save,
-                                contentDescription = "Save task",
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-                    })
-                Divider(
-                    color = MaterialTheme.colorScheme.background
-                )
-            }
-        },
+        topBar = { TopBar(onBackPress) },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Column(
@@ -194,10 +224,6 @@ fun TaskEditorScreenV2(
                 .wrapContentHeight()
                 .padding(paddingValues)
         ) {
-            var isGroup by rememberSaveable {
-                mutableStateOf(tasks.size > 1)
-            }
-
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
@@ -206,7 +232,7 @@ fun TaskEditorScreenV2(
                     .fillMaxWidth()
             ) {
                 Button(
-                    onClick = { isGroup = false },
+                    onClick = { if (isGroup) toggleIsGroup() },
                     shape = MaterialTheme.shapes.small.copy(CornerSize(0)),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isGroup) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
@@ -229,9 +255,9 @@ fun TaskEditorScreenV2(
                 Button(
                     onClick = {
                         if (!isGroup) {
-                            showTaskGroupEditorDialog = true
+                            toggleTaskGroupEditorDialog()
+                            toggleIsGroup()
                         }
-                        isGroup = true
                     },
                     shape = MaterialTheme.shapes.small.copy(CornerSize(0)),
                     colors = ButtonDefaults.buttonColors(
@@ -244,7 +270,7 @@ fun TaskEditorScreenV2(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "Single",
+                        contentDescription = "Group",
                         tint = if (isGroup) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primaryContainer,
                     )
                     Text(text = "Group")
@@ -254,19 +280,25 @@ fun TaskEditorScreenV2(
             if (isGroup) {
                 TaskGroupEditor(
                     taskGroup = taskGroup,
+                    taskGroupTitle = taskGroupTitle,
+                    updateTaskGroupTitle = updateTaskGroupTitle,
+                    taskGroupNote = taskGroupNote,
+                    updateTaskGroupNote = updateTaskGroupNote,
+                    taskGroupPriority = taskGroupPriority,
+                    updateTaskGroupPriority = updateTaskGroupPriority,
                     tasks = tasks,
-                    showTaskGroupEditorDialog = {
-                        showTaskGroupEditorDialog = !showTaskGroupEditorDialog
-                    }
+                    showTaskGroupEditorDialog = showTaskGroupEditorDialog,
+                    toggleTaskGroupEditorDialog = toggleTaskGroupEditorDialog,
+                    showTaskEditorDialog = showTaskEditorDialog,
+                    toggleTaskEditorDialog = toggleTaskEditorDialog
                 )
             } else {
                 TaskEditor(
                     isGroup = isGroup,
                     taskGroup = taskGroup,
-                    task = Task(
-                        taskGroupId = taskGroup.taskGroupId,
-                        title = ""
-                    )
+                    taskGroupPriority = taskGroupPriority,
+                    updateTaskGroupPriority = updateTaskGroupPriority,
+                    task = Task()
                 )
             }
         }
@@ -276,30 +308,59 @@ fun TaskEditorScreenV2(
 @Composable
 fun TaskGroupEditor(
     taskGroup : TaskGroup,
-    tasks : MutableList<Task>,
-    showTaskGroupEditorDialog : () -> Unit
+    taskGroupTitle : String,
+    updateTaskGroupTitle : (String) -> Unit,
+    taskGroupNote : String,
+    updateTaskGroupNote : (String) -> Unit,
+    taskGroupPriority : Int,
+    updateTaskGroupPriority : (Int) -> Unit,
+    tasks : SnapshotStateList<Task>,
+    showTaskGroupEditorDialog : Boolean,
+    toggleTaskGroupEditorDialog : () -> Unit,
+    showTaskEditorDialog : Boolean,
+    toggleTaskEditorDialog : () -> Unit
 ) {
-    var showTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
     if (showTaskEditorDialog) {
         TaskEditorDialog(
-            task = Task(
-                taskGroupId = taskGroup.taskGroupId,
-                title = ""
-            ),
+            task = Task(),
             taskGroup = taskGroup,
             isNewTask = true,
             onSave = {
                 tasks.add(it)
-                showTaskEditorDialog = !showTaskEditorDialog
+                toggleTaskEditorDialog()
             },
-            onDismissRequest = { showTaskEditorDialog = !showTaskEditorDialog }
+            onDismissRequest = toggleTaskEditorDialog
         )
     }
 
-    var title by rememberSaveable { mutableStateOf(taskGroup.title) }
-    var priority by rememberSaveable { mutableIntStateOf(taskGroup.priority) }
-    var note by rememberSaveable { mutableStateOf(taskGroup.note) }
+    TaskGroupComponent(
+        taskGroupTitle = taskGroupTitle,
+        updateTaskGroupTitle = updateTaskGroupTitle,
+        taskGroupNote = taskGroupNote,
+        updateTaskGroupNote = updateTaskGroupNote,
+        taskGroupPriority = taskGroupPriority,
+        updateTaskGroupPriority = updateTaskGroupPriority,
+        showTaskGroupEditorDialog = showTaskGroupEditorDialog,
+        toggleTaskGroupEditorDialog = toggleTaskGroupEditorDialog,
+    )
 
+    TasksComponent(
+        tasks = tasks,
+        toggleTaskEditorDialog
+    )
+}
+
+@Composable
+fun TaskGroupComponent(
+    taskGroupTitle : String,
+    updateTaskGroupTitle : (String) -> Unit,
+    taskGroupNote : String,
+    updateTaskGroupNote : (String) -> Unit,
+    taskGroupPriority : Int,
+    updateTaskGroupPriority : (Int) -> Unit,
+    showTaskGroupEditorDialog : Boolean,
+    toggleTaskGroupEditorDialog : () -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -312,7 +373,7 @@ fun TaskGroupEditor(
         )
 
         IconButton(
-            onClick = showTaskGroupEditorDialog
+            onClick = toggleTaskGroupEditorDialog
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,
@@ -333,7 +394,7 @@ fun TaskGroupEditor(
             modifier = Modifier
                 .clip(RectangleShape)
                 .background(
-                    when (taskGroup.priority) {
+                    when (taskGroupPriority) {
                         0 -> Color.Red
                         1 -> Color(0xFFFFAB00)
                         2 -> Color(0xFF00C853)
@@ -349,29 +410,33 @@ fun TaskGroupEditor(
                 .wrapContentHeight()
         ) {
             Text(
-                text = if (title == "") "Title*" else title,
-                style = title(if (title == "") MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer),
+                text = if (taskGroupTitle == "") "Title*" else taskGroupTitle,
+                style = title(if (taskGroupTitle == "") MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer),
                 textAlign = TextAlign.Start,
             )
 
             PrioritySliderComponent(
-                onPriorityChanged = {
-                    priority = Priority.valueOf(it).ordinal
-                    taskGroup.priority = priority
-                },
+                priority = taskGroupPriority,
+                onPriorityChanged = updateTaskGroupPriority,
                 modifier = Modifier.padding(
                     top = 6.dp,
                     bottom = 6.dp
                 )
             )
 
-            NoteEditComponent(onValueChange = {
-                note = it
-                taskGroup.note = note
-            })
+            NoteEditComponent(
+                note = taskGroupNote,
+                onValueChange = updateTaskGroupNote
+            )
         }
     }
+}
 
+@Composable
+fun TasksComponent(
+    tasks : SnapshotStateList<Task>,
+    toggleTaskEditorDialog : () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -387,7 +452,7 @@ fun TaskGroupEditor(
         )
 
         IconButton(
-            onClick = { showTaskEditorDialog = !showTaskEditorDialog },
+            onClick = toggleTaskEditorDialog,
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
@@ -398,6 +463,13 @@ fun TaskGroupEditor(
     }
 
     tasks.forEach { task ->
+        var taskTitle by rememberSaveable { mutableStateOf(task.title) }
+        var taskNote by rememberSaveable { mutableStateOf(task.note) }
+        var taskStartDate by rememberSaveable { mutableStateOf(task.startDate) }
+        var taskStartTime by rememberSaveable { mutableStateOf(task.startTime) }
+        var taskEndDate by rememberSaveable { mutableStateOf(task.endDate) }
+        var taskEndTime by rememberSaveable { mutableStateOf(task.endTime) }
+
         var isExpanded by rememberSaveable {
             mutableStateOf(false)
         }
@@ -423,18 +495,18 @@ fun TaskGroupEditor(
                         .weight(1f)
                 ) {
                     Text(
-                        text = task.title,
+                        text = taskTitle,
                         style = title(MaterialTheme.colorScheme.onPrimary),
                         textAlign = TextAlign.Start,
                     )
 
-                    if (task.startDate != null || task.startTime != null || task.endDate != null || task.endTime != null) {
+                    if (taskStartDate != null || taskStartTime != null || taskEndDate != null || taskEndTime != null) {
                         Text(
                             text = dateTimeToString(
-                                startDate = task.startDate,
-                                startTime = task.startTime,
-                                endDate = task.endDate,
-                                endTime = task.endTime
+                                startDate = taskStartDate,
+                                startTime = taskStartTime,
+                                endDate = taskEndDate,
+                                endTime = taskEndTime
                             ),
                             color = Color(0xFFCCCCCC),
                             fontSize = 12.sp,
@@ -453,7 +525,7 @@ fun TaskGroupEditor(
                 }
             }
 
-            task.note?.let {
+            taskNote?.let {
                 NoteComponent(
                     note = it,
                     isExpanded = isExpanded,
@@ -471,6 +543,8 @@ fun TaskGroupEditor(
 fun TaskEditor(
     isGroup : Boolean,
     taskGroup : TaskGroup,
+    taskGroupPriority : Int,
+    updateTaskGroupPriority : (Int) -> Unit,
     task : Task,
 ) {
     var title by rememberSaveable { mutableStateOf(task.title) }
@@ -485,7 +559,7 @@ fun TaskEditor(
             .wrapContentHeight()
     ) {
         TextFieldComponent(
-            labelText = "Title*",
+            placeHolderText = "Title*",
             value = title,
             isSingleLine = true,
             onValueChange = {
@@ -495,15 +569,9 @@ fun TaskEditor(
         )
 
         if (!isGroup) {
-            var priority by rememberSaveable {
-                mutableIntStateOf(taskGroup.priority)
-            }
-
             PrioritySliderComponent(
-                onPriorityChanged = {
-                    priority = Priority.valueOf(it).ordinal
-                    taskGroup.priority = priority
-                },
+                priority = taskGroupPriority,
+                onPriorityChanged = updateTaskGroupPriority,
                 modifier = Modifier.padding(
                     top = 6.dp,
                     bottom = 6.dp
@@ -511,10 +579,13 @@ fun TaskEditor(
             )
         }
 
-        NoteEditComponent(onValueChange = {
-            note = it
-            task.note = note
-        })
+        if (note != "") {
+            NoteEditComponent(
+                note = note,
+                onValueChange = {
+                    note = it
+                })
+        }
 
         DateRangePicker(
             startDate = startDate,
@@ -554,6 +625,61 @@ fun TaskEditor(
                     task.endTime = endTime
                 }
             }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopBar(
+    onBackPress : () -> Unit
+) {
+    Column {
+        TopAppBar(
+            title = {
+                Text(
+                    text = "Edit",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontSize = 22.sp,
+                    maxLines = 1,
+                    textAlign = TextAlign.Start,
+
+                    modifier = Modifier
+                        .padding(
+                            start = 0.dp,
+                            top = 4.dp,
+                            end = 8.dp,
+                            bottom = 4.dp
+                        )
+                        .weight(1f)
+                )
+            },
+            navigationIcon = {
+                IconButton(onClick = onBackPress) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(end = 2.dp)
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            ),
+            actions = {
+                IconButton(
+                    onClick = { TODO("Not yet implemented") },
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Save,
+                        contentDescription = "Save task",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            })
+        Divider(
+            color = MaterialTheme.colorScheme.background
         )
     }
 }

@@ -71,7 +71,7 @@ fun TaskEditorDialog(
                     modifier = Modifier.wrapContentHeight()
                 ) {
                     TextFieldComponent(
-                        labelText = "Title*",
+                        placeHolderText = "Title*",
                         value = title,
                         isSingleLine = true,
                         onValueChange = {
@@ -80,7 +80,9 @@ fun TaskEditorDialog(
                         }
                     )
 
-                    NoteEditComponent(onValueChange = {
+                    NoteEditComponent(
+                        note = note,
+                        onValueChange = {
                         note = it
                         task.note = note
                     })

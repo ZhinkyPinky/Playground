@@ -9,7 +9,7 @@ import com.je.playground.database.exerciseprogram.entity.ExerciseProgram
 @Dao
 interface ExerciseProgramDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertExerciseProgram(exerciseProgram : ExerciseProgram)
+    fun insertExerciseProgram(exerciseProgram : ExerciseProgram) : Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(exerciseProgram : ExerciseProgram)

@@ -23,19 +23,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-/*
-@Composable
-fun PlaygroundApp(
-    application : PlaygroundApplication,
-    activity : MainActivity
-) {
-    val tasksViewModelV2 : TasksViewModelV2 = viewModel(
-        factory = TasksViewModelV2.provideFactory(
-            application = application,
-            owner = activity
-        )
-    )
-    TasksScreen(tasksViewModelV2)
-}
- */

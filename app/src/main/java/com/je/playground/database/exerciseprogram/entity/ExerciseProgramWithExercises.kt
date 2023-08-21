@@ -12,6 +12,6 @@ class ExerciseProgramWithExercises(
         parentColumn = "exercise_program_id",
         entityColumn = "exercise_program_id"
     )
-    var exercises : List<Exercise>
+    var exercises : List<Exercise> = emptyList()
 )
 

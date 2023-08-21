@@ -23,13 +23,14 @@ import com.je.playground.database.tasks.entity.*
         ExerciseProgram::class,
         WeekdaySchedule::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false //TODO: fix?
 )
 @TypeConverters(DateTimeTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getTaskDao() : TaskDao
     abstract fun getTaskGroupDao() : TaskGroupDao
+    abstract fun getTaskGroupWithTasksDao() : TaskGroupWithTasksDao
     abstract fun getExerciseDao() : ExerciseDao
     abstract fun getExerciseProgramDao() : ExerciseProgramDao
     abstract fun getExerciseProgramWithExercisesDao() : ExerciseProgramWithExercisesDao

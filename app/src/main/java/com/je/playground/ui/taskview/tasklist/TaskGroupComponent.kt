@@ -225,9 +225,9 @@ fun TaskGroupComponent(
                         )
                     }
 
-                    taskGroupWithTasks.taskGroup.note?.let {
+                    if (taskGroupWithTasks.taskGroup.note != "") {
                         NoteComponent(
-                            note = it,
+                            note = taskGroupWithTasks.taskGroup.note,
                             isExpanded = isExpanded
                         )
                     }

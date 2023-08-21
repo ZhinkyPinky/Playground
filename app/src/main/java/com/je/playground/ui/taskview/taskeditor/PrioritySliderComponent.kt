@@ -17,14 +17,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.je.playground.ui.taskview.viewmodel.Priority
 
 @Composable
 fun PrioritySliderComponent(
-    onPriorityChanged : (String) -> Unit,
-    modifier : Modifier = Modifier
+    priority : Int,
+    onPriorityChanged : (Int) -> Unit,
+    modifier : Modifier = Modifier,
 ) {
     var sliderPosition by remember {
-        mutableFloatStateOf(0f)
+        mutableFloatStateOf(
+            when (priority) {
+                1 -> 0f
+                2 -> 1f
+                3 -> 2f
+                else -> 0f
+            }
+        )
     }
 
     val sliderColor =
@@ -65,7 +74,7 @@ fun PrioritySliderComponent(
             },
             onValueChangeFinished = {
                 isFocused = false
-                onPriorityChanged(priority)
+                onPriorityChanged(Priority.valueOf(priority).ordinal)
             },
             valueRange = 0f..2f,
             steps = 1,

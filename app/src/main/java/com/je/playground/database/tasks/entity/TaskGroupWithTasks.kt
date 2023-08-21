@@ -11,5 +11,5 @@ class TaskGroupWithTasks(
         parentColumn = "task_group_id",
         entityColumn = "task_group_id"
     )
-    var tasks : MutableList<Task> = mutableListOf()
+    var tasks : List<Task> = emptyList()
 )

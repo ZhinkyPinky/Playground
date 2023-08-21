@@ -18,10 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.je.playground.ui.theme.regularText
 
 @Composable fun TextFieldComponent(
-    labelText : String,
+    placeHolderText : String,
     value : String,
     isSingleLine : Boolean,
     onValueChange : (String) -> Unit,
@@ -35,8 +34,7 @@ import com.je.playground.ui.theme.regularText
         onValueChange = {
             onValueChange(it)
         },
-        label = { Text(text = labelText) },
-        textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
+        label = { Text(text = placeHolderText) },
         keyboardActions = KeyboardActions(
             onDone = {
                 focusManager.clearFocus()
@@ -61,6 +59,9 @@ import com.je.playground.ui.theme.regularText
             unfocusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
             errorLabelColor = Color.Red,
 
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
 
             focusedTrailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
             unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer,

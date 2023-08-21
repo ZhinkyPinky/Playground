@@ -10,7 +10,7 @@ import com.je.playground.PlaygroundApplication
 import com.je.playground.ui.exerciseprogram.ExerciseProgramScreen
 import com.je.playground.ui.home.HomeScreen
 import com.je.playground.ui.navigationdrawer.NavigationDrawerContent
-import com.je.playground.ui.taskview.taskeditor.TaskEditorScreenV2
+import com.je.playground.ui.taskview.taskeditor.TaskEditorScreen
 import com.je.playground.ui.taskview.tasklist.TasksScreen
 
 
@@ -66,7 +66,7 @@ fun PlaygroundApp(
                 }
 
                 composable(SubScreen.TaskEditV2.route) {
-                    TaskEditorScreenV2(
+                    TaskEditorScreen(
                         tasksViewModel = hiltViewModel(),
                         onBackPress = appState::navigateBack
                     )

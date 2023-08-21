@@ -9,7 +9,7 @@ import com.je.playground.database.tasks.entity.WeekdaySchedule
 @Dao
 interface WeekdayScheduleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(weekdayScheduleEntry : WeekdaySchedule)
+    suspend fun insert(weekdayScheduleEntry : WeekdaySchedule) : Long
 
     @Delete
     suspend fun delete(weekdayScheduleEntry : WeekdaySchedule)

@@ -28,25 +28,31 @@ class DaoModule {
 
     @Provides
     @Singleton
+    fun provideTaskGroupWithTasksDao(appDatabase : AppDatabase) : TaskGroupWithTasksDao {
+        return appDatabase.getTaskGroupWithTasksDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideExerciseDao(appDatabase : AppDatabase) : ExerciseDao {
         return appDatabase.getExerciseDao()
     }
 
     @Provides
     @Singleton
-    fun bindExerciseProgramDao(appDatabase : AppDatabase) : ExerciseProgramDao {
+    fun provideExerciseProgramDao(appDatabase : AppDatabase) : ExerciseProgramDao {
         return appDatabase.getExerciseProgramDao()
     }
 
     @Provides
     @Singleton
-    fun bindExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithExercisesDao {
+    fun provideExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithExercisesDao {
         return appDatabase.getExerciseProgramWithExercisesDao()
     }
 
     @Provides
     @Singleton
-    fun bindWeekdayScheduleDao(appDatabase : AppDatabase) : WeekdayScheduleDao {
+    fun provideWeekdayScheduleDao(appDatabase : AppDatabase) : WeekdayScheduleDao {
         return appDatabase.getWeekdayScheduleDao()
     }
 }

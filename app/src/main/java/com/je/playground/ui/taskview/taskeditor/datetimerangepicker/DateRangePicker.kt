@@ -45,7 +45,6 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Year
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateRangePicker(
     startDate : LocalDate?,
@@ -433,77 +432,8 @@ fun dateColorSelection(
     val currentYear = LocalDate.now().year
     val currentMonth = LocalDate.now().month
 
-    /*
-    taskOccasions?.forEach { taskOccasion ->
-        if (taskOccasion.dateFrom != null) {
-            if (taskOccasion.dateFrom == date) {
-                return when (taskOccasion.isCompleted) {
-                    true -> MaterialTheme.colors.onPrimary
-                    false -> if (taskOccasion.dateFrom < LocalDate.now()) MaterialTheme.colors.onSecondary else Color(0xFFFFAB00)
-                }
-            }
-        }
-    }
-     */
-
     return if ((date.dayOfMonth >= LocalDate.now().dayOfMonth && date.month.ordinal == currentMonth.ordinal || date.month.ordinal > currentMonth.ordinal) || date.year > currentYear
     ) {
         MaterialTheme.colorScheme.onPrimary
     } else MaterialTheme.colorScheme.onSecondaryContainer
-}
-
-/*
-fun containsDate(
-    date : LocalDate,
-    taskOccasions : List<TaskOccasion>
-) : Boolean {
-    taskOccasions.forEach { taskOccasion ->
-        print("$date : ${taskOccasion.dateFrom}")
-        if (taskOccasion.dateFrom == date) return true
-    }
-
-    return false
-}
- */
-
-
-@Composable
-fun DatePickerComponent(
-    date : String,
-    clickable : Boolean,
-    onClick : () -> Unit,
-    clearDate : () -> Unit,
-    modifier : Modifier
-) {
-    TextField(
-        value = date,
-        onValueChange = {},
-        label = { Text(text = date) },
-        trailingIcon = {
-            if (date != "") {
-                Icon(
-                    imageVector = Icons.Filled.Clear,
-                    contentDescription = "Clear text-field",
-                    modifier = Modifier
-                        .size(16.dp)
-                        .clickable { clearDate() }
-                )
-            }
-        },
-        enabled = false,
-        textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
-        colors = TextFieldDefaults.colors(
-            disabledLabelColor = MaterialTheme.colorScheme.onPrimary,
-            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-            cursorColor = MaterialTheme.colorScheme.onPrimary,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        singleLine = true,
-        modifier = Modifier
-            .clickable(clickable) {
-                onClick()
-            }
-            .then(modifier)
-    )
 }

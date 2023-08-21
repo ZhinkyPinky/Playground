@@ -73,9 +73,9 @@ fun TaskComponent(
             }
         }
 
-        task.note?.let {
+        if (task.note != "") {
             NoteComponent(
-                note = it,
+                note = task.note,
                 isExpanded = isExpanded,
                 modifier = Modifier.padding(
                     start = 12.dp,
