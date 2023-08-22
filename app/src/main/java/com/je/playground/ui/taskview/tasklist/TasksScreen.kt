@@ -28,11 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.je.playground.database.tasks.entity.Task
-import com.je.playground.database.tasks.entity.TaskGroup
-import com.je.playground.database.tasks.entity.TaskGroupWithTasks
-import com.je.playground.ui.taskview.viewmodel.Priority
-import com.je.playground.ui.taskview.viewmodel.TaskTypeV2
+import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
+import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.ui.taskview.viewmodel.TasksViewModel
 import kotlinx.coroutines.launch
 
@@ -47,24 +44,25 @@ fun TasksScreen(
 
     TasksScreen(
         //tasksUiState = tasksUiState,
-        taskGroupsWithTasks =
+        taskGroupsWithTasks = tasksUiState.taskGroupsWithSubTasks,
+        /*
         listOf(
-            TaskGroupWithTasks(
-                taskGroup = TaskGroup(
-                    taskGroupId = 0L,
+            MainTaskWithSubTasks(
+                mainTask = MainTask(
+                    mainTaskId = 0L,
                     title = "TestGroup",
                     type = TaskTypeV2.RegularTask.ordinal,
                     priority = Priority.Medium.ordinal
                 ),
-                tasks = mutableListOf(
-                    Task(
-                        taskId = 0L,
-                        taskGroupId = 0L,
+                subTasks = mutableListOf(
+                    SubTask(
+                        mainTaskId = 0L,
+                        subTaskId = 0L,
                         title = "TestTask",
                     ),
-                    Task(
-                        taskId = 1L,
-                        taskGroupId = 0L,
+                    SubTask(
+                        mainTaskId = 0L,
+                        subTaskId = 1L,
                         title = "TestTask",
                         note = "The quick brown fox jumped over the lazy dog." +
                                 "The quick brown fox jumped over the lazy dog." +
@@ -73,29 +71,30 @@ fun TasksScreen(
                                 "The quick brown fox jumped over the lazy dog." +
                                 "The quick brown fox jumped over the lazy dog."
                     ),
-                    Task(
-                        taskId = 2L,
-                        taskGroupId = 0L,
+                    SubTask(
+                        mainTaskId = 0L,
+                        subTaskId = 2L,
                         title = "TestTask"
                     ),
                 )
             ),
-            TaskGroupWithTasks(
-                taskGroup = TaskGroup(
-                    taskGroupId = 1L,
+            MainTaskWithSubTasks(
+                mainTask = MainTask(
+                    mainTaskId = 1L,
                     title = "TestGroup",
                     type = TaskTypeV2.RegularTask.ordinal,
                     priority = Priority.Medium.ordinal
                 ),
-                tasks = mutableListOf(
-                    Task(
-                        taskId = 4L,
-                        taskGroupId = 1L,
+                subTasks = mutableListOf(
+                    SubTask(
+                        mainTaskId = 1L,
+                        subTaskId = 4L,
                         title = "TestTask"
                     )
                 )
             )
-        ),
+        )
+        */
         drawerState = drawerState,
         navigateToTaskEditWindow = navigateToTaskEditWindow,
         deleteTask = { },
@@ -105,10 +104,10 @@ fun TasksScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
-    taskGroupsWithTasks : List<TaskGroupWithTasks>,
+    taskGroupsWithTasks : List<MainTaskWithSubTasks>,
     drawerState : DrawerState,
     navigateToTaskEditWindow : () -> Unit,
-    deleteTask : (Task) -> Unit,
+    deleteTask : (SubTask) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -187,9 +186,9 @@ fun TasksScreen(
                 .padding(it)
         ) {
             items(items = taskGroupsWithTasks) { taskGroupWithTasks ->
-                key(taskGroupWithTasks.taskGroup.taskGroupId) {
+                key(taskGroupWithTasks.mainTask.mainTaskId) {
                     TaskGroupComponent(
-                        taskGroupWithTasks = taskGroupWithTasks,
+                        mainTaskWithSubTasks = taskGroupWithTasks,
                         deleteTask = {}
                     )
                 }

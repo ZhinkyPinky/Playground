@@ -1,11 +1,11 @@
 package com.je.playground.database.tasks.repository
 
-import com.je.playground.database.tasks.dao.TaskDao
-import com.je.playground.database.tasks.dao.TaskGroupDao
-import com.je.playground.database.tasks.dao.TaskGroupWithTasksDao
-import com.je.playground.database.tasks.entity.Task
-import com.je.playground.database.tasks.entity.TaskGroup
-import com.je.playground.database.tasks.entity.TaskGroupWithTasks
+import com.je.playground.database.tasks.dao.MainTaskDao
+import com.je.playground.database.tasks.dao.MainTaskWithSubTasksDao
+import com.je.playground.database.tasks.dao.SubTaskDao
+import com.je.playground.database.tasks.entity.MainTask
+import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
+import com.je.playground.database.tasks.entity.SubTask
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -15,25 +15,25 @@ import javax.inject.Inject
 
 
 class TasksRepository @Inject constructor(
-    private val taskGroupWithTasksDao : TaskGroupWithTasksDao,
-    private val taskGroupDao : TaskGroupDao,
-    private val taskDao : TaskDao
+    private val mainTaskWithSubTasksDao : MainTaskWithSubTasksDao,
+    private val mainTaskDao : MainTaskDao,
+    private val subTaskDao : SubTaskDao
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    suspend fun insertTask(task : Task) : Long = withContext(Dispatchers.IO) {
-        taskDao.insert(task)
+    suspend fun insertSubTask(subTask : SubTask) : Long = withContext(Dispatchers.IO) {
+        subTaskDao.insert(subTask)
     }
 
-    fun deleteTask(task : Task) = coroutineScope.launch { taskDao.delete(task) }
+    fun deleteSubTask(subTask : SubTask) = coroutineScope.launch { subTaskDao.delete(subTask) }
 
-    fun getAllTasks() : Flow<List<Task>> = taskDao.getAll()
+    fun getAllSubTasks() : Flow<List<SubTask>> = subTaskDao.getAll()
 
-    suspend fun insertTaskGroup(taskGroup : TaskGroup) : Long = withContext(Dispatchers.IO) {
-        taskGroupDao.insertTaskGroup(taskGroup)
+    suspend fun insertMainTask(mainTask : MainTask) : Long = withContext(Dispatchers.IO) {
+        mainTaskDao.insertMainTask(mainTask)
     }
 
-    fun getAllTaskGroups() : Flow<List<TaskGroup>> = taskGroupDao.getAll()
+    fun getAllMainTasks() : Flow<List<MainTask>> = mainTaskDao.getAll()
 
-    fun getAllTaskGroupsWithTasks() : Flow<List<TaskGroupWithTasks>> = taskGroupWithTasksDao.getAll()
+    fun getAllMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAll()
 }

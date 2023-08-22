@@ -3,9 +3,9 @@ package com.je.playground.ui.taskview.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.je.playground.database.tasks.entity.Task
-import com.je.playground.database.tasks.entity.TaskGroup
-import com.je.playground.database.tasks.entity.TaskGroupWithTasks
+import com.je.playground.database.tasks.entity.MainTask
+import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
+import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.repository.TasksRepository
 import com.je.playground.ui.Notifications
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,9 +19,9 @@ import java.time.LocalTime
 import javax.inject.Inject
 
 data class TasksUiState(
-    val tasks : List<Task> = emptyList(),
-    val taskGroups : List<TaskGroup> = emptyList(),
-    val taskGroupsWithTasks : List<TaskGroupWithTasks> = emptyList(),
+    val subTasks : List<SubTask> = emptyList(),
+    val mainTasks : List<MainTask> = emptyList(),
+    val taskGroupsWithSubTasks : List<MainTaskWithSubTasks> = emptyList(),
 )
 
 enum class TaskType(type : String) {
@@ -38,9 +38,9 @@ enum class TaskTypeV2(type : String) {
 
 
 enum class Priority {
-    High,
+    Low,
     Medium,
-    Low
+    High
 }
 
 @HiltViewModel
@@ -66,14 +66,14 @@ class TasksViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                tasksRepository.getAllTasks(),
-                tasksRepository.getAllTaskGroups(),
-                tasksRepository.getAllTaskGroupsWithTasks()
-            ) { tasks, taskGroups, taskGroupsWithTasks ->
+                tasksRepository.getAllSubTasks(),
+                tasksRepository.getAllMainTasks(),
+                tasksRepository.getAllMainTasksWithSubTasks()
+            ) { tasks, taskGroups, taskGroupsWithSubTasks ->
                 TasksUiState(
-                    tasks = tasks,
-                    taskGroups = taskGroups,
-                    taskGroupsWithTasks = taskGroupsWithTasks
+                    subTasks = tasks,
+                    mainTasks = taskGroups,
+                    taskGroupsWithSubTasks = taskGroupsWithSubTasks
                 )
             }
                 .catch { throwable ->
@@ -224,39 +224,50 @@ class TasksViewModel @Inject constructor(
      */
 
 
-    fun insertTaskGroupWithTasks(taskGroupWithTasks : TaskGroupWithTasks) {
+    fun saveMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         viewModelScope.launch {
-            val taskGroup = taskGroupWithTasks.taskGroup
-            val tasks = taskGroupWithTasks.tasks
+            val mainTask = mainTaskWithSubTasks.mainTask
+            val subTasks = mainTaskWithSubTasks.subTasks
 
-            val taskGroupId = tasksRepository.insertTaskGroup(taskGroup)
-            if (taskGroupId == -1L) {
-                tasks.forEach { task ->
-                    task.taskGroupId = taskGroupId
-                    task.taskId = tasksRepository.insertTask(task)
-                }
-
+            val mainTaskId = tasksRepository.insertMainTask(mainTask)
+            subTasks.forEach { subTask ->
+                subTask.mainTaskId = mainTaskId
+                subTask.subTaskId = tasksRepository.insertSubTask(subTask)
             }
 
-            taskGroup.startDate?.let { startDate ->
-                val startTime = taskGroup.startTime ?: LocalTime.MIDNIGHT
+            mainTask.startDate?.let { startDate ->
+                val startTime = mainTask.startTime ?: LocalTime.MIDNIGHT
                 notifications.scheduleNotification(
-                    taskGroup.taskGroupId,
-                    taskGroup.title,
+                    mainTask.mainTaskId,
+                    mainTask.title,
                     LocalDateTime.of(
                         startDate,
                         startTime
                     )
                 )
             }
+
+            subTasks.forEach { subTask ->
+                subTask.startDate?.let { startDate ->
+                    val startTime = subTask.startTime ?: LocalTime.MIDNIGHT
+                    notifications.scheduleNotification(
+                        subTask.subTaskId,
+                        subTask.title,
+                        LocalDateTime.of(
+                            startDate,
+                            startTime
+                        )
+                    )
+                }
+            }
         }
     }
 
-    fun updateTaskGroupWithTasks(taskGroupWithTasks : TaskGroupWithTasks) {
+    fun updateMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         TODO("Not yet implemented")
     }
 
-    fun deleteTaskGroupWithTasks(taskGroupWithTasks : TaskGroupWithTasks) {
+    fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         TODO("Not yet implemented")
     }
 

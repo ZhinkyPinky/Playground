@@ -7,16 +7,16 @@ import java.time.DayOfWeek
 
 @Entity(
     tableName = "weekday_schedule",
-    primaryKeys = ["task_id", "weekday"],
+    primaryKeys = ["main_task_id", "weekday"],
     foreignKeys = [
         ForeignKey(
-            entity = Task::class,
-            parentColumns = ["task_id"],
-            childColumns = ["task_id"],
+            entity = MainTask::class,
+            parentColumns = ["main_task_id"],
+            childColumns = ["main_task_id"],
             onDelete = ForeignKey.CASCADE
         )]
 )
 data class WeekdaySchedule(
-    @ColumnInfo(name = "task_id") val id : Long,
+    @ColumnInfo(name = "main_task_id") val id : Long,
     @ColumnInfo(name = "weekday") val weekday : DayOfWeek
 )

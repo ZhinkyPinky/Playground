@@ -9,12 +9,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
@@ -30,34 +31,38 @@ import androidx.compose.ui.unit.dp
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    TextField(
+    OutlinedTextField(
         value = value,
         onValueChange = {
             onValueChange(it)
         },
         label = { Text(text = label) },
-        placeholder =  { Text(text = placeholder) },
+        placeholder = { Text(text = placeholder) },
         keyboardActions = KeyboardActions(
             onDone = {
                 focusManager.clearFocus()
                 keyboardController?.hide()
             }
         ),
-        colors = TextFieldDefaults.colors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
             unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
             disabledTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
             errorTextColor = Color.Red,
 
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
             unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            errorContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            errorContainerColor = MaterialTheme.colorScheme.primaryContainer,
 
             cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
             errorCursorColor = Color.Red,
 
-            focusedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            focusedBorderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            unfocusedBorderColor = MaterialTheme.colorScheme.background,
+            errorBorderColor = Color.Red,
+
+            focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
             unfocusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
             errorLabelColor = Color.Red,
 
@@ -82,6 +87,7 @@ import androidx.compose.ui.unit.dp
                 )
             }
         },
+        shape = RectangleShape,
         modifier = Modifier
             .wrapContentHeight()
             .fillMaxWidth()

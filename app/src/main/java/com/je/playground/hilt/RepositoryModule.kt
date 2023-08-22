@@ -18,28 +18,28 @@ class RepositoryModule {
     @Provides
     @ViewModelScoped
     fun providesTasksRepository(
-        taskGroupWithTasksDao : TaskGroupWithTasksDao,
-        taskGroupDao : TaskGroupDao,
-        taskDao : TaskDao,
+        mainTaskWithSubTasksDao : MainTaskWithSubTasksDao,
+        mainTaskDao : MainTaskDao,
+        subTaskDao : SubTaskDao,
     ) : TasksRepository {
         return TasksRepository(
-            taskGroupWithTasksDao = taskGroupWithTasksDao,
-            taskGroupDao = taskGroupDao,
-            taskDao = taskDao,
+            mainTaskWithSubTasksDao = mainTaskWithSubTasksDao,
+            mainTaskDao = mainTaskDao,
+            subTaskDao = subTaskDao,
         )
     }
 
     @Provides
     @ViewModelScoped
     fun providesExerciseProgramRepository(
-        exerciseDao : ExerciseDao,
-        exerciseProgramDao : ExerciseProgramDao,
         exerciseProgramWithExercisesDao : ExerciseProgramWithExercisesDao,
+        exerciseProgramDao : ExerciseProgramDao,
+        exerciseDao : ExerciseDao,
     ) : ExerciseProgramRepository {
         return ExerciseProgramRepository(
-            exerciseDao = exerciseDao,
+            exerciseProgramWithExercisesDao = exerciseProgramWithExercisesDao,
             exerciseProgramDao = exerciseProgramDao,
-            exerciseProgramWithExercisesDao = exerciseProgramWithExercisesDao
+            exerciseDao = exerciseDao,
         )
     }
 }

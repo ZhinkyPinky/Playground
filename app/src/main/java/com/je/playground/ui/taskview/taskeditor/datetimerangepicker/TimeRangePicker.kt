@@ -1,6 +1,7 @@
 package com.je.playground.ui.taskview.taskeditor.datetimerangepicker
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.je.playground.ui.theme.regularText
 import java.time.LocalTime
@@ -48,8 +50,18 @@ fun TimeRangePicker(
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(
+                top = 6.dp,
+                bottom = 6.dp
+            )
     ) {
-        Row {
+        Row(
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.background,
+                shape = RectangleShape
+            )
+        ) {
             TextField(
                 value = startTime?.toString() ?: "",
                 onValueChange = { },
@@ -57,9 +69,9 @@ fun TimeRangePicker(
                 enabled = false,
                 textStyle = regularText(MaterialTheme.colorScheme.onPrimary),
                 colors = TextFieldDefaults.colors(
-                    disabledLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSecondary,
                     focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSecondary,
                     cursorColor = MaterialTheme.colorScheme.onPrimary,
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -93,9 +105,9 @@ fun TimeRangePicker(
                     }
                 },
                 colors = TextFieldDefaults.colors(
-                    disabledLabelColor = if (startTime != null) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondary,
+                    disabledLabelColor = if (startTime != null) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.background,
                     focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSecondary,
                     cursorColor = MaterialTheme.colorScheme.onPrimary,
                     unfocusedIndicatorColor = Color.Transparent,
                     focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer

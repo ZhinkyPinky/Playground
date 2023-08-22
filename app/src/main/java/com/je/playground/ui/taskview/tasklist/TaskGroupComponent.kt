@@ -49,8 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.je.playground.database.tasks.entity.Task
-import com.je.playground.database.tasks.entity.TaskGroupWithTasks
+import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
+import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.ui.sharedcomponents.NoteComponent
 import com.je.playground.ui.taskview.dateTimeToString
 import com.je.playground.ui.theme.title
@@ -66,8 +66,8 @@ enum class DragAnchors {
 )
 @Composable
 fun TaskGroupComponent(
-    taskGroupWithTasks : TaskGroupWithTasks,
-    deleteTask : (Task) -> Unit,
+    mainTaskWithSubTasks : MainTaskWithSubTasks,
+    deleteTask : (SubTask) -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -76,8 +76,8 @@ fun TaskGroupComponent(
     }
 
     var completionCounter = 0
-    for (i in 0 until taskGroupWithTasks.tasks.size) {
-        if (taskGroupWithTasks.tasks[i].isCompleted) {
+    for (i in 0 until mainTaskWithSubTasks.subTasks.size) {
+        if (mainTaskWithSubTasks.subTasks[i].isCompleted) {
             completionCounter++
         }
     }
@@ -140,42 +140,43 @@ fun TaskGroupComponent(
             }
     )
     {
-        Row(
-            modifier = Modifier
-                .height(IntrinsicSize.Max)
-                .offset {
-                    IntOffset(
-                        x = state
-                            .requireOffset()
-                            .roundToInt(),
-                        y = 0
-                    )
-                }
-                .anchoredDraggable(
-                    state = state,
-                    enabled = taskGroupWithTasks.taskGroup.isCompleted,
-                    orientation = Orientation.Horizontal
-                )
-        ) {
-            Box(
+        Column {
+            Row(
                 modifier = Modifier
-                    .clip(RectangleShape)
-                    .background(
-                        when (taskGroupWithTasks.taskGroup.priority) {
-                            0 -> Color.Red
-                            1 -> Color(0xFFFFAB00)
-                            2 -> Color(0xFF00C853)
-                            else -> Color.Transparent
-                        }
+                    .height(IntrinsicSize.Max)
+                    .offset {
+                        IntOffset(
+                            x = state
+                                .requireOffset()
+                                .roundToInt(),
+                            y = 0
+                        )
+                    }
+                    .anchoredDraggable(
+                        state = state,
+                        enabled = mainTaskWithSubTasks.mainTask.isCompleted,
+                        orientation = Orientation.Horizontal
                     )
-                    .fillMaxHeight()
-                    .width(2.dp)
-            )
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                if (taskGroupWithTasks.tasks.size > 1) {
+
+                Box(
+                    modifier = Modifier
+                        .clip(RectangleShape)
+                        .background(
+                            when (mainTaskWithSubTasks.mainTask.priority) {
+                                0 -> Color(0xFF00C853)
+                                1 -> Color(0xFFFFAB00)
+                                2 -> Color.Red
+                                else -> Color.Transparent
+                            }
+                        )
+                        .fillMaxHeight()
+                        .width(2.dp)
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                ) {
                     Column(
                         modifier = Modifier
                             .padding(
@@ -189,35 +190,49 @@ fun TaskGroupComponent(
                             modifier = Modifier
                                 .padding(bottom = 12.dp)
                         ) {
-                            Text(
-                                text = taskGroupWithTasks.taskGroup.title,
-                                style = title(MaterialTheme.colorScheme.onPrimary),
-                                textAlign = TextAlign.Start,
+                            Column(
                                 modifier = Modifier.weight(1f)
-                            )
+                            ) {
+                                Text(
+                                    text = mainTaskWithSubTasks.mainTask.title,
+                                    style = title(MaterialTheme.colorScheme.onPrimary),
+                                    textAlign = TextAlign.Start,
+                                )
+
+                                if (mainTaskWithSubTasks.mainTask.startDate != null || mainTaskWithSubTasks.mainTask.startTime != null || mainTaskWithSubTasks.mainTask.endDate != null || mainTaskWithSubTasks.mainTask.endTime != null) {
+                                    Text(
+                                        text = dateTimeToString(
+                                            startDate = mainTaskWithSubTasks.mainTask.startDate,
+                                            startTime = mainTaskWithSubTasks.mainTask.startTime,
+                                            endDate = mainTaskWithSubTasks.mainTask.endDate,
+                                            endTime = mainTaskWithSubTasks.mainTask.endTime
+                                        ),
+                                        color = Color(0xFFCCCCCC),
+                                        fontSize = 12.sp,
+                                        textAlign = TextAlign.Start
+                                    )
+                                }
+                            }
 
                             Icon(
                                 imageVector = Icons.Filled.MoreVert,
                                 contentDescription = "Note"
                             )
+                        }
 
-                            if (taskGroupWithTasks.taskGroup.startDate != null || taskGroupWithTasks.taskGroup.startTime != null || taskGroupWithTasks.taskGroup.endDate != null || taskGroupWithTasks.taskGroup.endTime != null) {
-                                Text(
-                                    text = dateTimeToString(
-                                        startDate = taskGroupWithTasks.taskGroup.startDate,
-                                        startTime = taskGroupWithTasks.taskGroup.startTime,
-                                        endDate = taskGroupWithTasks.taskGroup.endDate,
-                                        endTime = taskGroupWithTasks.taskGroup.endTime
-                                    ),
-                                    color = Color(0xFFCCCCCC),
-                                    fontSize = 12.sp,
-                                    textAlign = TextAlign.Start
+                        if (mainTaskWithSubTasks.mainTask.note != "") {
+                            NoteComponent(
+                                note = mainTaskWithSubTasks.mainTask.note,
+                                isExpanded = isExpanded,
+                                modifier = Modifier.padding(
+                                    end = 12.dp,
+                                    bottom = 6.dp
                                 )
-                            }
+                            )
                         }
 
                         LinearProgressIndicator(
-                            progress = (completion.toFloat() / taskGroupWithTasks.tasks.size),
+                            progress = (completion.toFloat() / mainTaskWithSubTasks.subTasks.size),
                             color = MaterialTheme.colorScheme.onPrimary,
                             trackColor = MaterialTheme.colorScheme.background,
                             modifier = Modifier
@@ -226,37 +241,38 @@ fun TaskGroupComponent(
                         )
                     }
 
-                    if (taskGroupWithTasks.taskGroup.note != "") {
-                        NoteComponent(
-                            note = taskGroupWithTasks.taskGroup.note,
-                            isExpanded = isExpanded
-                        )
-                    }
-                }
 
-                taskGroupWithTasks.tasks.forEach { task ->
-                    var isCompleted by rememberSaveable {
-                        mutableStateOf(task.isCompleted)
-                    }
-                    TaskComponent(
-                        task = task,
-                        isCompleted,
-                        onCompletion = {
-                            isCompleted = !isCompleted
-                            task.isCompleted = isCompleted
+                    if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
+                        mainTaskWithSubTasks.subTasks.forEach { task ->
+                            var isCompleted by rememberSaveable { mutableStateOf(task.isCompleted) }
 
-                            if (isCompleted) {
-                                completion++
-                            } else {
-                                completion--
-                            }
+                            TaskComponent(
+                                subTask = task,
+                                isCompleted,
+                                onCompletion = {
+                                    isCompleted = !isCompleted
+                                    task.isCompleted = isCompleted
 
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    if (isCompleted) {
+                                        completion++
+                                    } else {
+                                        completion--
+                                    }
+
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             }
         }
     }
 }
+
+@Composable
+fun MainTaskComponent() {
+
+}
+
 

@@ -5,24 +5,26 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.je.playground.ui.theme.regularText
 
 @Composable fun NoteEditComponent(
     note : String,
-    onValueChange : (String) -> Unit
+    onValueChange : (String) -> Unit,
+    modifier : Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    TextField(
+    OutlinedTextField(
         value = note,
         onValueChange = onValueChange,
         label = { Text(text = "Note") },
@@ -33,24 +35,45 @@ import com.je.playground.ui.theme.regularText
                 keyboardController?.hide()
             }
         ),
-        colors = TextFieldDefaults.colors(
-            focusedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        colors = OutlinedTextFieldDefaults.colors(
+            selectionColors = TextSelectionColors(
+                handleColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                backgroundColor = MaterialTheme.colorScheme.onSecondaryContainer
+            ),
+
+            focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            disabledTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            errorTextColor = Color.Red,
+
+            focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            errorContainerColor = MaterialTheme.colorScheme.primaryContainer,
+
             cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            errorCursorColor = Color.Red,
 
-            selectionColors = TextSelectionColors(handleColor = MaterialTheme.colorScheme.onSecondaryContainer, backgroundColor = MaterialTheme.colorScheme.onSecondaryContainer),
+            focusedBorderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            unfocusedBorderColor = MaterialTheme.colorScheme.background,
+            errorBorderColor = Color.Red,
 
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
+            focusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            errorLabelColor = Color.Red,
 
-            focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSecondaryContainer,
+
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
         ),
+        shape = RectangleShape,
         singleLine = false,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .then(modifier)
     )
 }

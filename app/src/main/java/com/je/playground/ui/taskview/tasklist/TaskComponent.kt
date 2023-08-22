@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.je.playground.database.tasks.entity.Task
+import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.ui.sharedcomponents.CheckboxComponent
 import com.je.playground.ui.sharedcomponents.NoteComponent
 import com.je.playground.ui.taskview.dateTimeToString
@@ -26,7 +26,7 @@ import com.je.playground.ui.theme.title
 
 @Composable
 fun TaskComponent(
-    task : Task,
+    subTask : SubTask,
     isCompleted : Boolean,
     onCompletion : (Boolean) -> Unit
 ) {
@@ -52,18 +52,18 @@ fun TaskComponent(
                     .weight(1f)
             ) {
                 Text(
-                    text = task.title,
+                    text = subTask.title,
                     style = title(MaterialTheme.colorScheme.onPrimary),
                     textAlign = TextAlign.Start,
                 )
 
-                if (task.startDate != null || task.startTime != null || task.endDate != null || task.endTime != null) {
+                if (subTask.startDate != null || subTask.startTime != null || subTask.endDate != null || subTask.endTime != null) {
                     Text(
                         text = dateTimeToString(
-                            startDate = task.startDate,
-                            startTime = task.startTime,
-                            endDate = task.endDate,
-                            endTime = task.endTime
+                            startDate = subTask.startDate,
+                            startTime = subTask.startTime,
+                            endDate = subTask.endDate,
+                            endTime = subTask.endTime
                         ),
                         color = Color(0xFFCCCCCC),
                         fontSize = 12.sp,
@@ -73,9 +73,9 @@ fun TaskComponent(
             }
         }
 
-        if (task.note != "") {
+        if (subTask.note != "") {
             NoteComponent(
-                note = task.note,
+                note = subTask.note,
                 isExpanded = isExpanded,
                 modifier = Modifier.padding(
                     start = 12.dp,

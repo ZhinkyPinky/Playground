@@ -16,26 +16,26 @@ import javax.inject.Singleton
 class DaoModule {
     @Provides
     @Singleton
-    fun provideTaskDao(appDatabase : AppDatabase) : TaskDao {
-        return appDatabase.getTaskDao()
+    fun provideMainTaskWithSubTasksDao(appDatabase : AppDatabase) : MainTaskWithSubTasksDao {
+        return appDatabase.getMainTaskWithSubTasksDao()
     }
 
     @Provides
     @Singleton
-    fun provideTaskGroupDao(appDatabase : AppDatabase) : TaskGroupDao {
-        return appDatabase.getTaskGroupDao()
+    fun provideMainTaskDao(appDatabase : AppDatabase) : MainTaskDao {
+        return appDatabase.getMainTaskDao()
     }
 
     @Provides
     @Singleton
-    fun provideTaskGroupWithTasksDao(appDatabase : AppDatabase) : TaskGroupWithTasksDao {
-        return appDatabase.getTaskGroupWithTasksDao()
+    fun provideTaskDao(appDatabase : AppDatabase) : SubTaskDao {
+        return appDatabase.getSubTaskDao()
     }
 
     @Provides
     @Singleton
-    fun provideExerciseDao(appDatabase : AppDatabase) : ExerciseDao {
-        return appDatabase.getExerciseDao()
+    fun provideExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithExercisesDao {
+        return appDatabase.getExerciseProgramWithExercisesDao()
     }
 
     @Provides
@@ -46,8 +46,8 @@ class DaoModule {
 
     @Provides
     @Singleton
-    fun provideExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithExercisesDao {
-        return appDatabase.getExerciseProgramWithExercisesDao()
+    fun provideExerciseDao(appDatabase : AppDatabase) : ExerciseDao {
+        return appDatabase.getExerciseDao()
     }
 
     @Provides

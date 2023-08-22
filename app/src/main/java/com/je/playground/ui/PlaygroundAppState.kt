@@ -12,19 +12,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
-
-/*
-sealed class MainScreen(val route : String) {
-    object Home : SubScreen("Home")
-    object Habits : SubScreen("Habits")
-    object TaskList : SubScreen("TaskList")
-}
-
-sealed class SubScreen(val route : String) {
-    object TaskEdit : SubScreen("TaskEdit")
-}
- */
-
 enum class Route() {
     Main
 }
