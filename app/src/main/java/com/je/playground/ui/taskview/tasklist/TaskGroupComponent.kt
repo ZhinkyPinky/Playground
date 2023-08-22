@@ -101,7 +101,7 @@ fun TaskGroupComponent(
             initialValue = DragAnchors.Start,
             anchors = anchors,
             positionalThreshold = { distance : Float -> distance * 0.7f },
-            velocityThreshold = { with(density) { 100.dp.toPx() } },
+            velocityThreshold = { with(density) { 2500.dp.toPx() } },
             animationSpec = tween()
         )
     }
@@ -140,25 +140,24 @@ fun TaskGroupComponent(
             }
     )
     {
-        Column {
+        Column(modifier = Modifier
+            .anchoredDraggable(
+                state = state,
+                enabled = completion == mainTaskWithSubTasks.subTasks.size,
+                orientation = Orientation.Horizontal
+            )
+            .offset {
+                IntOffset(
+                    x = state
+                        .requireOffset()
+                        .roundToInt(),
+                    y = 0
+                )
+            }) {
             Row(
                 modifier = Modifier
                     .height(IntrinsicSize.Max)
-                    .offset {
-                        IntOffset(
-                            x = state
-                                .requireOffset()
-                                .roundToInt(),
-                            y = 0
-                        )
-                    }
-                    .anchoredDraggable(
-                        state = state,
-                        enabled = mainTaskWithSubTasks.mainTask.isCompleted,
-                        orientation = Orientation.Horizontal
-                    )
             ) {
-
                 Box(
                     modifier = Modifier
                         .clip(RectangleShape)
@@ -173,7 +172,6 @@ fun TaskGroupComponent(
                         .fillMaxHeight()
                         .width(2.dp)
                 )
-
                 Column(
                     verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
