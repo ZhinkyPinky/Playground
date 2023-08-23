@@ -11,4 +11,7 @@ interface MainTaskWithSubTasksDao {
     @Transaction
     @Query("select * from main_task")
     fun getAll() : Flow<List<MainTaskWithSubTasks>>
+
+    @Query("select * from main_task where main_task_id = :mainTaskId")
+    fun selectFirstById(mainTaskId : Long) : MainTaskWithSubTasks?
 }

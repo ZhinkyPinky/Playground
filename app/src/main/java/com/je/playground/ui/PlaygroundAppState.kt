@@ -26,7 +26,6 @@ enum class MainScreen(val route : String) {
 
 enum class SubScreen(val route : String) {
     TaskEdit("TaskEdit"),
-    TaskEditV2("TaskEditV2")
 }
 
 @Composable
@@ -61,15 +60,12 @@ class PlaygroundAppState(
         }
     }
 
-    fun navigateToTaskEditWindow(from : NavBackStackEntry) {
+    fun navigateToTaskEditScreen(
+        from : NavBackStackEntry,
+        mainTaskId : Long
+    ) {
         if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.TaskEdit.route)
-        }
-    }
-
-    fun navigateToTaskEditWindowV2(from : NavBackStackEntry) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.TaskEditV2.route)
+            navController.navigate(SubScreen.TaskEdit.route + "?mainTaskId=$mainTaskId")
         }
     }
 

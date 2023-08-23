@@ -1,12 +1,15 @@
 package com.je.playground.database.tasks.entity
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.je.playground.ui.taskview.viewmodel.TaskTypeV2
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.time.LocalTime
 
+@Parcelize
 @Entity(tableName = "main_task")
 data class MainTask(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "main_task_id") var mainTaskId : Long = 0,
@@ -20,4 +23,4 @@ data class MainTask(
     @ColumnInfo(name = "time_from") var startTime : LocalTime? = null,
     @ColumnInfo(name = "date_to") var endDate : LocalDate? = null,
     @ColumnInfo(name = "time_to") var endTime : LocalTime? = null,
-)
+) : Parcelable

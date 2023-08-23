@@ -24,10 +24,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -67,11 +70,16 @@ enum class DragAnchors {
 @Composable
 fun TaskGroupComponent(
     mainTaskWithSubTasks : MainTaskWithSubTasks,
+    navigateToTaskEditScreen : (Long) -> Unit,
     deleteTask : (SubTask) -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
     val isExpanded by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isDropDownMenuExpanded by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -83,9 +91,7 @@ fun TaskGroupComponent(
     }
 
     var completion by rememberSaveable {
-        mutableIntStateOf(
-            completionCounter
-        )
+        mutableIntStateOf(completionCounter)
     }
 
     val density = LocalDensity.current
@@ -212,10 +218,41 @@ fun TaskGroupComponent(
                                 }
                             }
 
-                            Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = "Note"
-                            )
+                            Box {
+                                IconButton(onClick = {
+                                    isDropDownMenuExpanded = !isDropDownMenuExpanded
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = "Note"
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = isDropDownMenuExpanded,
+                                    onDismissRequest = { isDropDownMenuExpanded = false }) {
+                                    Column {
+                                        TextButton(onClick = {
+                                            isDropDownMenuExpanded = false
+                                            navigateToTaskEditScreen(mainTaskWithSubTasks.mainTask.mainTaskId)
+                                        }) {
+                                            Text(
+                                                text = "Edit",
+                                                color = MaterialTheme.colorScheme.onPrimary
+                                            )
+                                        }
+
+                                        TextButton(onClick = {
+                                            isDropDownMenuExpanded = false
+                                        }) {
+                                            Text(
+                                                text = "Delete",
+                                                color = MaterialTheme.colorScheme.onPrimary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         if (mainTaskWithSubTasks.mainTask.note != "") {
@@ -229,16 +266,17 @@ fun TaskGroupComponent(
                             )
                         }
 
-                        LinearProgressIndicator(
-                            progress = (completion.toFloat() / mainTaskWithSubTasks.subTasks.size),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            trackColor = MaterialTheme.colorScheme.background,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
+                        if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
+                            LinearProgressIndicator(
+                                progress = completion.toFloat() / mainTaskWithSubTasks.subTasks.size,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                trackColor = MaterialTheme.colorScheme.background,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                            )
+                        }
                     }
-
 
                     if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
                         mainTaskWithSubTasks.subTasks.forEach { task ->

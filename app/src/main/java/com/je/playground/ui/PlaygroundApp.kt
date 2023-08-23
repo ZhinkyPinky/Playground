@@ -6,6 +6,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navArgument
 import com.je.playground.PlaygroundApplication
 import com.je.playground.ui.exerciseprogram.ExerciseProgramScreen
 import com.je.playground.ui.home.HomeScreen
@@ -51,7 +52,7 @@ fun PlaygroundApp(
                     ExerciseProgramScreen(
                         exerciseProgramViewModel = hiltViewModel(),
                         drawerState = appState.drawerState,
-                        {}
+                        navigateToExerciseProgramEditScreen = {}
                     )
                 }
 
@@ -59,23 +60,24 @@ fun PlaygroundApp(
                     TasksScreen(
                         tasksViewModel = hiltViewModel(),
                         drawerState = appState.drawerState,
-                        navigateToTaskEditWindow = {
-                            appState.navigateToTaskEditWindowV2(navBackStackEntry)
+                        navigateToTaskEditScreen = {
+                            appState.navigateToTaskEditScreen(
+                                navBackStackEntry,
+                                it
+                            )
                         }
                     )
                 }
 
-                composable(SubScreen.TaskEditV2.route) {
+                composable(
+                    route = SubScreen.TaskEdit.route + "?mainTaskId={mainTaskId}",
+                    arguments = listOf(navArgument("mainTaskId") { defaultValue = 0L })
+                ) {
                     TaskEditorScreen(
+                        mainTaskId = it.arguments?.getLong("mainTaskId"),
                         tasksViewModel = hiltViewModel(),
                         onBackPress = appState::navigateBack
                     )
-                    /*
-                    TaskEditorScreen(
-                        taskEditorViewModel = hiltViewModel(),
-                        onBackPress = appState::navigateBack
-                    )
-                     */
                 }
             }
         }

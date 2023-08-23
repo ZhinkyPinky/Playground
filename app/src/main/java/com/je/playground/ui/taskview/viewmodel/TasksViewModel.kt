@@ -9,11 +9,13 @@ import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.repository.TasksRepository
 import com.je.playground.ui.Notifications
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
@@ -45,11 +47,9 @@ enum class Priority {
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
-    private val application : Application,
+    application : Application,
     private val tasksRepository : TasksRepository
 ) : ViewModel() {
-
-
     private val notifications = Notifications(application)
 
     private val priorities = MutableStateFlow(
@@ -87,91 +87,6 @@ class TasksViewModel @Inject constructor(
     }
 
     /*
-    //region Exercise
-
-    fun insertExercise(exercise : Exercise) = tasksRepository.insertExercise(exercise)
-
-    fun updateExercise(exercise : Exercise) = tasksRepository.updateExercise(exercise)
-
-    fun deleteExercise(exercise : Exercise) = tasksRepository.deleteExercise(exercise)
-
-    //endregion
-
-    //region ExerciseProgram
-
-    fun insertExerciseProgram(name : String) = viewModelScope.launch {
-        val exerciseProgram = ExerciseProgram(
-            id = insertTask(),
-            name = name
-        )
-
-        tasksRepository.insertExerciseProgram(exerciseProgram)
-    }
-
-
-    fun updateExerciseProgram(exerciseProgram : ExerciseProgram) = tasksRepository.updateExerciseProgram(exerciseProgram)
-    //endregion
-
-    //region ExerciseOccasion
-
-    fun insertExerciseOccasion(exerciseOccasion : ExerciseOccasion) = tasksRepository.insertExerciseOccasion(exerciseOccasion)
-
-    fun updateExerciseOccasion(exerciseOccasion : ExerciseOccasion) = viewModelScope.launch {
-        tasksRepository.updateExerciseOccasion(exerciseOccasion)
-    }
-
-    fun deleteExerciseOccasion(exerciseOccasion : ExerciseOccasion) = tasksRepository.deleteExerciseOccasion(exerciseOccasion)
-
-    //endregion
-
-    //region SimpleTask
-
-    fun updateSimpleTask(simpleTask : SimpleTask) = tasksRepository.updateSimpleTask(simpleTask)
-
-    //endregion
-
-    //region Task
-
-    private suspend fun insertTask() : Long = withContext(viewModelScope.coroutineContext) { tasksRepository.insertTask() }
-
-    fun deleteTask(task : Task) = viewModelScope.launch {
-        notifications.cancelNotification(task.id)
-        tasksRepository.deleteTask(task)
-    }
-
-
-    //endregion
-
-    //region TaskOccasion
-
-    fun insertTaskOccasion(
-        taskId : Long,
-        dateFrom : LocalDate? = null,
-        timeFrom : LocalTime? = null,
-        dateTo : LocalDate? = null,
-        timeTo : LocalTime? = null
-    ) {
-        tasksRepository.insertTaskOccasion(
-            TaskOccasion(
-                taskId = taskId,
-                dateFrom = dateFrom,
-                timeFrom = timeFrom,
-                dateTo = dateTo,
-                timeTo = timeTo
-            )
-        )
-    }
-
-    fun updateTaskOccasion(taskOccasion : TaskOccasion) = tasksRepository.updateTaskOccasion(taskOccasion)
-
-    fun deleteTaskOccasion(taskOccasion : TaskOccasion) = tasksRepository.deleteTaskOccasion(taskOccasion)
-
-    private fun deleteTaskOccasionWithTaskIdAndDateTimeFrom(taskOccasion : TaskOccasion) = tasksRepository.deleteTaskOccasionWithTaskIdAndDateFrom(taskOccasion)
-
-    //endregion
-
-    //region WeekdaySchedule
-
     fun insertWeekdayScheduleEntry(weekdayScheduleEntry : WeekdaySchedule) {
         tasksRepository.insertWeekdayScheduleEntry(weekdayScheduleEntry)
 
@@ -223,6 +138,7 @@ class TasksViewModel @Inject constructor(
     //endregion
      */
 
+    suspend fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = withContext(Dispatchers.IO) { tasksRepository.selectMainTaskWithSubTasksByMainTaskId(mainTaskId) }
 
     fun saveMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         viewModelScope.launch {

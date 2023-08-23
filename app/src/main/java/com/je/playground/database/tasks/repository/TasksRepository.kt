@@ -36,4 +36,6 @@ class TasksRepository @Inject constructor(
     fun getAllMainTasks() : Flow<List<MainTask>> = mainTaskDao.getAll()
 
     fun getAllMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAll()
+
+    fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? =  mainTaskWithSubTasksDao.selectFirstById(mainTaskId)
 }

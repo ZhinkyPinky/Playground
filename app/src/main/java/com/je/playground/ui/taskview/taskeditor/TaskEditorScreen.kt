@@ -38,8 +38,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -70,6 +72,7 @@ import java.time.LocalTime
 
 @Composable
 fun TaskEditorScreen(
+    mainTaskId : Long?,
     tasksViewModel : TasksViewModel,
     mainTaskWithSubtasks : MainTaskWithSubTasks = MainTaskWithSubTasks(
         MainTask(),
@@ -77,7 +80,19 @@ fun TaskEditorScreen(
     ),
     onBackPress : () -> Unit,
 ) {
-    val mainTask = mainTaskWithSubtasks.mainTask.copy()
+    var mainTaskWithSubTasks = MainTaskWithSubTasks(
+        mainTask = MainTask(),
+        subTasks = emptyList()
+    )
+
+    var mainTask = mainTaskWithSubTasks.mainTask
+    val mainTaskIdToSave by rememberSaveable {
+        if (mainTaskId != null) {
+            mutableLongStateOf(mainTaskId)
+        } else {
+            mutableLongStateOf(mainTask.mainTaskId)
+        }
+    }
     var mainTaskTitle by rememberSaveable { mutableStateOf(mainTask.title) }
     var mainTaskNote by rememberSaveable { mutableStateOf(mainTask.note) }
     var mainTaskPriority by rememberSaveable { mutableIntStateOf(mainTask.priority) }
@@ -108,64 +123,127 @@ fun TaskEditorScreen(
 
     var showMainTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
 
-    var isGroup by rememberSaveable { mutableStateOf(subTasks.size > 1) }
+    var isGroup by rememberSaveable { mutableStateOf(false) }
+    var isLoading by rememberSaveable { mutableStateOf(true) }
 
-    TaskEditorContent(
-        saveMainTaskWithSubTasks = {
-            mainTask.title = mainTaskTitle
-            mainTask.note = mainTaskNote
-            mainTask.priority = mainTaskPriority
-            mainTask.startDate = mainTaskStartDate
-            mainTask.startTime = mainTaskStartTime
-            mainTask.endDate = mainTaskEndDate
-            mainTask.endTime = mainTaskEndTime
+    LaunchedEffect(
+        Unit
+    ) {
+        mainTaskId?.let { id ->
+            tasksViewModel
+                .selectMainTaskWithSubTasksByMainTaskId(id)
+                ?.let {
+                    mainTaskWithSubTasks = it
+                    mainTask = mainTaskWithSubTasks.mainTask
+                    mainTaskTitle = mainTask.title
+                    mainTaskNote = mainTask.note
+                    mainTaskPriority = mainTask.priority
+                    mainTaskStartDate = mainTask.startDate
+                    mainTaskStartTime = mainTask.startTime
+                    mainTaskEndDate = mainTask.endDate
+                    mainTaskEndTime = mainTask.endTime
 
-            tasksViewModel.saveMainTaskWithSubTasks(
-                mainTaskWithSubTasks = MainTaskWithSubTasks(
-                    mainTask = mainTask,
-                    subTasks = subTasks.toList()
+                    mainTaskWithSubTasks.subTasks.forEach { subTask ->
+                        subTasks.add(subTask)
+                    }
+
+                    isGroup = subTasks.size > 0
+                }
+        }
+
+        isLoading = false
+    }
+
+    if (!isLoading) {
+        TaskEditorContent(
+            saveMainTaskWithSubTasks = {
+                mainTask.mainTaskId = mainTaskIdToSave
+                mainTask.title = mainTaskTitle
+                mainTask.note = mainTaskNote
+                mainTask.priority = mainTaskPriority
+                mainTask.startDate = mainTaskStartDate
+                mainTask.startTime = mainTaskStartTime
+                mainTask.endDate = mainTaskEndDate
+                mainTask.endTime = mainTaskEndTime
+
+                tasksViewModel.saveMainTaskWithSubTasks(
+                    mainTaskWithSubTasks = MainTaskWithSubTasks(
+                        mainTask = mainTask,
+                        subTasks = subTasks.toList()
+                    )
                 )
-            )
-        },
-        deleteMainTaskWithTasks = tasksViewModel::deleteMainTaskWithSubTasks,
-        mainTaskId = mainTask.mainTaskId,
-        mainTaskTitle = mainTaskTitle,
-        updateMainTaskTitle = { mainTaskTitle = it },
-        mainTaskNote = mainTaskNote,
-        updateMainTaskNote = { mainTaskNote = it },
-        mainTaskPriority = mainTaskPriority,
-        updateMainTaskPriority = { mainTaskPriority = it },
-        mainTaskStartDate = mainTaskStartDate,
-        updateMainTaskStartDate = { mainTaskStartDate = it },
-        mainTaskStartTime = mainTaskStartTime,
-        updateMainTaskStartTime = { mainTaskStartTime = it },
-        mainTaskEndDate = mainTaskEndDate,
-        updateMainTaskEndDate = { mainTaskEndDate = it },
-        mainTaskEndTime = mainTaskEndTime,
-        updateMainTaskEndTime = { mainTaskEndTime = it },
-        updateMainTask = { title, note, priority, startDate, startTime, endDate, endTime ->
-            mainTaskTitle = title
-            mainTask.title = title
-            mainTaskNote = note
-            mainTask.note = note
-            mainTaskPriority = priority
-            mainTask.priority = priority
-            mainTaskStartDate = startDate
-            mainTask.startDate = startDate
-            mainTaskStartTime = startTime
-            mainTask.startTime = startTime
-            mainTaskEndDate = endDate
-            mainTask.endDate = endDate
-            mainTaskEndTime = endTime
-            mainTask.endTime = endTime
-        },
-        subTasks = subTasks,
-        showMainTaskEditorDialog = showMainTaskEditorDialog,
-        toggleMainTaskEditorDialog = { showMainTaskEditorDialog = !showMainTaskEditorDialog },
-        isGroup = isGroup,
-        toggleIsGroup = { isGroup = !isGroup },
-        onBackPress = onBackPress,
-    )
+
+                onBackPress()
+            },
+            deleteMainTaskWithTasks = tasksViewModel::deleteMainTaskWithSubTasks,
+            mainTaskId = mainTaskId.takeIf { it != null } ?: mainTask.mainTaskId,
+            mainTaskTitle = mainTaskTitle,
+            updateMainTaskTitle = {
+                mainTaskTitle = it
+                mainTask.title = it
+            },
+            mainTaskNote = mainTaskNote,
+            updateMainTaskNote = {
+                mainTaskNote = it
+                mainTask.note = it
+            },
+            mainTaskPriority = mainTaskPriority,
+            updateMainTaskPriority = {
+                mainTaskPriority = it
+                mainTask.priority = it
+            },
+            mainTaskStartDate =
+            mainTaskStartDate,
+            updateMainTaskStartDate = {
+                mainTaskStartDate = it
+                mainTask.startDate = it
+            },
+            mainTaskStartTime = mainTaskStartTime,
+            updateMainTaskStartTime = {
+                mainTaskStartTime = it
+                mainTask.startTime = it
+            },
+            mainTaskEndDate = mainTaskEndDate,
+            updateMainTaskEndDate = {
+                mainTaskEndDate = it
+                mainTask.endDate = it
+            },
+            mainTaskEndTime = mainTaskEndTime,
+            updateMainTaskEndTime = {
+                mainTaskEndTime = it
+                mainTask.endTime = it
+            },
+            updateMainTask = { title, note, priority, startDate, startTime, endDate, endTime ->
+                mainTaskTitle = title
+                mainTask.title = title
+                mainTaskNote = note
+                mainTask.note = note
+                mainTaskPriority = priority
+                mainTask.priority = priority
+                mainTaskStartDate = startDate
+                mainTask.startDate = startDate
+                mainTaskStartTime = startTime
+                mainTask.startTime = startTime
+                mainTaskEndDate = endDate
+                mainTask.endDate = endDate
+                mainTaskEndTime = endTime
+                mainTask.endTime = endTime
+            },
+            subTasks = subTasks,
+            showMainTaskEditorDialog = showMainTaskEditorDialog,
+            toggleMainTaskEditorDialog = { showMainTaskEditorDialog = !showMainTaskEditorDialog },
+            isGroup = isGroup,
+            toggleIsGroup = {
+                isGroup =
+                    if (subTasks.size > 0) {
+                        true
+                    } else {
+                        !isGroup
+                    }
+            },
+            onBackPress = onBackPress,
+        )
+    }
 }
 
 @Composable
@@ -713,9 +791,9 @@ fun SingleTaskEditor(
                 .clip(RectangleShape)
                 .background(
                     when (mainTaskPriority) {
-                        0 -> Color.Red
+                        0 -> Color(0xFF00C853)
                         1 -> Color(0xFFFFAB00)
-                        2 -> Color(0xFF00C853)
+                        2 -> Color.Red
                         else -> Color.Transparent
                     }
                 )

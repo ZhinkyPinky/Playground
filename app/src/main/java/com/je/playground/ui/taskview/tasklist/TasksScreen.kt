@@ -36,67 +36,16 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun TasksScreen(
-    navigateToTaskEditWindow : () -> Unit,
+    tasksViewModel : TasksViewModel,
     drawerState : DrawerState,
-    tasksViewModel : TasksViewModel
+    navigateToTaskEditScreen : (Long) -> Unit,
 ) {
     val tasksUiState by tasksViewModel.tasksUiState.collectAsState()
 
     TasksScreen(
-        //tasksUiState = tasksUiState,
         taskGroupsWithTasks = tasksUiState.taskGroupsWithSubTasks,
-        /*
-        listOf(
-            MainTaskWithSubTasks(
-                mainTask = MainTask(
-                    mainTaskId = 0L,
-                    title = "TestGroup",
-                    type = TaskTypeV2.RegularTask.ordinal,
-                    priority = Priority.Medium.ordinal
-                ),
-                subTasks = mutableListOf(
-                    SubTask(
-                        mainTaskId = 0L,
-                        subTaskId = 0L,
-                        title = "TestTask",
-                    ),
-                    SubTask(
-                        mainTaskId = 0L,
-                        subTaskId = 1L,
-                        title = "TestTask",
-                        note = "The quick brown fox jumped over the lazy dog." +
-                                "The quick brown fox jumped over the lazy dog." +
-                                "The quick brown fox jumped over the lazy dog." +
-                                "The quick brown fox jumped over the lazy dog." +
-                                "The quick brown fox jumped over the lazy dog." +
-                                "The quick brown fox jumped over the lazy dog."
-                    ),
-                    SubTask(
-                        mainTaskId = 0L,
-                        subTaskId = 2L,
-                        title = "TestTask"
-                    ),
-                )
-            ),
-            MainTaskWithSubTasks(
-                mainTask = MainTask(
-                    mainTaskId = 1L,
-                    title = "TestGroup",
-                    type = TaskTypeV2.RegularTask.ordinal,
-                    priority = Priority.Medium.ordinal
-                ),
-                subTasks = mutableListOf(
-                    SubTask(
-                        mainTaskId = 1L,
-                        subTaskId = 4L,
-                        title = "TestTask"
-                    )
-                )
-            )
-        )
-        */
         drawerState = drawerState,
-        navigateToTaskEditWindow = navigateToTaskEditWindow,
+        navigateToTaskEditScreen = navigateToTaskEditScreen,
         deleteTask = { },
     )
 }
@@ -106,7 +55,7 @@ fun TasksScreen(
 fun TasksScreen(
     taskGroupsWithTasks : List<MainTaskWithSubTasks>,
     drawerState : DrawerState,
-    navigateToTaskEditWindow : () -> Unit,
+    navigateToTaskEditScreen : (Long) -> Unit,
     deleteTask : (SubTask) -> Unit,
 ) {
     Scaffold(
@@ -149,7 +98,7 @@ fun TasksScreen(
                     },
                     actions = {
                         IconButton(
-                            onClick = { navigateToTaskEditWindow() }) {
+                            onClick = { navigateToTaskEditScreen(0L) }) {
                             Icon(
                                 imageVector = Icons.Filled.Add,
                                 contentDescription = "Add new task",
@@ -185,10 +134,11 @@ fun TasksScreen(
                 .fillMaxWidth()
                 .padding(it)
         ) {
-            items(items = taskGroupsWithTasks) { taskGroupWithTasks ->
-                key(taskGroupWithTasks.mainTask.mainTaskId) {
+            items(items = taskGroupsWithTasks) { mainTaskWithSubTasks ->
+                key(mainTaskWithSubTasks.mainTask.mainTaskId) {
                     TaskGroupComponent(
-                        mainTaskWithSubTasks = taskGroupWithTasks,
+                        mainTaskWithSubTasks = mainTaskWithSubTasks,
+                        navigateToTaskEditScreen = navigateToTaskEditScreen,
                         deleteTask = {}
                     )
                 }
