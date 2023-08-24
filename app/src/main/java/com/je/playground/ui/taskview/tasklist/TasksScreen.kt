@@ -2,11 +2,10 @@ package com.je.playground.ui.taskview.tasklist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Divider
@@ -22,16 +21,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
-import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.ui.taskview.viewmodel.TasksViewModel
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -43,20 +40,24 @@ fun TasksScreen(
     val tasksUiState by tasksViewModel.tasksUiState.collectAsState()
 
     TasksScreen(
-        taskGroupsWithTasks = tasksUiState.taskGroupsWithSubTasks,
+        mainTasksWithSubTasks = tasksUiState.taskGroupsWithSubTasks,
         drawerState = drawerState,
         navigateToTaskEditScreen = navigateToTaskEditScreen,
-        deleteTask = { },
+        updateMainTask = tasksViewModel::updateMainTask,
+        updateMainTaskWithSubTasks = tasksViewModel::updateMainTaskWithSubTasks,
+        deleteMainTaskWithSubTasks = tasksViewModel::deleteMainTaskWithSubTasks,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
-    taskGroupsWithTasks : List<MainTaskWithSubTasks>,
+    mainTasksWithSubTasks : List<MainTaskWithSubTasks>,
     drawerState : DrawerState,
     navigateToTaskEditScreen : (Long) -> Unit,
-    deleteTask : (SubTask) -> Unit,
+    updateMainTask : (MainTask) -> Unit,
+    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -81,21 +82,6 @@ fun TasksScreen(
                                 .weight(1f)
                         )
                     },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    drawerState.open()
-                                }
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Menu",
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-                    },
                     actions = {
                         IconButton(
                             onClick = { navigateToTaskEditScreen(0L) }) {
@@ -103,15 +89,6 @@ fun TasksScreen(
                                 imageVector = Icons.Filled.Add,
                                 contentDescription = "Add new task",
                                 tint = MaterialTheme.colorScheme.onPrimary,
-                            )
-                        }
-
-                        IconButton(onClick = {/* TODO */ }) {
-                            Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = "Config",
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.padding(end = 2.dp)
                             )
                         }
                     },
@@ -126,23 +103,42 @@ fun TasksScreen(
             }
         },
         containerColor = MaterialTheme.colorScheme.background
-    ) {
+    ) { paddingValues ->
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(1.dp),
             modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-                .padding(it)
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            items(items = taskGroupsWithTasks) { mainTaskWithSubTasks ->
-                key(mainTaskWithSubTasks.mainTask.mainTaskId) {
-                    TaskGroupComponent(
+            itemsIndexed(
+                items = mainTasksWithSubTasks,
+                key = { _, mainTaskWithSubTasks -> mainTaskWithSubTasks.mainTask.mainTaskId }) { _, mainTaskWithSubTasks ->
+                if(!mainTaskWithSubTasks.mainTask.isArchived) {
+                    MainTaskComponent(
                         mainTaskWithSubTasks = mainTaskWithSubTasks,
                         navigateToTaskEditScreen = navigateToTaskEditScreen,
-                        deleteTask = {}
+                        updateMainTask = updateMainTask,
+                        updateMainTaskWithSubTasks = updateMainTaskWithSubTasks,
+                        deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks
                     )
                 }
             }
+
+            /*
+            items(items = mainTasksWithSubTasks) { mainTaskWithSubTasks ->
+                if (!mainTaskWithSubTasks.mainTask.isArchived) {
+                    key(mainTaskWithSubTasks.mainTask.mainTaskId) {
+                        MainTaskComponent(
+                            mainTaskWithSubTasks = mainTaskWithSubTasks,
+                            navigateToTaskEditScreen = navigateToTaskEditScreen,
+                            updateMainTask = updateMainTask,
+                            updateMainTaskWithSubTasks = updateMainTaskWithSubTasks,
+                            deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks
+                        )
+                    }
+                }
+            }
+             */
         }
     }
 }

@@ -1,37 +1,43 @@
 package com.je.playground.ui.taskview.tasklist
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,20 +50,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
-import com.je.playground.database.tasks.entity.SubTask
+import com.je.playground.ui.dialog.ConfirmationDialog
+import com.je.playground.ui.sharedcomponents.CheckboxComponent
 import com.je.playground.ui.sharedcomponents.NoteComponent
 import com.je.playground.ui.taskview.dateTimeToString
 import com.je.playground.ui.theme.title
-import kotlin.math.roundToInt
 
 enum class DragAnchors {
     Start,
@@ -65,23 +69,86 @@ enum class DragAnchors {
 }
 
 @OptIn(
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
-fun TaskGroupComponent(
+fun MainTaskComponent(
     mainTaskWithSubTasks : MainTaskWithSubTasks,
     navigateToTaskEditScreen : (Long) -> Unit,
-    deleteTask : (SubTask) -> Unit,
+    updateMainTask : (MainTask) -> Unit,
+    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+) {
+    val context = LocalContext.current
+    val hapticFeedback = LocalHapticFeedback.current
+
+    var isVisible by remember { mutableStateOf(true) }
+    val dismissState = rememberDismissState(
+        confirmValueChange = {
+            if (it == DismissValue.DismissedToStart) {
+                isVisible = false
+                true
+            } else {
+                false
+            }
+        },
+        positionalThreshold = { 150.dp.toPx() }
+    )
+
+    AnimatedVisibility(
+        visible = isVisible,
+        exit = fadeOut(spring())
+    ) {
+        SwipeToDismiss(
+            state = dismissState,
+            directions = if (mainTaskWithSubTasks.mainTask.isCompleted) setOf(DismissDirection.EndToStart) else setOf(),
+            background = {
+                DismissBackground(dismissState = dismissState)
+            },
+            dismissContent = {
+                MainTaskComponentContent(
+                    mainTaskWithSubTasks = mainTaskWithSubTasks,
+                    navigateToTaskEditScreen = navigateToTaskEditScreen,
+                    updateMainTaskWithSubTasks = updateMainTaskWithSubTasks,
+                    deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks
+                )
+            }
+        )
+    }
+
+    LaunchedEffect(
+        isVisible
+    ) {
+        if (!isVisible) {
+            mainTaskWithSubTasks.mainTask.isArchived = true
+            updateMainTask(mainTaskWithSubTasks.mainTask)
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
+}
+
+@Composable
+fun MainTaskComponentContent(
+    mainTaskWithSubTasks : MainTaskWithSubTasks,
+    navigateToTaskEditScreen : (Long) -> Unit,
+    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
-    val isExpanded by rememberSaveable {
-        mutableStateOf(false)
+    var isDeletionDialogDisplayed by rememberSaveable { mutableStateOf(false) }
+    if (isDeletionDialogDisplayed) {
+        ConfirmationDialog(
+            title = "Delete",
+            contentText = "This will delete the task permanently. You cannot undo this action.",
+            confirmButtonText = "Delete",
+            confirm = { deleteMainTaskWithSubTasks(mainTaskWithSubTasks) },
+            onDismissRequest = { isDeletionDialogDisplayed = false },
+        )
     }
 
-    var isDropDownMenuExpanded by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+    var isDropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
     var completionCounter = 0
     for (i in 0 until mainTaskWithSubTasks.subTasks.size) {
@@ -90,32 +157,7 @@ fun TaskGroupComponent(
         }
     }
 
-    var completion by rememberSaveable {
-        mutableIntStateOf(completionCounter)
-    }
-
-    val density = LocalDensity.current
-    val contentSizePx = with(density) { LocalConfiguration.current.screenWidthDp.dp.toPx() }
-
-    val anchors = DraggableAnchors {
-        DragAnchors.Start at 0f
-        DragAnchors.End at -contentSizePx
-    }
-
-    val state = remember {
-        AnchoredDraggableState(
-            initialValue = DragAnchors.Start,
-            anchors = anchors,
-            positionalThreshold = { distance : Float -> distance * 0.7f },
-            velocityThreshold = { with(density) { 2500.dp.toPx() } },
-            animationSpec = tween()
-        )
-    }
-
-    if (state.currentValue == DragAnchors.End) {
-        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-        //deleteTask(taskWithOccasions.task)
-    }
+    var completion by rememberSaveable { mutableIntStateOf(completionCounter) }
 
     Box(
         modifier = Modifier
@@ -124,42 +166,23 @@ fun TaskGroupComponent(
             )
             .wrapContentHeight()
             .fillMaxWidth()
-            .padding(
-                6.dp
-            )
             .animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
                     stiffness = Spring.StiffnessMedium
                 )
             )
-            .onSizeChanged {
-                state.updateAnchors(
-                    DraggableAnchors {
-                        DragAnchors
-                            .values()
-                            .forEach { anchor ->
-                                anchor at contentSizePx * anchors.positionOf(anchor)
-                            }
-                    }
-                )
-            }
+            .clickable { isExpanded = !isExpanded }
     )
     {
-        Column(modifier = Modifier
-            .anchoredDraggable(
-                state = state,
-                enabled = completion == mainTaskWithSubTasks.subTasks.size,
-                orientation = Orientation.Horizontal
+        Column(
+            modifier = Modifier.padding(
+                start = 6.dp,
+                top = 6.dp,
+                bottom = 6.dp
             )
-            .offset {
-                IntOffset(
-                    x = state
-                        .requireOffset()
-                        .roundToInt(),
-                    y = 0
-                )
-            }) {
+
+        ) {
             Row(
                 modifier = Modifier
                     .height(IntrinsicSize.Max)
@@ -179,23 +202,28 @@ fun TaskGroupComponent(
                         .width(2.dp)
                 )
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(1.dp)
+                    verticalArrangement = Arrangement.spacedBy(1.dp),
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(
-                                top = 12.dp,
-                                start = 12.dp,
-                                end = 10.dp
-                            )
-                    ) {
+                    Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .padding(bottom = 12.dp)
+                                .padding(bottom = 6.dp)
                         ) {
+                            if (mainTaskWithSubTasks.subTasks.isEmpty()) {
+                                CheckboxComponent(
+                                    isChecked = mainTaskWithSubTasks.mainTask.isCompleted,
+                                    onCheckedChange = {
+                                        mainTaskWithSubTasks.mainTask.isCompleted = !mainTaskWithSubTasks.mainTask.isCompleted
+                                        updateMainTaskWithSubTasks(mainTaskWithSubTasks)
+                                    }
+                                )
+                            }
+
                             Column(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(start = if (mainTaskWithSubTasks.subTasks.isNotEmpty()) 12.dp else 0.dp)
                             ) {
                                 Text(
                                     text = mainTaskWithSubTasks.mainTask.title,
@@ -217,6 +245,7 @@ fun TaskGroupComponent(
                                     )
                                 }
                             }
+
 
                             Box {
                                 IconButton(onClick = {
@@ -243,6 +272,7 @@ fun TaskGroupComponent(
                                         }
 
                                         TextButton(onClick = {
+                                            isDeletionDialogDisplayed = true
                                             isDropDownMenuExpanded = false
                                         }) {
                                             Text(
@@ -260,6 +290,7 @@ fun TaskGroupComponent(
                                 note = mainTaskWithSubTasks.mainTask.note,
                                 isExpanded = isExpanded,
                                 modifier = Modifier.padding(
+                                    start = 12.dp,
                                     end = 12.dp,
                                     bottom = 6.dp
                                 )
@@ -274,27 +305,31 @@ fun TaskGroupComponent(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(1.dp)
+                                    .padding(
+                                        start = 6.dp,
+                                        end = 6.dp
+                                    )
                             )
                         }
                     }
 
                     if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
                         mainTaskWithSubTasks.subTasks.forEach { task ->
-                            var isCompleted by rememberSaveable { mutableStateOf(task.isCompleted) }
-
-                            TaskComponent(
+                            SubTaskComponent(
                                 subTask = task,
-                                isCompleted,
+                                isCompleted = task.isCompleted,
                                 onCompletion = {
-                                    isCompleted = !isCompleted
-                                    task.isCompleted = isCompleted
+                                    task.isCompleted = !task.isCompleted
 
-                                    if (isCompleted) {
+                                    if (task.isCompleted) {
                                         completion++
                                     } else {
                                         completion--
                                     }
 
+                                    mainTaskWithSubTasks.mainTask.isCompleted = (completion == mainTaskWithSubTasks.subTasks.size)
+
+                                    updateMainTaskWithSubTasks(mainTaskWithSubTasks)
                                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 }
                             )
@@ -306,9 +341,43 @@ fun TaskGroupComponent(
     }
 }
 
-@Composable
-fun MainTaskComponent() {
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DismissBackground(dismissState : DismissState) {
+    val color = when (dismissState.dismissDirection) {
+        DismissDirection.StartToEnd -> MaterialTheme.colorScheme.background
+        DismissDirection.EndToStart -> Color(0xFF1DE9B6)
+        null -> Color.Transparent
+    }
+    val direction = dismissState.dismissDirection
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(
+                12.dp,
+                8.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        /*
+        if (direction == DismissDirection.StartToEnd) Icon(
+            Icons.Default.Delete,
+            contentDescription = "delete"
+        )
+        */
+        Spacer(modifier = Modifier)
+
+        if (direction == DismissDirection.EndToStart) Icon(
+            imageVector = Icons.Filled.Archive,
+            contentDescription = "Archive"
+        )
+    }
 }
+
+
 
 

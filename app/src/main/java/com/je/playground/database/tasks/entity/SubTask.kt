@@ -18,7 +18,8 @@ import java.time.LocalTime
         ForeignKey(
             entity = MainTask::class,
             parentColumns = ["main_task_id"],
-            childColumns = ["main_task_id"]
+            childColumns = ["main_task_id"],
+            onDelete = 5
         )
     ],
     indices = [

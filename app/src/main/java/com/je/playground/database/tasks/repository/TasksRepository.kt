@@ -27,15 +27,17 @@ class TasksRepository @Inject constructor(
 
     fun deleteSubTask(subTask : SubTask) = coroutineScope.launch { subTaskDao.delete(subTask) }
 
+    fun updateSubTasks(subTasks : List<SubTask>) = coroutineScope.launch { subTaskDao.updateSubTasks(subTasks) }
     fun getAllSubTasks() : Flow<List<SubTask>> = subTaskDao.getAll()
 
-    suspend fun insertMainTask(mainTask : MainTask) : Long = withContext(Dispatchers.IO) {
-        mainTaskDao.insertMainTask(mainTask)
-    }
-
-    fun getAllMainTasks() : Flow<List<MainTask>> = mainTaskDao.getAll()
+    suspend fun insertMainTask(mainTask : MainTask) : Long = withContext(Dispatchers.IO) { mainTaskDao.insertMainTask(mainTask) }
+    fun updateMainTask(mainTask : MainTask) = coroutineScope.launch { mainTaskDao.updateMainTask(mainTask) }
+    fun deleteMainTask(mainTask : MainTask) = coroutineScope.launch { mainTaskDao.deleteMainTask(mainTask) }
+    fun getAllMainTasks() : Flow<List<MainTask>> =  mainTaskDao.getAll()
 
     fun getAllMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAll()
 
-    fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? =  mainTaskWithSubTasksDao.selectFirstById(mainTaskId)
+    fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = mainTaskWithSubTasksDao.selectFirstById(mainTaskId)
+
+
 }

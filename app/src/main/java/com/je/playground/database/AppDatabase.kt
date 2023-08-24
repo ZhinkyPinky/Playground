@@ -22,7 +22,7 @@ import com.je.playground.database.tasks.entity.*
         ExerciseProgram::class,
         WeekdaySchedule::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false //TODO: fix?
 )
 @TypeConverters(DateTimeTypeConverters::class)

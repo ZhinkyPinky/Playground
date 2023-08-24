@@ -25,7 +25,7 @@ import com.je.playground.ui.taskview.dateTimeToString
 import com.je.playground.ui.theme.title
 
 @Composable
-fun TaskComponent(
+fun SubTaskComponent(
     subTask : SubTask,
     isCompleted : Boolean,
     onCompletion : (Boolean) -> Unit

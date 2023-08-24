@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MainTaskDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMainTask(mainTask : MainTask) : Long
+    suspend fun insertMainTask(mainTask : MainTask) : Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateMainTask(mainTask : MainTask)
+    suspend fun updateMainTask(mainTask : MainTask)
 
     @Delete
-    fun deleteMainTask(mainTask : MainTask)
+    suspend fun deleteMainTask(mainTask : MainTask)
 
     @Query("select * from main_task")
     fun getAll() : Flow<List<MainTask>>

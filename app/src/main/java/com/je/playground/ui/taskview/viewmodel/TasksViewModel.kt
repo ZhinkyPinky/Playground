@@ -180,11 +180,14 @@ class TasksViewModel @Inject constructor(
     }
 
     fun updateMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
-        TODO("Not yet implemented")
+        tasksRepository.updateMainTask(mainTaskWithSubTasks.mainTask)
+        tasksRepository.updateSubTasks(mainTaskWithSubTasks.subTasks)
     }
 
-    fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
-        TODO("Not yet implemented")
+    fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) = tasksRepository.deleteMainTask(mainTaskWithSubTasks.mainTask)
+
+    fun updateMainTask(mainTask : MainTask){
+        tasksRepository.updateMainTask(mainTask)
     }
 
 

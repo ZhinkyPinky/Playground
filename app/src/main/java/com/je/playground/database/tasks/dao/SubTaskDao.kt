@@ -22,4 +22,7 @@ interface SubTaskDao {
 
     @Delete
     fun delete(subTask : SubTask)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateSubTasks(subTasks : List<SubTask>)
 }
