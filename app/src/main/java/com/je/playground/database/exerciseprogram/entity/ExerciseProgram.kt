@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
     tableName = "exercise_program",
 )
 data class ExerciseProgram(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "exercise_program_id") val id : Long,
-    @ColumnInfo(name = "name") var name : String,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "exercise_program_id") val exerciseProgramId : Long = 0L,
+    @ColumnInfo(name = "title") var title : String = "",
+    @ColumnInfo(name = "priority") var priority : Int = 0,
     @ColumnInfo(name = "is_active") var isActive : Boolean = true
 )

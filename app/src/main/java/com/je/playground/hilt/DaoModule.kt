@@ -3,7 +3,8 @@ package com.je.playground.hilt
 import com.je.playground.database.AppDatabase
 import com.je.playground.database.exerciseprogram.dao.ExerciseDao
 import com.je.playground.database.exerciseprogram.dao.ExerciseProgramDao
-import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithExercisesDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWeekdayScheduleDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithAllTheThingsDao
 import com.je.playground.database.tasks.dao.*
 import dagger.Module
 import dagger.Provides
@@ -34,7 +35,7 @@ class DaoModule {
 
     @Provides
     @Singleton
-    fun provideExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithExercisesDao {
+    fun provideExerciseProgramWithExercisesDao(appDatabase : AppDatabase) : ExerciseProgramWithAllTheThingsDao {
         return appDatabase.getExerciseProgramWithExercisesDao()
     }
 
@@ -52,7 +53,7 @@ class DaoModule {
 
     @Provides
     @Singleton
-    fun provideWeekdayScheduleDao(appDatabase : AppDatabase) : WeekdayScheduleDao {
-        return appDatabase.getWeekdayScheduleDao()
+    fun provideExerciseProgramWeekdayScheduleDao(appDatabase : AppDatabase) : ExerciseProgramWeekdayScheduleDao {
+        return appDatabase.getExerciseProgramWeekdayScheduleDao()
     }
 }

@@ -2,7 +2,8 @@ package com.je.playground.hilt
 
 import com.je.playground.database.exerciseprogram.dao.ExerciseDao
 import com.je.playground.database.exerciseprogram.dao.ExerciseProgramDao
-import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithExercisesDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWeekdayScheduleDao
+import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithAllTheThingsDao
 import com.je.playground.database.exerciseprogram.repository.ExerciseProgramRepository
 import com.je.playground.database.tasks.dao.*
 import com.je.playground.database.tasks.repository.TasksRepository
@@ -32,14 +33,16 @@ class RepositoryModule {
     @Provides
     @ViewModelScoped
     fun providesExerciseProgramRepository(
-        exerciseProgramWithExercisesDao : ExerciseProgramWithExercisesDao,
+        exerciseProgramWithAllTheThingsDao : ExerciseProgramWithAllTheThingsDao,
         exerciseProgramDao : ExerciseProgramDao,
         exerciseDao : ExerciseDao,
+        exerciseProgramWeekdayScheduleDao : ExerciseProgramWeekdayScheduleDao
     ) : ExerciseProgramRepository {
         return ExerciseProgramRepository(
-            exerciseProgramWithExercisesDao = exerciseProgramWithExercisesDao,
+            exerciseProgramWithAllTheThingsDao = exerciseProgramWithAllTheThingsDao,
             exerciseProgramDao = exerciseProgramDao,
             exerciseDao = exerciseDao,
+            exerciseProgramWeekdayScheduleDao = exerciseProgramWeekdayScheduleDao
         )
     }
 }
