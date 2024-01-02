@@ -56,7 +56,7 @@ class TaskEditorViewModel @Inject constructor(
     }
      */
 
-    suspend fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = withContext(Dispatchers.IO) { tasksRepository.selectMainTaskWithSubTasksByMainTaskId(mainTaskId) }
+    suspend fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = withContext(Dispatchers.IO) { tasksRepository.getMainTaskWithSubTasksByMainTaskId(mainTaskId) }
 
 
     fun saveMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {

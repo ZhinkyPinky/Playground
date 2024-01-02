@@ -21,13 +21,11 @@ class TasksRepository @Inject constructor(
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    suspend fun insertSubTask(subTask : SubTask) : Long = withContext(Dispatchers.IO) { subTaskDao.insert(subTask) }
+    fun getAllMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAll()
 
-    fun deleteSubTask(subTask : SubTask) = coroutineScope.launch { subTaskDao.delete(subTask) }
+    fun getAllActiveMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAllActive()
 
-    fun updateSubTasks(subTasks : List<SubTask>) = coroutineScope.launch { subTaskDao.updateSubTasks(subTasks) }
-
-    fun getAllSubTasks() : Flow<List<SubTask>> = subTaskDao.getAll()
+    fun getMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = mainTaskWithSubTasksDao.getFirstById(mainTaskId)
 
 
     suspend fun insertMainTask(mainTask : MainTask) : Long = withContext(Dispatchers.IO) { mainTaskDao.insertMainTask(mainTask) }
@@ -39,7 +37,16 @@ class TasksRepository @Inject constructor(
     fun getAllMainTasks() : Flow<List<MainTask>> = mainTaskDao.getAll()
 
 
-    fun getAllMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAll()
+    suspend fun insertSubTask(subTask : SubTask) : Long = withContext(Dispatchers.IO) { subTaskDao.insert(subTask) }
 
-    fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = mainTaskWithSubTasksDao.selectFirstById(mainTaskId)
+    fun deleteSubTask(subTask : SubTask) = coroutineScope.launch { subTaskDao.delete(subTask) }
+
+    fun updateSubTasks(subTasks : List<SubTask>) = coroutineScope.launch { subTaskDao.updateSubTasks(subTasks) }
+
+    fun getAllSubTasks() : Flow<List<SubTask>> = subTaskDao.getAll()
+
+
+
+
+
 }

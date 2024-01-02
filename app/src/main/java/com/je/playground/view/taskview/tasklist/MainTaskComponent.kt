@@ -134,21 +134,7 @@ fun MainTaskComponentContent(
     updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
     deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
 ) {
-    val hapticFeedback = LocalHapticFeedback.current
-
-    var isDeletionDialogDisplayed by rememberSaveable { mutableStateOf(false) }
-    if (isDeletionDialogDisplayed) {
-        ConfirmationDialog(
-            title = "Delete",
-            contentText = "This will delete the task permanently. You cannot undo this action.",
-            confirmButtonText = "Delete",
-            confirm = { deleteMainTaskWithSubTasks(mainTaskWithSubTasks) },
-            onDismissRequest = { isDeletionDialogDisplayed = false },
-        )
-    }
-
     var isExpanded by rememberSaveable { mutableStateOf(false) }
-    var isDropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
     var completionCounter = 0
     for (i in 0 until mainTaskWithSubTasks.subTasks.size) {
@@ -156,8 +142,6 @@ fun MainTaskComponentContent(
             completionCounter++
         }
     }
-
-    var completion by rememberSaveable { mutableIntStateOf(completionCounter) }
 
     Box(
         modifier = Modifier
@@ -187,28 +171,14 @@ fun MainTaskComponentContent(
                 modifier = Modifier
                     .height(IntrinsicSize.Max)
             ) {
-                Box(
-                    modifier = Modifier
-                        .clip(RectangleShape)
-                        .background(
-                            when (mainTaskWithSubTasks.mainTask.priority) {
-                                0 -> Color(0xFF00C853)
-                                1 -> Color(0xFFFFAB00)
-                                2 -> Color.Red
-                                else -> Color.Transparent
-                            }
-                        )
-                        .fillMaxHeight()
-                        .width(2.dp)
-                )
+                MainTaskPriorityIndicator(mainTaskWithSubTasks)
+
                 Column(
                     verticalArrangement = Arrangement.spacedBy(1.dp),
                 ) {
                     Column {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(bottom = 6.dp)
                         ) {
                             if (mainTaskWithSubTasks.subTasks.isEmpty()) {
                                 CheckboxComponent(
@@ -246,43 +216,12 @@ fun MainTaskComponentContent(
                                 }
                             }
 
+                            MainTaskDropDownMenu(
+                                mainTaskWithSubTasks = mainTaskWithSubTasks,
+                                navigateToTaskEditScreen = navigateToTaskEditScreen,
+                                deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks
+                            )
 
-                            Box {
-                                IconButton(onClick = {
-                                    isDropDownMenuExpanded = !isDropDownMenuExpanded
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MoreVert,
-                                        contentDescription = "Note"
-                                    )
-                                }
-
-                                DropdownMenu(
-                                    expanded = isDropDownMenuExpanded,
-                                    onDismissRequest = { isDropDownMenuExpanded = false }) {
-                                    Column {
-                                        TextButton(onClick = {
-                                            isDropDownMenuExpanded = false
-                                            navigateToTaskEditScreen(mainTaskWithSubTasks.mainTask.mainTaskId)
-                                        }) {
-                                            Text(
-                                                text = "Edit",
-                                                color = MaterialTheme.colorScheme.onPrimary
-                                            )
-                                        }
-
-                                        TextButton(onClick = {
-                                            isDeletionDialogDisplayed = true
-                                            isDropDownMenuExpanded = false
-                                        }) {
-                                            Text(
-                                                text = "Delete",
-                                                color = MaterialTheme.colorScheme.onPrimary
-                                            )
-                                        }
-                                    }
-                                }
-                            }
                         }
 
                         if (mainTaskWithSubTasks.mainTask.note != "") {
@@ -299,7 +238,7 @@ fun MainTaskComponentContent(
 
                         if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
                             LinearProgressIndicator(
-                                progress = completion.toFloat() / mainTaskWithSubTasks.subTasks.size,
+                                progress = completionCounter.toFloat() / mainTaskWithSubTasks.subTasks.size,
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 trackColor = MaterialTheme.colorScheme.background,
                                 modifier = Modifier
@@ -314,31 +253,36 @@ fun MainTaskComponentContent(
                     }
 
                     if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
-                        mainTaskWithSubTasks.subTasks.forEach { task ->
-                            SubTaskComponent(
-                                subTask = task,
-                                isCompleted = task.isCompleted,
-                                onCompletion = {
-                                    task.isCompleted = !task.isCompleted
-
-                                    if (task.isCompleted) {
-                                        completion++
-                                    } else {
-                                        completion--
-                                    }
-
-                                    mainTaskWithSubTasks.mainTask.isCompleted = (completion == mainTaskWithSubTasks.subTasks.size)
-
-                                    updateMainTaskWithSubTasks(mainTaskWithSubTasks)
-                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                }
-                            )
-                        }
+                        SubTasks(
+                            mainTaskWithSubTasks = mainTaskWithSubTasks,
+                            completionCounter,
+                            updateMainTaskWithSubTasks
+                        )
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun MainTaskPriorityIndicator(
+    mainTaskWithSubTasks : MainTaskWithSubTasks
+) {
+    Box(
+        modifier = Modifier
+            .clip(RectangleShape)
+            .background(
+                when (mainTaskWithSubTasks.mainTask.priority) {
+                    0 -> Color(0xFF00C853)
+                    1 -> Color(0xFFFFAB00)
+                    2 -> Color.Red
+                    else -> Color.Transparent
+                }
+            )
+            .fillMaxHeight()
+            .width(2.dp)
+    )
 }
 
 
@@ -377,6 +321,109 @@ fun DismissBackground(dismissState : DismissState) {
         )
     }
 }
+
+@Composable
+fun SubTasks(
+    mainTaskWithSubTasks : MainTaskWithSubTasks,
+    completionCounter : Int,
+    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit
+) {
+    val hapticFeedback = LocalHapticFeedback.current
+
+    var completion by rememberSaveable { mutableIntStateOf(completionCounter) }
+
+    mainTaskWithSubTasks.subTasks.forEach { task ->
+        SubTaskComponent(
+            subTask = task,
+            isCompleted = task.isCompleted,
+            onCompletion = {
+                task.isCompleted = !task.isCompleted
+
+                if (task.isCompleted) {
+                    completion++
+                } else {
+                    completion--
+                }
+
+                mainTaskWithSubTasks.mainTask.isCompleted = (completion == mainTaskWithSubTasks.subTasks.size)
+
+                updateMainTaskWithSubTasks(mainTaskWithSubTasks)
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        )
+    }
+}
+
+@Composable
+fun MainTaskDropDownMenu(
+    mainTaskWithSubTasks : MainTaskWithSubTasks,
+    navigateToTaskEditScreen : (Long) -> Unit,
+    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit
+) {
+    var isDropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var isDeletionDialogDisplayed by rememberSaveable { mutableStateOf(false) }
+
+    if (isDeletionDialogDisplayed) {
+        DeletionDialog(
+            mainTaskWithSubTasks = mainTaskWithSubTasks,
+            deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks,
+            dismissDialog = { isDeletionDialogDisplayed = false }
+        )
+    }
+
+    Box {
+        IconButton(onClick = {
+            isDropDownMenuExpanded = !isDropDownMenuExpanded
+        }) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = "Note"
+            )
+        }
+
+        DropdownMenu(
+            expanded = isDropDownMenuExpanded,
+            onDismissRequest = { isDropDownMenuExpanded = false }) {
+            Column {
+                TextButton(onClick = {
+                    isDropDownMenuExpanded = false
+                    navigateToTaskEditScreen(mainTaskWithSubTasks.mainTask.mainTaskId)
+                }) {
+                    Text(
+                        text = "Edit",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+
+                TextButton(onClick = {
+                    isDeletionDialogDisplayed = true
+                    isDropDownMenuExpanded = false
+                }) {
+                    Text(
+                        text = "Delete",
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DeletionDialog(
+    mainTaskWithSubTasks : MainTaskWithSubTasks,
+    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+    dismissDialog : () -> Unit
+) {
+    ConfirmationDialog(
+        title = "Delete",
+        contentText = "This will delete the task permanently. You cannot undo this action.",
+        confirmButtonText = "Delete",
+        confirm = { deleteMainTaskWithSubTasks(mainTaskWithSubTasks) },
+        onDismissRequest = dismissDialog
+    )
+}
+
 
 
 

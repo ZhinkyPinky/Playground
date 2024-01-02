@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,7 +40,7 @@ fun TasksScreen(
     val tasksUiState by tasksViewModel.tasksUiState.collectAsState()
 
     TasksScreen(
-        mainTasksWithSubTasks = tasksUiState.taskGroupsWithSubTasks,
+        mainTasksWithSubTasks = tasksUiState.mainTasksWithSubTasks,
         drawerState = drawerState,
         navigateToTaskEditScreen = navigateToTaskEditScreen,
         updateMainTask = tasksViewModel::updateMainTask,
@@ -105,7 +105,7 @@ fun TasksScreen(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(1.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)

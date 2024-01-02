@@ -23,7 +23,7 @@ import javax.inject.Inject
 data class TasksUiState(
     val subTasks : List<SubTask> = emptyList(),
     val mainTasks : List<MainTask> = emptyList(),
-    val taskGroupsWithSubTasks : List<MainTaskWithSubTasks> = emptyList(),
+    val mainTasksWithSubTasks : List<MainTaskWithSubTasks> = emptyList(),
 )
 
 enum class TaskType(type : String) {
@@ -67,12 +67,12 @@ class TasksViewModel @Inject constructor(
             combine(
                 tasksRepository.getAllSubTasks(),
                 tasksRepository.getAllMainTasks(),
-                tasksRepository.getAllMainTasksWithSubTasks()
+                tasksRepository.getAllActiveMainTasksWithSubTasks()
             ) { tasks, taskGroups, taskGroupsWithSubTasks ->
                 TasksUiState(
                     subTasks = tasks,
                     mainTasks = taskGroups,
-                    taskGroupsWithSubTasks = taskGroupsWithSubTasks
+                    mainTasksWithSubTasks = taskGroupsWithSubTasks
                 )
             }
                 .catch { throwable ->
@@ -137,7 +137,7 @@ class TasksViewModel @Inject constructor(
     //endregion
      */
 
-    suspend fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = withContext(Dispatchers.IO) { tasksRepository.selectMainTaskWithSubTasksByMainTaskId(mainTaskId) }
+    suspend fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = withContext(Dispatchers.IO) { tasksRepository.getMainTaskWithSubTasksByMainTaskId(mainTaskId) }
 
     fun saveMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         viewModelScope.launch {

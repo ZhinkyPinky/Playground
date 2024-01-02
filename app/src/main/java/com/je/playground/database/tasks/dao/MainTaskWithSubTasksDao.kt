@@ -13,6 +13,10 @@ interface MainTaskWithSubTasksDao {
     fun getAll() : Flow<List<MainTaskWithSubTasks>>
 
     @Transaction
+    @Query("select * from main_task where is_archived = 0")
+    fun getAllActive() : Flow<List<MainTaskWithSubTasks>>
+
+    @Transaction
     @Query("select * from main_task where main_task_id = :mainTaskId")
-    fun selectFirstById(mainTaskId : Long) : MainTaskWithSubTasks?
+    fun getFirstById(mainTaskId : Long) : MainTaskWithSubTasks?
 }
