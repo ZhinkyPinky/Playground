@@ -26,8 +26,6 @@ class TasksRepository @Inject constructor(
     fun getAllActiveMainTasksWithSubTasks() : Flow<List<MainTaskWithSubTasks>> = mainTaskWithSubTasksDao.getAllActive()
 
     fun getMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = mainTaskWithSubTasksDao.getFirstById(mainTaskId)
-
-
     suspend fun insertMainTask(mainTask : MainTask) : Long = withContext(Dispatchers.IO) { mainTaskDao.insertMainTask(mainTask) }
 
     fun updateMainTask(mainTask : MainTask) = coroutineScope.launch { mainTaskDao.updateMainTask(mainTask) }

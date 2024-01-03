@@ -111,8 +111,7 @@ fun PlaygroundApp(
                     arguments = listOf(navArgument("mainTaskId") { defaultValue = 0L })
                 ) {
                     TaskEditorScreen(
-                        mainTaskId = it.arguments?.getLong("mainTaskId"),
-                        tasksViewModel = hiltViewModel(),
+                        taskEditorViewModel = hiltViewModel(),
                         onBackPress = appState::navigateBack
                     )
                 }

@@ -11,19 +11,13 @@ import com.je.playground.view.Notifications
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
-data class TaskEditorUiState(
-    val mainTaskWithSubTasks : MainTaskWithSubTasks = MainTaskWithSubTasks(
-        mainTask = MainTask(),
-        subTasks = emptyList()
-    )
-)
 
 @HiltViewModel
 class TaskEditorViewModel @Inject constructor(
@@ -31,32 +25,31 @@ class TaskEditorViewModel @Inject constructor(
     savedStateHandle : SavedStateHandle,
     private val tasksRepository : TasksRepository
 ) : ViewModel() {
+    sealed class State {
+        data object Loading : State()
+        data class Data(
+            val mainTaskWithSubTasks : MainTaskWithSubTasks = MainTaskWithSubTasks(
+                mainTask = MainTask(),
+                subTasks = emptyList()
+            )
+        ) : State()
+    }
+
     private val notifications = Notifications(application)
 
-    private val _taskEditorUiState = MutableStateFlow(TaskEditorUiState())
-    val taskEditorUiState : StateFlow<TaskEditorUiState>
-        get() = _taskEditorUiState
+    private val _taskEditorUiState = MutableStateFlow<State>(State.Loading)
+    val taskEditorUiState = _taskEditorUiState.asStateFlow()
+    val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
 
-    private val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
-
-    /*
     init {
         viewModelScope.launch {
-            tasksRepository
-                .selectMainTaskWithSubTasksByMainTaskId(mainTaskId)
-                .collect { mainTaskWithSubTasks ->
-                    mainTaskWithSubTasks?.let {
-                        _taskEditorUiState.update { taskEditorUiState ->
-                            taskEditorUiState.copy(mainTaskWithSubTasks = mainTaskWithSubTasks)
-                        }
-                    }
-                }
+            selectMainTaskWithSubTasksByMainTaskId(mainTaskId).let {
+                _taskEditorUiState.value = if (it == null) State.Data() else State.Data(it)
+            }
         }
     }
-     */
 
     suspend fun selectMainTaskWithSubTasksByMainTaskId(mainTaskId : Long) : MainTaskWithSubTasks? = withContext(Dispatchers.IO) { tasksRepository.getMainTaskWithSubTasksByMainTaskId(mainTaskId) }
-
 
     fun saveMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         viewModelScope.launch {
@@ -111,4 +104,3 @@ class TaskEditorViewModel @Inject constructor(
         private const val ERROR_INSERT_FAILED : Long = -1
     }
 }
-
