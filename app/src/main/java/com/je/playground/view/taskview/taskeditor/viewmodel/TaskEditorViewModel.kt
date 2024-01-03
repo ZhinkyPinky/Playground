@@ -34,7 +34,6 @@ class TaskEditorViewModel @Inject constructor(
     private val notifications = Notifications(application)
 
     private val _taskEditorUiState = MutableStateFlow(TaskEditorUiState())
-
     val taskEditorUiState : StateFlow<TaskEditorUiState>
         get() = _taskEditorUiState
 

@@ -146,7 +146,8 @@ fun MainTaskComponentContent(
     Box(
         modifier = Modifier
             .background(
-                color = if (isExpanded && mainTaskWithSubTasks.mainTask.note != "") MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
+                color = MaterialTheme.colorScheme.primaryContainer
+                //TODO: if (isExpanded && mainTaskWithSubTasks.mainTask.note != "") MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
             )
             .wrapContentHeight()
             .fillMaxWidth()
@@ -383,27 +384,27 @@ fun MainTaskDropDownMenu(
 
         DropdownMenu(
             expanded = isDropDownMenuExpanded,
-            onDismissRequest = { isDropDownMenuExpanded = false }) {
-            Column {
-                TextButton(onClick = {
-                    isDropDownMenuExpanded = false
-                    navigateToTaskEditScreen(mainTaskWithSubTasks.mainTask.mainTaskId)
-                }) {
-                    Text(
-                        text = "Edit",
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+            onDismissRequest = { isDropDownMenuExpanded = false },
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary)
+        ) {
+            TextButton(onClick = {
+                isDropDownMenuExpanded = false
+                navigateToTaskEditScreen(mainTaskWithSubTasks.mainTask.mainTaskId)
+            }) {
+                Text(
+                    text = "Edit",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
 
-                TextButton(onClick = {
-                    isDeletionDialogDisplayed = true
-                    isDropDownMenuExpanded = false
-                }) {
-                    Text(
-                        text = "Delete",
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+            TextButton(onClick = {
+                isDeletionDialogDisplayed = true
+                isDropDownMenuExpanded = false
+            }) {
+                Text(
+                    text = "Delete",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }
