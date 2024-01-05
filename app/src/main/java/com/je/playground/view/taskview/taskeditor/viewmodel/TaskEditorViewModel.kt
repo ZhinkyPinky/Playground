@@ -108,6 +108,8 @@ class TaskEditorViewModel @Inject constructor(
                 val mainTask = _mainTask.value
                 val subTasks = subTasks
 
+                mainTask.isCompleted = subTasks.isNotEmpty() && subTasks.all { it.isCompleted }
+
                 val mainTaskId = tasksRepository.insertMainTask(mainTask)
                 subTasks.forEach { subTask ->
                     subTask.mainTaskId = mainTaskId
