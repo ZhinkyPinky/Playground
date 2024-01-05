@@ -13,7 +13,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 enum class Route() {
-    Main
+    Main,
+    TaskEdit
 }
 
 enum class MainScreen(val route : String) {
@@ -26,6 +27,7 @@ enum class MainScreen(val route : String) {
 
 enum class SubScreen(val route : String) {
     TaskEdit("TaskEdit"),
+    SubTaskEdit("SubTaskEdit"),
     ExerciseProgram("Exercise Program"),
     ExerciseProgramEdit("Exercise Program Editor"),
 }
@@ -71,12 +73,20 @@ class PlaygroundAppState(
         }
     }
 
+    fun navigateToSubTaskEditorScreen(
+        from : NavBackStackEntry,
+        subTaskId : Long
+    ) {
+        if (from.lifecycleIsResumed()) {
+            navController.navigate(SubScreen.SubTaskEdit.route + "?subTaskId=$subTaskId")
+        }
+    }
+
     fun navigateToHabitScreen(from : NavBackStackEntry) {
         if (from.lifecycleIsResumed()) {
             navController.navigate(MainScreen.Habits.route)
         }
     }
-
 
 
     fun navigateToExerciseProgramEditScreen(

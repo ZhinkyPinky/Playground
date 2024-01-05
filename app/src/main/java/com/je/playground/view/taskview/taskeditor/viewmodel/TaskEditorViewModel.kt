@@ -11,6 +11,7 @@ import com.je.playground.view.Notifications
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,11 +36,12 @@ class TaskEditorViewModel @Inject constructor(
         ) : State()
     }
 
+    private val _taskEditorUiState = MutableStateFlow<State>(State.Loading)
+    val taskEditorUiState : StateFlow<State> = _taskEditorUiState.asStateFlow()
+
     private val notifications = Notifications(application)
 
-    private val _taskEditorUiState = MutableStateFlow<State>(State.Loading)
-    val taskEditorUiState = _taskEditorUiState.asStateFlow()
-    val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
+    private val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
 
     init {
         viewModelScope.launch {
@@ -90,17 +92,11 @@ class TaskEditorViewModel @Inject constructor(
         }
     }
 
-
     fun updateMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         TODO("Not yet implemented")
     }
 
     fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
         TODO("Not yet implemented")
-    }
-
-
-    companion object {
-        private const val ERROR_INSERT_FAILED : Long = -1
     }
 }
