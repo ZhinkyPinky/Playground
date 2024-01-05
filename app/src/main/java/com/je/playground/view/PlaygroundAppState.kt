@@ -27,6 +27,7 @@ enum class MainScreen(val route : String) {
 
 enum class SubScreen(val route : String) {
     TaskEdit("TaskEdit"),
+    MainTaskEdit("MainTaskEdit"),
     SubTaskEdit("SubTaskEdit"),
     ExerciseProgram("Exercise Program"),
     ExerciseProgramEdit("Exercise Program Editor"),
@@ -70,6 +71,14 @@ class PlaygroundAppState(
     ) {
         if (from.lifecycleIsResumed()) {
             navController.navigate(SubScreen.TaskEdit.route + "?mainTaskId=$mainTaskId")
+        }
+    }
+
+    fun navigateToMainTaskEditorScreen(
+        from : NavBackStackEntry
+    ) {
+        if (from.lifecycleIsResumed()) {
+            navController.navigate(SubScreen.MainTaskEdit.route)
         }
     }
 

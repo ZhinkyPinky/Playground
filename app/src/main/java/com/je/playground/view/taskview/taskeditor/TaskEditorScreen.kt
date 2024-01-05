@@ -58,13 +58,13 @@ import com.je.playground.view.sharedcomponents.NoteComponent
 import com.je.playground.view.taskview.dateTimeToString
 import com.je.playground.view.taskview.taskeditor.datetimerangepicker.DateRangePicker
 import com.je.playground.view.taskview.taskeditor.datetimerangepicker.TimeRangePicker
-import com.je.playground.view.taskview.taskeditor.dialog.MainTaskEditorDialog
 import com.je.playground.view.taskview.taskeditor.viewmodel.TaskEditorViewModel
 import com.je.playground.view.theme.title
 
 @Composable
 fun TaskEditorScreen(
     taskEditorViewModel : TaskEditorViewModel,
+    navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit,
 ) {
@@ -84,6 +84,7 @@ fun TaskEditorScreen(
                     taskEditorViewModel.saveMainTaskWithSubTasks()
                     onBackPress()
                 },
+                navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
                 navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
                 onBackPress = onBackPress
             )
@@ -98,42 +99,10 @@ fun TaskEditorScreen(
     subTasks : List<SubTask>,
     removeSubTask : (Int) -> Unit,
     saveMainTaskWithSubTasks : () -> Unit,
+    navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit,
 ) {
-    /*
-    val mainTaskIdToSave by rememberSaveable { mutableLongStateOf(mainTaskWithSubTasks.mainTask.mainTaskId) }
-    var mainTaskTitle by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.title) }
-    var mainTaskNote by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.note) }
-    var mainTaskPriority by rememberSaveable { mutableIntStateOf(mainTaskWithSubTasks.mainTask.priority) }
-    var mainTaskStartDate by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.startDate) }
-    var mainTaskStartTime by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.startTime) }
-    var mainTaskEndDate by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.endDate) }
-    var mainTaskEndTime by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.endTime) }
-
-    val subTasks = rememberSaveable(
-        saver = listSaver(
-            save = {
-                if (it.isNotEmpty()) {
-                    val first = it.first()
-                    if (!canBeSaved(first)) {
-                        throw IllegalStateException("${first::class} cannot be saved. By default only types which can be stored in the Bundle class can be saved.")
-                    }
-                }
-
-                it.toList()
-            },
-            restore = { it.toMutableStateList() }
-        )
-    ) {
-        mainTaskWithSubTasks.subTasks
-            .map { it.copy() }
-            .toMutableStateList()
-    }
-    */
-
-    var showMainTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
-
     var isGroup by rememberSaveable { mutableStateOf(subTasks.isNotEmpty()) }
 
     TaskEditorContent(
@@ -142,8 +111,6 @@ fun TaskEditorScreen(
         updateMainTask = updateMainTask,
         subTasks = subTasks,
         removeSubTask = removeSubTask,
-        showMainTaskEditorDialog = showMainTaskEditorDialog,
-        toggleMainTaskEditorDialog = { showMainTaskEditorDialog = !showMainTaskEditorDialog },
         isGroup = isGroup,
         toggleIsGroup = {
             isGroup =
@@ -153,6 +120,7 @@ fun TaskEditorScreen(
                     !isGroup
                 }
         },
+        navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
         navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
         onBackPress = onBackPress,
     )
@@ -166,21 +134,12 @@ fun TaskEditorContent(
     saveMainTaskWithSubTasks : () -> Unit,
     subTasks : List<SubTask>,
     removeSubTask : (Int) -> Unit,
-    showMainTaskEditorDialog : Boolean,
-    toggleMainTaskEditorDialog : () -> Unit,
     isGroup : Boolean,
     toggleIsGroup : () -> Unit,
+    navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit
 ) {
-    if (showMainTaskEditorDialog) {
-        MainTaskEditorDialog(
-            mainTask = mainTask,
-            updateMainTask = updateMainTask,
-            onDismissRequest = toggleMainTaskEditorDialog
-        )
-    }
-
     Scaffold(
         topBar = {
             TopBar(
@@ -254,7 +213,7 @@ fun TaskEditorContent(
                     mainTask = mainTask,
                     subTasks = subTasks,
                     removeSubTask = removeSubTask,
-                    toggleMainTaskEditorDialog = toggleMainTaskEditorDialog,
+                    navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
                     navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
                 )
             } else {
@@ -272,12 +231,12 @@ fun GroupTaskEditor(
     mainTask : MainTask,
     subTasks : List<SubTask>,
     removeSubTask : (Int) -> Unit,
-    toggleMainTaskEditorDialog : () -> Unit,
+    navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
 ) {
     MainTaskComponent(
         mainTask = mainTask,
-        toggleMainTaskEditorDialog = toggleMainTaskEditorDialog,
+        navigateToMainTaskEditorScreen
     )
 
     SubTasksComponent(

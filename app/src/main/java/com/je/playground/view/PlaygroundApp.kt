@@ -17,6 +17,7 @@ import com.je.playground.view.exerciseprogramview.ExerciseProgramScreen
 import com.je.playground.view.exerciseprogramview.exerciseprogrameditor.ExerciseProgramEditorScreen
 import com.je.playground.view.home.HomeScreen
 import com.je.playground.view.navigationdrawer.NavigationDrawerContent
+import com.je.playground.view.taskview.taskeditor.MainTaskEditorScreen
 import com.je.playground.view.taskview.taskeditor.SubTaskEditorScreen
 import com.je.playground.view.taskview.taskeditor.TaskEditorScreen
 import com.je.playground.view.taskview.tasklist.TasksScreen
@@ -116,12 +117,24 @@ fun PlaygroundApp(
                 ) { navBackStackEntry ->
                     TaskEditorScreen(
                         taskEditorViewModel = hiltViewModel(),
+                        navigateToMainTaskEditorScreen = {
+                            appState.navigateToMainTaskEditorScreen(navBackStackEntry)
+                        },
                         navigateToSubTaskEditorScreen = {
                             appState.navigateToSubTaskEditorScreen(
                                 navBackStackEntry,
                                 it
                             )
                         },
+                        onBackPress = appState::navigateBack
+                    )
+                }
+
+                composable(
+                    route = SubScreen.MainTaskEdit.route,
+                ) { navBackStackEntry ->
+                    MainTaskEditorScreen(
+                        taskEditorViewModel = navBackStackEntry.sharedViewModel(navController = appState.navController),
                         onBackPress = appState::navigateBack
                     )
                 }
