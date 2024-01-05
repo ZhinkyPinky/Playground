@@ -25,34 +25,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.view.taskview.taskeditor.NoteEditComponent
 import com.je.playground.view.taskview.taskeditor.PrioritySliderComponent
 import com.je.playground.view.taskview.taskeditor.TextFieldComponent
 import com.je.playground.view.taskview.taskeditor.datetimerangepicker.DateRangePicker
 import com.je.playground.view.taskview.taskeditor.datetimerangepicker.TimeRangePicker
-import java.time.LocalDate
-import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTaskEditorDialog(
-    mainTaskTitle : String,
-    mainTaskNote : String,
-    mainTaskPriority : Int,
-    mainTaskStartDate : LocalDate?,
-    mainTaskStartTime : LocalTime?,
-    mainTaskEndDate : LocalDate?,
-    mainTaskEndTime : LocalTime?,
-    updateMainTask : (String, String, Int, LocalDate?, LocalTime?, LocalDate?, LocalTime?) -> Unit,
+    mainTask : MainTask,
+    updateMainTask : (MainTask) -> Unit,
     onDismissRequest : () -> Unit,
 ) {
-    var title by rememberSaveable { mutableStateOf(mainTaskTitle) }
-    var note by rememberSaveable { mutableStateOf(mainTaskNote) }
-    var priority by rememberSaveable { mutableIntStateOf(mainTaskPriority) }
-    var startDate by rememberSaveable { mutableStateOf(mainTaskStartDate) }
-    var startTime by rememberSaveable { mutableStateOf(mainTaskStartTime) }
-    var endDate by rememberSaveable { mutableStateOf(mainTaskEndDate) }
-    var endTime by rememberSaveable { mutableStateOf(mainTaskEndTime) }
+    var title by rememberSaveable { mutableStateOf(mainTask.title) }
+    var note by rememberSaveable { mutableStateOf(mainTask.note) }
+    var priority by rememberSaveable { mutableIntStateOf(mainTask.priority) }
+    var startDate by rememberSaveable { mutableStateOf(mainTask.startDate) }
+    var startTime by rememberSaveable { mutableStateOf(mainTask.startTime) }
+    var endDate by rememberSaveable { mutableStateOf(mainTask.endDate) }
+    var endTime by rememberSaveable { mutableStateOf(mainTask.endTime) }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -153,13 +146,15 @@ fun MainTaskEditorDialog(
                     TextButton(
                         onClick = {
                             updateMainTask(
-                                title,
-                                note,
-                                priority,
-                                startDate,
-                                startTime,
-                                endDate,
-                                endTime
+                                mainTask.copy(
+                                    title = title,
+                                    note = note,
+                                    priority = priority,
+                                    startDate = startDate,
+                                    startTime = startTime,
+                                    endDate = endDate,
+                                    endTime = endTime
+                                )
                             )
                             onDismissRequest()
                         },

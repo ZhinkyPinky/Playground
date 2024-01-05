@@ -75,10 +75,10 @@ class PlaygroundAppState(
 
     fun navigateToSubTaskEditorScreen(
         from : NavBackStackEntry,
-        subTaskId : Long
+        subTaskIndex : Int
     ) {
         if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.SubTaskEdit.route + "?subTaskId=$subTaskId")
+            navController.navigate(SubScreen.SubTaskEdit.route + "?subTaskIndex=$subTaskIndex")
         }
     }
 

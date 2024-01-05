@@ -34,25 +34,28 @@ import com.je.playground.view.taskview.taskeditor.viewmodel.TaskEditorViewModel
 
 @Composable
 fun SubTaskEditorScreen(
-    subTaskId : Long,
+    subTaskIndex : Int = -1,
     taskEditorViewModel : TaskEditorViewModel,
     onBackPress : () -> Unit
 ) {
-    when (val state = taskEditorViewModel.taskEditorUiState.collectAsState().value) {
+    when (taskEditorViewModel.taskEditorUiState.collectAsState().value) {
         is TaskEditorViewModel.State.Loading -> {
             //TODO: Add loading screen?
         }
 
-        is TaskEditorViewModel.State.Data -> {
-            val i = state.mainTaskWithSubTasks.subTasks.indexOfFirst { it.subTaskId == subTaskId }
-
+        is TaskEditorViewModel.State.Ready -> {
             SubTaskEditorScreen(
-                subTask = if (i != -1) state.mainTaskWithSubTasks.subTasks[i] else SubTask(state.mainTaskWithSubTasks.mainTask.mainTaskId),
+                subTask = if (subTaskIndex == -1) SubTask() else taskEditorViewModel.subTasks[subTaskIndex],
                 saveSubTask = {
+                    taskEditorViewModel.saveSubTask(
+                        index = subTaskIndex,
+                        it
+                    )
                     onBackPress()
                 },
                 onBackPress = onBackPress
             )
+
         }
     }
 }
@@ -63,7 +66,6 @@ fun SubTaskEditorScreen(
     saveSubTask : (SubTask) -> Unit,
     onBackPress : () -> Unit
 ) {
-
     var title by rememberSaveable { mutableStateOf(subTask.title) }
     var note by rememberSaveable { mutableStateOf(subTask.note) }
     var startDate by rememberSaveable { mutableStateOf(subTask.startDate) }

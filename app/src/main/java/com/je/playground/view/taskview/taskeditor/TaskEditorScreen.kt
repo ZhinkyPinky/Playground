@@ -41,14 +41,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,35 +53,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.je.playground.database.tasks.entity.MainTask
-import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.view.sharedcomponents.NoteComponent
 import com.je.playground.view.taskview.dateTimeToString
 import com.je.playground.view.taskview.taskeditor.datetimerangepicker.DateRangePicker
 import com.je.playground.view.taskview.taskeditor.datetimerangepicker.TimeRangePicker
 import com.je.playground.view.taskview.taskeditor.dialog.MainTaskEditorDialog
-import com.je.playground.view.taskview.taskeditor.dialog.SubTaskEditorDialog
 import com.je.playground.view.taskview.taskeditor.viewmodel.TaskEditorViewModel
 import com.je.playground.view.theme.title
-import java.time.LocalDate
-import java.time.LocalTime
 
 @Composable
 fun TaskEditorScreen(
     taskEditorViewModel : TaskEditorViewModel,
-    navigateToSubTaskEditorScreen : (Long) -> Unit,
+    navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit,
 ) {
-    when (val state = taskEditorViewModel.taskEditorUiState.collectAsState().value) {
-        is TaskEditorViewModel.TaskEditorState.Loading -> {
+    when (taskEditorViewModel.taskEditorUiState.collectAsState().value) {
+        is TaskEditorViewModel.State.Loading -> {
             //TODO: Add loading screen?
             CircularProgressIndicator()
         }
 
-        is TaskEditorViewModel.TaskEditorState.Data -> {
+        is TaskEditorViewModel.State.Ready -> {
             TaskEditorScreen(
-                mainTaskWithSubTasks = state.mainTaskWithSubTasks,
-                saveMainTaskWithSubTasks = taskEditorViewModel::saveMainTaskWithSubTasks,
+                mainTask = taskEditorViewModel.mainTask.collectAsState().value,
+                updateMainTask = taskEditorViewModel::updateMainTask,
+                subTasks = taskEditorViewModel.subTasks,
+                removeSubTask = taskEditorViewModel::removeSubTask,
+                saveMainTaskWithSubTasks = {
+                    taskEditorViewModel.saveMainTaskWithSubTasks()
+                    onBackPress()
+                },
                 navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
                 onBackPress = onBackPress
             )
@@ -94,14 +91,17 @@ fun TaskEditorScreen(
     }
 }
 
-
 @Composable
 fun TaskEditorScreen(
-    mainTaskWithSubTasks : MainTaskWithSubTasks,
-    saveMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
-    navigateToSubTaskEditorScreen : (Long) -> Unit,
+    mainTask : MainTask,
+    updateMainTask : (MainTask) -> Unit,
+    subTasks : List<SubTask>,
+    removeSubTask : (Int) -> Unit,
+    saveMainTaskWithSubTasks : () -> Unit,
+    navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit,
 ) {
+    /*
     val mainTaskIdToSave by rememberSaveable { mutableLongStateOf(mainTaskWithSubTasks.mainTask.mainTaskId) }
     var mainTaskTitle by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.title) }
     var mainTaskNote by rememberSaveable { mutableStateOf(mainTaskWithSubTasks.mainTask.note) }
@@ -130,61 +130,24 @@ fun TaskEditorScreen(
             .map { it.copy() }
             .toMutableStateList()
     }
+    */
 
     var showMainTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
 
-    var isGroup by rememberSaveable { mutableStateOf(subTasks.size > 0) }
+    var isGroup by rememberSaveable { mutableStateOf(subTasks.isNotEmpty()) }
 
     TaskEditorContent(
-        saveMainTaskWithSubTasks = {
-            saveMainTaskWithSubTasks(
-                MainTaskWithSubTasks(
-                    mainTask = MainTask(
-                        mainTaskId = mainTaskIdToSave,
-                        title = mainTaskTitle,
-                        note = mainTaskNote,
-                        priority = mainTaskPriority,
-                        startDate = mainTaskStartDate,
-                        startTime = mainTaskStartTime,
-                        endDate = mainTaskEndDate,
-                        endTime = mainTaskEndTime
-                    ),
-                    subTasks = subTasks
-                )
-            )
-            onBackPress()
-        },
-        mainTaskId = mainTaskIdToSave,
-        mainTaskTitle = mainTaskTitle,
-        updateMainTaskTitle = { mainTaskTitle = it },
-        mainTaskNote = mainTaskNote,
-        updateMainTaskNote = { mainTaskNote = it },
-        mainTaskPriority = mainTaskPriority,
-        updateMainTaskPriority = { mainTaskPriority = it },
-        mainTaskStartDate = mainTaskStartDate,
-        updateMainTaskStartDate = { mainTaskStartDate = it },
-        mainTaskStartTime = mainTaskStartTime,
-        updateMainTaskStartTime = { mainTaskStartTime = it },
-        mainTaskEndDate = mainTaskEndDate,
-        updateMainTaskEndDate = { mainTaskEndDate = it },
-        mainTaskEndTime = mainTaskEndTime,
-        updateMainTaskEndTime = { mainTaskEndTime = it },
-        updateMainTask = { title, note, priority, startDate, startTime, endDate, endTime ->
-            mainTaskTitle = title
-            mainTaskNote = note
-            mainTaskPriority = priority
-            mainTaskStartDate = startDate
-            mainTaskStartTime = startTime
-            mainTaskEndDate = endDate
-            mainTaskEndTime = endTime
-        },
+        mainTask = mainTask,
+        saveMainTaskWithSubTasks = saveMainTaskWithSubTasks,
+        updateMainTask = updateMainTask,
         subTasks = subTasks,
+        removeSubTask = removeSubTask,
         showMainTaskEditorDialog = showMainTaskEditorDialog,
         toggleMainTaskEditorDialog = { showMainTaskEditorDialog = !showMainTaskEditorDialog },
         isGroup = isGroup,
         toggleIsGroup = {
             isGroup =
-                if (mainTaskWithSubTasks.subTasks.size > 0) {
+                if (subTasks.isNotEmpty()) {
                     true
                 } else {
                     !isGroup
@@ -198,40 +161,21 @@ fun TaskEditorScreen(
 
 @Composable
 fun TaskEditorContent(
+    mainTask : MainTask,
+    updateMainTask : (MainTask) -> Unit,
     saveMainTaskWithSubTasks : () -> Unit,
-    mainTaskId : Long,
-    mainTaskTitle : String,
-    updateMainTaskTitle : (String) -> Unit,
-    mainTaskNote : String,
-    updateMainTaskNote : (String) -> Unit,
-    mainTaskPriority : Int,
-    updateMainTaskPriority : (Int) -> Unit,
-    mainTaskStartDate : LocalDate?,
-    updateMainTaskStartDate : (LocalDate?) -> Unit,
-    mainTaskStartTime : LocalTime?,
-    updateMainTaskStartTime : (LocalTime?) -> Unit,
-    mainTaskEndDate : LocalDate?,
-    updateMainTaskEndDate : (LocalDate?) -> Unit,
-    mainTaskEndTime : LocalTime?,
-    updateMainTaskEndTime : (LocalTime?) -> Unit,
-    updateMainTask : (String, String, Int, LocalDate?, LocalTime?, LocalDate?, LocalTime?) -> Unit,
-    subTasks : SnapshotStateList<SubTask>,
+    subTasks : List<SubTask>,
+    removeSubTask : (Int) -> Unit,
     showMainTaskEditorDialog : Boolean,
     toggleMainTaskEditorDialog : () -> Unit,
     isGroup : Boolean,
     toggleIsGroup : () -> Unit,
-    navigateToSubTaskEditorScreen : (Long) -> Unit,
+    navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit
 ) {
     if (showMainTaskEditorDialog) {
         MainTaskEditorDialog(
-            mainTaskTitle = mainTaskTitle,
-            mainTaskNote = mainTaskNote,
-            mainTaskPriority = mainTaskPriority,
-            mainTaskStartDate = mainTaskStartDate,
-            mainTaskStartTime = mainTaskStartTime,
-            mainTaskEndDate = mainTaskEndDate,
-            mainTaskEndTime = mainTaskEndTime,
+            mainTask = mainTask,
             updateMainTask = updateMainTask,
             onDismissRequest = toggleMainTaskEditorDialog
         )
@@ -307,34 +251,16 @@ fun TaskEditorContent(
 
             if (isGroup) {
                 GroupTaskEditor(
-                    mainTaskId = mainTaskId,
-                    mainTaskTitle = mainTaskTitle,
-                    mainTaskNote = mainTaskNote,
-                    mainTaskPriority = mainTaskPriority,
-                    mainTaskStartDate = mainTaskStartDate,
-                    mainTaskStartTime = mainTaskStartTime,
-                    mainTaskEndDate = mainTaskEndDate,
-                    mainTaskEndTime = mainTaskEndTime,
+                    mainTask = mainTask,
                     subTasks = subTasks,
+                    removeSubTask = removeSubTask,
                     toggleMainTaskEditorDialog = toggleMainTaskEditorDialog,
                     navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
                 )
             } else {
                 SingleTaskEditor(
-                    mainTaskTitle = mainTaskTitle,
-                    updateMainTaskTitle = updateMainTaskTitle,
-                    mainTaskNote = mainTaskNote,
-                    updateMainTaskNote = updateMainTaskNote,
-                    mainTaskPriority = mainTaskPriority,
-                    updateMainTaskPriority = updateMainTaskPriority,
-                    mainTaskStartDate = mainTaskStartDate,
-                    updateMainTaskStartDate = updateMainTaskStartDate,
-                    mainTaskStartTime = mainTaskStartTime,
-                    updateMainTaskStartTime = updateMainTaskStartTime,
-                    mainTaskEndDate = mainTaskEndDate,
-                    updateMainTaskEndDate = updateMainTaskEndDate,
-                    mainTaskEndTime = mainTaskEndTime,
-                    updateMainTaskEndTime = updateMainTaskEndTime
+                    mainTask = mainTask,
+                    updateMainTask = updateMainTask
                 )
             }
         }
@@ -343,45 +269,27 @@ fun TaskEditorContent(
 
 @Composable
 fun GroupTaskEditor(
-    mainTaskId : Long,
-    mainTaskTitle : String,
-    mainTaskNote : String,
-    mainTaskPriority : Int,
-    mainTaskStartDate : LocalDate?,
-    mainTaskStartTime : LocalTime?,
-    mainTaskEndDate : LocalDate?,
-    mainTaskEndTime : LocalTime?,
-    subTasks : SnapshotStateList<SubTask>,
+    mainTask : MainTask,
+    subTasks : List<SubTask>,
+    removeSubTask : (Int) -> Unit,
     toggleMainTaskEditorDialog : () -> Unit,
-    navigateToSubTaskEditorScreen : (Long) -> Unit,
+    navigateToSubTaskEditorScreen : (Int) -> Unit,
 ) {
     MainTaskComponent(
-        mainTaskTitle = mainTaskTitle,
-        mainTaskNote = mainTaskNote,
-        mainTaskPriority = mainTaskPriority,
-        mainTaskStartDate = mainTaskStartDate,
-        mainTaskStartTime = mainTaskStartTime,
-        mainTaskEndDate = mainTaskEndDate,
-        mainTaskEndTime = mainTaskEndTime,
+        mainTask = mainTask,
         toggleMainTaskEditorDialog = toggleMainTaskEditorDialog,
     )
 
     SubTasksComponent(
-        mainTaskId = mainTaskId,
         subTasks = subTasks,
+        removeSubTask = removeSubTask,
         navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
     )
 }
 
 @Composable
 fun MainTaskComponent(
-    mainTaskTitle : String,
-    mainTaskNote : String,
-    mainTaskPriority : Int,
-    mainTaskStartDate : LocalDate?,
-    mainTaskStartTime : LocalTime?,
-    mainTaskEndDate : LocalDate?,
-    mainTaskEndTime : LocalTime?,
+    mainTask : MainTask,
     toggleMainTaskEditorDialog : () -> Unit,
 ) {
     var isExpanded by rememberSaveable {
@@ -433,7 +341,7 @@ fun MainTaskComponent(
             modifier = Modifier
                 .clip(RectangleShape)
                 .background(
-                    when (mainTaskPriority) {
+                    when (mainTask.priority) {
                         0 -> Color(0xFF00C853)
                         1 -> Color(0xFFFFAB00)
                         2 -> Color.Red
@@ -455,18 +363,18 @@ fun MainTaskComponent(
                 )
         ) {
             Text(
-                text = if (mainTaskTitle == "") "Title*" else mainTaskTitle,
-                style = title(if (mainTaskTitle == "") MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer),
+                text = if (mainTask.title == "") "Title*" else mainTask.title,
+                style = title(if (mainTask.title == "") MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onPrimaryContainer),
                 textAlign = TextAlign.Start
             )
 
-            if (mainTaskStartDate != null || mainTaskStartTime != null || mainTaskEndDate != null || mainTaskEndTime != null) {
+            if (mainTask.startDate != null || mainTask.startTime != null || mainTask.endDate != null || mainTask.endTime != null) {
                 Text(
                     text = dateTimeToString(
-                        startDate = mainTaskStartDate,
-                        startTime = mainTaskStartTime,
-                        endDate = mainTaskEndDate,
-                        endTime = mainTaskEndTime
+                        startDate = mainTask.startDate,
+                        startTime = mainTask.startTime,
+                        endDate = mainTask.endDate,
+                        endTime = mainTask.endTime
                     ),
                     color = Color(0xFFCCCCCC),
                     fontSize = 12.sp,
@@ -474,9 +382,9 @@ fun MainTaskComponent(
                 )
             }
 
-            if (mainTaskNote != "") {
+            if (mainTask.note != "") {
                 NoteComponent(
-                    note = mainTaskNote,
+                    note = mainTask.note,
                     isExpanded = isExpanded
                 )
             }
@@ -486,26 +394,10 @@ fun MainTaskComponent(
 
 @Composable
 fun SubTasksComponent(
-    mainTaskId : Long,
-    subTasks : SnapshotStateList<SubTask>,
-    navigateToSubTaskEditorScreen : (Long) -> Unit,
+    subTasks : List<SubTask>,
+    removeSubTask : (Int) -> Unit,
+    navigateToSubTaskEditorScreen : (Int) -> Unit,
 ) {
-    var showNewSubTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
-
-    if (showNewSubTaskEditorDialog) {
-        SubTaskEditorDialog(
-            dialogTitle = "New subtask",
-            mainTaskId = mainTaskId,
-            subTask = SubTask(),
-            isNewTask = true,
-            onSave = {
-                subTasks.add(it)
-                showNewSubTaskEditorDialog = false
-            },
-            onDismissRequest = { showNewSubTaskEditorDialog = false }
-        )
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -522,8 +414,7 @@ fun SubTasksComponent(
 
         IconButton(
             onClick = {
-                //navigateToSubTaskEditorScreen(-1L)
-                showNewSubTaskEditorDialog = true
+                navigateToSubTaskEditorScreen(-1)
             },
         ) {
             Icon(
@@ -535,42 +426,6 @@ fun SubTasksComponent(
     }
 
     subTasks.forEach { subTask ->
-        var subTaskTitle by rememberSaveable { mutableStateOf(subTask.title) }
-        var subTaskNote by rememberSaveable { mutableStateOf(subTask.note) }
-        var subTaskStartDate by rememberSaveable { mutableStateOf(subTask.startDate) }
-        var subTaskStartTime by rememberSaveable { mutableStateOf(subTask.startTime) }
-        var subTaskEndDate by rememberSaveable { mutableStateOf(subTask.endDate) }
-        var subTaskEndTime by rememberSaveable { mutableStateOf(subTask.endTime) }
-
-        var showEditSubTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
-
-        if (showEditSubTaskEditorDialog) {
-            SubTaskEditorDialog(
-                dialogTitle = "Edit subtask",
-                mainTaskId = mainTaskId,
-                subTask = subTask,
-                isNewTask = true,
-                onSave = {
-                    subTask.title = it.title
-                    subTaskTitle = it.title
-                    subTask.note = it.note
-                    subTaskNote = it.note
-                    subTask.startDate = it.startDate
-                    subTaskStartDate = it.startDate
-                    subTask.startTime = it.startTime
-                    subTaskStartTime = it.startTime
-                    subTask.endDate = it.endDate
-                    subTaskEndDate = it.endDate
-                    subTask.endTime = it.endTime
-                    subTaskEndTime = it.endTime
-
-                    showEditSubTaskEditorDialog = false
-                },
-                onDismissRequest = { showEditSubTaskEditorDialog = false }
-            )
-        }
-
-
         var isExpanded by rememberSaveable {
             mutableStateOf(false)
         }
@@ -599,18 +454,18 @@ fun SubTasksComponent(
                         .weight(1f)
                 ) {
                     Text(
-                        text = subTaskTitle,
+                        text = subTask.title,
                         style = title(MaterialTheme.colorScheme.onPrimary),
                         textAlign = TextAlign.Start,
                     )
 
-                    if (subTaskStartDate != null || subTaskStartTime != null || subTaskEndDate != null || subTaskEndTime != null) {
+                    if (subTask.startDate != null || subTask.startTime != null || subTask.endDate != null || subTask.endTime != null) {
                         Text(
                             text = dateTimeToString(
-                                startDate = subTaskStartDate,
-                                startTime = subTaskStartTime,
-                                endDate = subTaskEndDate,
-                                endTime = subTaskEndTime
+                                startDate = subTask.startDate,
+                                startTime = subTask.startTime,
+                                endDate = subTask.endDate,
+                                endTime = subTask.endTime
                             ),
                             color = Color(0xFFCCCCCC),
                             fontSize = 12.sp,
@@ -631,12 +486,13 @@ fun SubTasksComponent(
 
                     DropdownMenu(
                         expanded = isDropDownMenuExpanded,
-                        onDismissRequest = { isDropDownMenuExpanded = false }) {
+                        onDismissRequest = { isDropDownMenuExpanded = false },
+                        modifier = Modifier.background(MaterialTheme.colorScheme.secondary)
+                    ) {
                         Column {
                             TextButton(onClick = {
                                 isDropDownMenuExpanded = false
-                                //navigateToSubTaskEditorScreen(subTask.subTaskId)
-                                showEditSubTaskEditorDialog = true
+                                navigateToSubTaskEditorScreen(subTasks.indexOf(subTask))
                             }) {
                                 Text(
                                     text = "Edit",
@@ -645,7 +501,7 @@ fun SubTasksComponent(
                             }
 
                             TextButton(onClick = {
-                                subTasks.remove(subTask)
+                                removeSubTask(subTasks.indexOf(subTask))
                                 isDropDownMenuExpanded = false
                             }) {
                                 Text(
@@ -658,9 +514,9 @@ fun SubTasksComponent(
                 }
             }
 
-            if (subTaskNote != "") {
+            if (subTask.note != "") {
                 NoteComponent(
-                    note = subTaskNote,
+                    note = subTask.note,
                     isExpanded = isExpanded,
                     modifier = Modifier.padding(
                         top = 6.dp,
@@ -676,20 +532,8 @@ fun SubTasksComponent(
 
 @Composable
 fun SingleTaskEditor(
-    mainTaskTitle : String,
-    updateMainTaskTitle : (String) -> Unit,
-    mainTaskNote : String,
-    updateMainTaskNote : (String) -> Unit,
-    mainTaskPriority : Int,
-    updateMainTaskPriority : (Int) -> Unit,
-    mainTaskStartDate : LocalDate?,
-    updateMainTaskStartDate : (LocalDate?) -> Unit,
-    mainTaskStartTime : LocalTime?,
-    updateMainTaskStartTime : (LocalTime?) -> Unit,
-    mainTaskEndDate : LocalDate?,
-    updateMainTaskEndDate : (LocalDate?) -> Unit,
-    mainTaskEndTime : LocalTime?,
-    updateMainTaskEndTime : (LocalTime?) -> Unit,
+    mainTask : MainTask,
+    updateMainTask : (MainTask) -> Unit
 ) {
     Divider(
         color = MaterialTheme.colorScheme.background
@@ -709,25 +553,25 @@ fun SingleTaskEditor(
         TextFieldComponent(
             label = "Title*",
             placeholder = "Enter a title for the group",
-            value = mainTaskTitle,
+            value = mainTask.title,
             isSingleLine = true,
-            onValueChange = updateMainTaskTitle,
+            onValueChange = { updateMainTask(mainTask.copy(title = it)) },
             modifier = Modifier.padding(
                 bottom = 6.dp
             )
         )
 
         NoteEditComponent(
-            note = mainTaskNote,
-            onValueChange = updateMainTaskNote,
+            note = mainTask.note,
+            onValueChange = { updateMainTask(mainTask.copy(note = it)) },
             modifier = Modifier.padding(
                 bottom = 12.dp
             )
         )
 
         PrioritySliderComponent(
-            priority = mainTaskPriority,
-            onPriorityChanged = updateMainTaskPriority,
+            priority = mainTask.priority,
+            onPriorityChanged = { updateMainTask(mainTask.copy(priority = it)) },
             modifier = Modifier.padding(
                 top = 6.dp,
                 bottom = 6.dp
@@ -735,24 +579,24 @@ fun SingleTaskEditor(
         )
 
         DateRangePicker(
-            startDate = mainTaskStartDate,
-            endDate = mainTaskEndDate,
-            onStartDateValueChange = updateMainTaskStartDate,
-            onEndDateValueChange = updateMainTaskEndDate,
+            startDate = mainTask.startDate,
+            endDate = mainTask.endDate,
+            onStartDateValueChange = { updateMainTask(mainTask.copy(startDate = it)) },
+            onEndDateValueChange = { updateMainTask(mainTask.copy(endDate = it)) },
         )
 
         TimeRangePicker(
-            startTime = mainTaskStartTime,
-            endTime = mainTaskEndTime,
-            onStartTimeValueChange = updateMainTaskStartTime,
-            onEndTimeValueChange = updateMainTaskEndTime
+            startTime = mainTask.startTime,
+            endTime = mainTask.endTime,
+            onStartTimeValueChange = { updateMainTask(mainTask.copy(startTime = it)) },
+            onEndTimeValueChange = { updateMainTask(mainTask.copy(endTime = it)) }
         )
 
         Box(
             modifier = Modifier
                 .clip(RectangleShape)
                 .background(
-                    when (mainTaskPriority) {
+                    when (mainTask.priority) {
                         0 -> Color(0xFF00C853)
                         1 -> Color(0xFFFFAB00)
                         2 -> Color.Red

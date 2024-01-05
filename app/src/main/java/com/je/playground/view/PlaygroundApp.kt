@@ -127,11 +127,11 @@ fun PlaygroundApp(
                 }
 
                 composable(
-                    route = SubScreen.SubTaskEdit.route + "?subTaskId={subTaskId}",
-                    arguments = listOf(navArgument("subTaskId") { defaultValue = 0L })
+                    route = SubScreen.SubTaskEdit.route + "?subTaskIndex={subTaskIndex}",
+                    arguments = listOf(navArgument("subTaskIndex") { defaultValue = -1 })
                 ) { navBackStackEntry ->
                     SubTaskEditorScreen(
-                        subTaskId = navBackStackEntry.arguments!!.getLong("subTaskId"),
+                        subTaskIndex = navBackStackEntry.arguments!!.getInt("subTaskIndex"),
                         taskEditorViewModel = navBackStackEntry.sharedViewModel(navController = appState.navController),
                         onBackPress = appState::navigateBack
                     )
