@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.je.playground.view.taskview.viewmodel.Priority
 
 @Composable
 fun PrioritySliderComponent(
@@ -43,11 +42,6 @@ fun PrioritySliderComponent(
         if ((0.0..0.5).contains(sliderPosition.toDouble())) Color(0xFF00C853)
         else if ((0.5..1.5).contains(sliderPosition.toDouble())) Color(0xFFFFAB00)
         else Color.Red
-
-    val priority =
-        if ((0.0..0.5).contains(sliderPosition.toDouble())) "Low"
-        else if ((0.5..1.5).contains(sliderPosition.toDouble())) "Medium"
-        else "High"
 
     var isFocused by remember {
         mutableStateOf(false)
@@ -76,7 +70,10 @@ fun PrioritySliderComponent(
         )
 
         Text(
-            text = priority,
+            text =
+            if ((0.0..0.5).contains(sliderPosition.toDouble())) "Low"
+            else if ((0.5..1.5).contains(sliderPosition.toDouble())) "Medium"
+            else "High",
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.padding(start = 12.dp)
         )
@@ -89,7 +86,7 @@ fun PrioritySliderComponent(
             },
             onValueChangeFinished = {
                 isFocused = false
-                onPriorityChanged(Priority.valueOf(priority).ordinal)
+                onPriorityChanged(sliderPosition.toInt())
             },
             valueRange = 0f..2f,
             steps = 1,
