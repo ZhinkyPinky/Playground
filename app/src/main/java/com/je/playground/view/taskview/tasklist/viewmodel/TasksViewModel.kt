@@ -1,11 +1,13 @@
 package com.je.playground.view.taskview.tasklist.viewmodel
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.repository.TasksRepository
+import com.je.playground.notification.NotificationScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,12 +36,15 @@ enum class TaskTypeV2(type : String) {
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
+    application : Application,
     private val tasksRepository : TasksRepository
 ) : ViewModel() {
     private val _tasksUiState = MutableStateFlow(TasksUiState())
 
     val tasksUiState : StateFlow<TasksUiState>
         get() = _tasksUiState
+
+    private val notification = NotificationScheduler(application.applicationContext)
 
     init {
         viewModelScope.launch {
@@ -69,10 +74,22 @@ class TasksViewModel @Inject constructor(
         tasksRepository.updateSubTasks(mainTaskWithSubTasks.subTasks)
     }
 
-    fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) = tasksRepository.deleteMainTask(mainTaskWithSubTasks.mainTask)
+    fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) =
+        tasksRepository
+            .deleteMainTask(mainTaskWithSubTasks.mainTask)
+            .invokeOnCompletion {
+                notification.cancelNotification(mainTaskWithSubTasks.mainTask.mainTaskId.toInt())
+                mainTaskWithSubTasks.subTasks.forEach {
+                    notification.cancelNotification(it.subTaskId.toInt() * 1009)
+                }
+            }
 
     fun updateMainTask(mainTask : MainTask) {
         tasksRepository.updateMainTask(mainTask)
+
+        if (mainTask.isArchived) {
+            notification.cancelNotification(mainTask.mainTaskId.toInt())
+        }
     }
 }
 

@@ -9,6 +9,7 @@ import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.repository.TasksRepository
+import com.je.playground.notification.NotificationItem
 import com.je.playground.notification.NotificationScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +42,7 @@ class TaskEditorViewModel @Inject constructor(
     val mainTask : StateFlow<MainTask> = _mainTask.asStateFlow()
 
     val subTasks = mutableStateListOf<SubTask>()
+    private val removedSubTasks : MutableList<Long> = mutableListOf()
 
     private val notification = NotificationScheduler(application.applicationContext)
 
@@ -78,7 +80,7 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun removeSubTask(index : Int) {
-        subTasks.removeAt(index)
+        removedSubTasks.add(subTasks.removeAt(index).subTaskId)
     }
 
     fun saveSubTask(
@@ -112,47 +114,50 @@ class TaskEditorViewModel @Inject constructor(
 
                 mainTask.mainTaskId = tasksRepository.insertMainTask(mainTask)
                 subTasks.forEach { subTask ->
-                    subTask.mainTaskId =  mainTask.mainTaskId
+                    subTask.mainTaskId = mainTask.mainTaskId
                     subTask.subTaskId = tasksRepository.insertSubTask(subTask)
                 }
 
-                mainTask.startDate?.let { startDate ->
+                if (mainTask.startDate != null) {
                     val startTime = mainTask.startTime ?: LocalTime.MIDNIGHT
                     notification.scheduleNotification(
-                        id = mainTask.mainTaskId,
-                        title = mainTask.title,
-                        message = mainTask.note,
-                        dateTime = LocalDateTime.of(
-                            startDate,
-                            startTime
-                        )
-                    )
-                }
-
-                /*
-                subTasks.forEach { subTask ->
-                    subTask.startDate?.let { startDate ->
-                        val startTime = subTask.startTime ?: LocalTime.MIDNIGHT
-                        notification.scheduleNotification(
-                            subTask.subTaskId,
-                            subTask.title,
-                            LocalDateTime.of(
-                                startDate,
+                        NotificationItem(
+                            id = mainTask.mainTaskId.toInt(),
+                            title = mainTask.title,
+                            message = mainTask.note,
+                            dateTime = LocalDateTime.of(
+                                mainTask.startDate,
                                 startTime
                             )
                         )
+                    )
+                } else {
+                    notification.cancelNotification(mainTask.mainTaskId.toInt())
+                }
+
+                subTasks.forEach { subTask ->
+                    if (subTask.startDate != null) {
+                        val startTime = subTask.startTime ?: LocalTime.MIDNIGHT
+                        notification.scheduleNotification(
+                            NotificationItem(
+                                id = subTask.subTaskId.toInt() * 1009,
+                                title = subTask.title,
+                                message = subTask.note,
+                                dateTime = LocalDateTime.of(
+                                    subTask.startDate,
+                                    startTime
+                                )
+                            )
+                        )
+                    } else {
+                        notification.cancelNotification(subTask.subTaskId.toInt() * 1009)
                     }
                 }
-                 */
+
+                removedSubTasks.forEach {
+                    notification.cancelNotification(it.toInt() * 1009)
+                }
             }
         }
-    }
-
-    fun updateMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
-        TODO("Not yet implemented")
-    }
-
-    fun deleteMainTaskWithSubTasks(mainTaskWithSubTasks : MainTaskWithSubTasks) {
-        TODO("Not yet implemented")
     }
 }

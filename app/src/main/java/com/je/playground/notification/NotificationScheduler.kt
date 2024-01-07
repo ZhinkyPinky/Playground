@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import java.time.LocalDateTime
 import java.time.ZoneId
 
 class NotificationScheduler(
@@ -12,11 +11,9 @@ class NotificationScheduler(
 ) : INotificationScheduler {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+
     override fun scheduleNotification(
-        id : Long,
-        title : String,
-        message : String,
-        dateTime : LocalDateTime
+        notificationItem : NotificationItem
     ) {
         val intent = Intent(
             context,
@@ -24,28 +21,32 @@ class NotificationScheduler(
         ).apply {
             putExtra(
                 "ID",
-                id.toInt()
+                notificationItem.id
             )
 
             putExtra(
                 "TITLE",
-                title
+                notificationItem.title
             )
 
             putExtra(
                 "MESSAGE",
-                message
+                notificationItem.message
             )
         }
 
+        Any()
+
+        notificationItem.hashCode()
+
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            dateTime
+            notificationItem.dateTime
                 .atZone(ZoneId.systemDefault())
                 .toEpochSecond() * 1000,
             PendingIntent.getBroadcast(
                 context,
-                id.toInt(),
+                notificationItem.id,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -53,11 +54,11 @@ class NotificationScheduler(
     }
 
     @Override
-    override fun cancel(id : Long) {
+    override fun cancelNotification(id : Int) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                id.toInt(),
+                id,
                 Intent(
                     context,
                     NotificationReceiver::class.java

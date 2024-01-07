@@ -1,14 +1,9 @@
 package com.je.playground.notification
 
-import java.time.LocalDateTime
-
 interface INotificationScheduler {
     fun scheduleNotification(
-        id : Long,
-        title : String,
-        message : String,
-        dateTime : LocalDateTime
+        notificationItem : NotificationItem
     )
 
-    fun cancel(id : Long)
+    fun cancelNotification(id : Int)
 }

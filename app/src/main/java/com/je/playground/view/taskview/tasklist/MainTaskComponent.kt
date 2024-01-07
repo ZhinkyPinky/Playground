@@ -50,7 +50,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -79,7 +78,6 @@ fun MainTaskComponent(
     updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
     deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
 ) {
-    val context = LocalContext.current
     val hapticFeedback = LocalHapticFeedback.current
 
     var isVisible by remember { mutableStateOf(true) }
