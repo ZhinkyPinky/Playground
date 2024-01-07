@@ -1,6 +1,5 @@
 package com.je.playground.view.taskview.taskeditor.dialog
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -111,20 +110,14 @@ fun SubTaskEditorDialog(
                         endDate = endDate,
                         onStartDateValueChange = {
                             startDate = it
-
-                            Log.i(
-                                "startDate",
-                                "$startDate"
-                            )
                         },
                         onEndDateValueChange = {
                             endDate = it
-
-                            Log.i(
-                                "endDate",
-                                "$endDate"
-                            )
                         },
+                        clearDates = {
+                            startDate = null
+                            endDate = null
+                        }
                     )
 
                     TimeRangePicker(

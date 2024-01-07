@@ -139,6 +139,10 @@ fun MainTaskEditorScreen(
                     endDate = endDate,
                     onStartDateValueChange = { startDate = it },
                     onEndDateValueChange = { endDate = it },
+                    clearDates = {
+                        startDate = null
+                        endDate = null
+                    }
                 )
 
                 TimeRangePicker(

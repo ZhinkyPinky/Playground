@@ -1,6 +1,7 @@
 package com.je.playground.view.taskview.taskeditor.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -73,6 +74,11 @@ class TaskEditorViewModel @Inject constructor(
                 endTime = mainTask.endTime
             )
         }
+
+        Log.d(
+            "startDate",
+            mainTask.startDate.toString()
+        )
     }
 
     private fun addSubTask(subTask : SubTask) {

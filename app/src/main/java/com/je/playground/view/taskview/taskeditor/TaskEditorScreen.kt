@@ -542,6 +542,14 @@ fun SingleTaskEditor(
             endDate = mainTask.endDate,
             onStartDateValueChange = { updateMainTask(mainTask.copy(startDate = it)) },
             onEndDateValueChange = { updateMainTask(mainTask.copy(endDate = it)) },
+            clearDates = {
+                updateMainTask(
+                    mainTask.copy(
+                        startDate = null,
+                        endDate = null
+                    )
+                )
+            }
         )
 
         TimeRangePicker(

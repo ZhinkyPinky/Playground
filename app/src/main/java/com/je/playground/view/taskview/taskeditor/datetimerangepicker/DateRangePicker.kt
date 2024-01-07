@@ -52,7 +52,8 @@ fun DateRangePicker(
     startDate : LocalDate?,
     endDate : LocalDate?,
     onStartDateValueChange : (LocalDate?) -> Unit,
-    onEndDateValueChange : (LocalDate?) -> Unit
+    onEndDateValueChange : (LocalDate?) -> Unit,
+    clearDates : () -> Unit
 ) {
     var showStartDateSelection by rememberSaveable { mutableStateOf(false) }
     var showEndDateSelection by rememberSaveable { mutableStateOf(false) }
@@ -108,8 +109,7 @@ fun DateRangePicker(
                             modifier = Modifier
                                 .size(16.dp)
                                 .clickable {
-                                    onStartDateValueChange(null)
-                                    onEndDateValueChange(null)
+                                    clearDates()
                                 }
                         )
                     }
