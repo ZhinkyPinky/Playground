@@ -1,26 +1,19 @@
-package com.je.playground.view
+package com.je.playground.notification
 
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.TaskStackBuilder
 import android.content.Context
-import android.content.Intent
-import androidx.core.app.NotificationCompat
 import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import com.je.playground.R
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.concurrent.TimeUnit
 
-class Notifications(private val application : Application) {
+class Notification(private val application : Application) {
     companion object {
         const val CHANNEL_ID = "task-reminders"
+        const val NOTIFICATION_ID = "notification_id"
+        const val TITLE = "title"
     }
 
     private val notificationManager : NotificationManager by lazy {
@@ -28,8 +21,8 @@ class Notifications(private val application : Application) {
     }
 
     fun scheduleNotification(
-        taskId : Long,
-        taskName : String,
+        id : Long,
+        title : String,
         notificationDateTime : LocalDateTime
     ) {
         // Create the notification channel, if necessary
@@ -45,15 +38,17 @@ class Notifications(private val application : Application) {
         val data = Data
             .Builder()
             .putInt(
-                NotificationWorker.NOTIFICATION_ID,
+                NOTIFICATION_ID,
                 1
             )
             .putString(
-                NotificationWorker.TASK_NAME,
-                taskName
+                TITLE,
+                title
             )
             .build()
 
+
+        /*
         // Create the work request
         val workRequest = OneTimeWorkRequest
             .Builder(NotificationWorker::class.java)
@@ -62,13 +57,14 @@ class Notifications(private val application : Application) {
                 TimeUnit.MILLISECONDS
             )
             .setInputData(data)
-            .addTag(taskId.toString())
+            .addTag(id.toString())
             .build()
 
         // Schedule the work
         WorkManager
             .getInstance(application)
             .enqueue(workRequest)
+         */
     }
 
     fun cancelNotification(taskId : Long) {
@@ -93,6 +89,7 @@ class Notifications(private val application : Application) {
     }
 }
 
+/*
 class NotificationWorker(
     context : Context,
     workerParams : WorkerParameters
@@ -152,3 +149,4 @@ class NotificationWorker(
         return Result.success()
     }
 }
+ */

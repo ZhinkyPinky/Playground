@@ -9,7 +9,7 @@ import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.repository.TasksRepository
-import com.je.playground.view.Notifications
+import com.je.playground.notification.NotificationScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +42,7 @@ class TaskEditorViewModel @Inject constructor(
 
     val subTasks = mutableStateListOf<SubTask>()
 
-    private val notifications = Notifications(application)
+    private val notification = NotificationScheduler(application.applicationContext)
 
     private val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
 
@@ -110,28 +110,30 @@ class TaskEditorViewModel @Inject constructor(
 
                 mainTask.isCompleted = subTasks.isNotEmpty() && subTasks.all { it.isCompleted }
 
-                val mainTaskId = tasksRepository.insertMainTask(mainTask)
+                mainTask.mainTaskId = tasksRepository.insertMainTask(mainTask)
                 subTasks.forEach { subTask ->
-                    subTask.mainTaskId = mainTaskId
+                    subTask.mainTaskId =  mainTask.mainTaskId
                     subTask.subTaskId = tasksRepository.insertSubTask(subTask)
                 }
 
                 mainTask.startDate?.let { startDate ->
                     val startTime = mainTask.startTime ?: LocalTime.MIDNIGHT
-                    notifications.scheduleNotification(
-                        mainTask.mainTaskId,
-                        mainTask.title,
-                        LocalDateTime.of(
+                    notification.scheduleNotification(
+                        id = mainTask.mainTaskId,
+                        title = mainTask.title,
+                        message = mainTask.note,
+                        dateTime = LocalDateTime.of(
                             startDate,
                             startTime
                         )
                     )
                 }
 
+                /*
                 subTasks.forEach { subTask ->
                     subTask.startDate?.let { startDate ->
                         val startTime = subTask.startTime ?: LocalTime.MIDNIGHT
-                        notifications.scheduleNotification(
+                        notification.scheduleNotification(
                             subTask.subTaskId,
                             subTask.title,
                             LocalDateTime.of(
@@ -141,6 +143,7 @@ class TaskEditorViewModel @Inject constructor(
                         )
                     }
                 }
+                 */
             }
         }
     }

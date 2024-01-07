@@ -4,7 +4,7 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.je.playground.view.taskview.viewmodel.TaskTypeV2
+import com.je.playground.view.taskview.tasklist.viewmodel.TaskTypeV2
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.time.LocalTime

@@ -369,8 +369,7 @@ fun MonthGridComponent(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            DayOfWeek
-                .values()
+            DayOfWeek.entries
                 .forEach {
                     Text(
                         text = it.name

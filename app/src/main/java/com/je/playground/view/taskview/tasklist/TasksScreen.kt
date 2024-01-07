@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.je.playground.database.tasks.entity.MainTask
 import com.je.playground.database.tasks.entity.MainTaskWithSubTasks
-import com.je.playground.view.taskview.viewmodel.TasksViewModel
+import com.je.playground.view.taskview.tasklist.viewmodel.TasksViewModel
 
 
 @Composable
