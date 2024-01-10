@@ -17,22 +17,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,16 +39,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.je.playground.database.exerciseprogram.entity.Exercise
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgram
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithAllTheThings
-import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.view.exerciseprogramview.exerciseprogrameditor.dialog.ExerciseProgramEditorDialog
 import com.je.playground.view.exerciseprogramview.viewmodel.ExerciseProgramViewModel
-import com.je.playground.view.sharedcomponents.NoteComponent
-import com.je.playground.view.taskview.dateTimeToString
-import com.je.playground.view.taskview.taskeditor.dialog.SubTaskEditorDialog
+import com.je.playground.view.taskview.taskeditor.EditorTopBar
 import com.je.playground.view.theme.title
 
 @Composable
@@ -223,8 +209,9 @@ fun ExerciseProgramEditorContent(
 
     Scaffold(
         topBar = {
-            TopBar(
-                saveExerciseProgramWithAllTheThings = saveExerciseProgramWithAllTheThings,
+            EditorTopBar(
+                text = "Edit",
+                onSave = saveExerciseProgramWithAllTheThings,
                 onBackPress
             )
         },
@@ -359,246 +346,5 @@ fun ExerciseProgramEditComponent(
                 textAlign = TextAlign.Start
             )
         }
-    }
-}
-
-@Composable
-fun SubTasksComponent(
-    mainTaskId : Long,
-    subTasks : SnapshotStateList<SubTask>,
-) {
-    var showNewSubTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
-
-    if (showNewSubTaskEditorDialog) {
-        SubTaskEditorDialog(
-            dialogTitle = "New subtask",
-            mainTaskId = mainTaskId,
-            subTask = SubTask(),
-            isNewTask = true,
-            onSave = {
-                subTasks.add(it)
-                showNewSubTaskEditorDialog = false
-            },
-            onDismissRequest = { showNewSubTaskEditorDialog = false }
-        )
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(
-                start = 12.dp
-            )
-    ) {
-        Text(
-            text = "Tasks",
-            modifier = Modifier
-                .weight(1f)
-        )
-
-        IconButton(
-            onClick = { showNewSubTaskEditorDialog = true },
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "New Task",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
-    }
-
-    subTasks.forEach { subTask ->
-        var subTaskTitle by rememberSaveable { mutableStateOf(subTask.title) }
-        var subTaskNote by rememberSaveable { mutableStateOf(subTask.note) }
-        var subTaskStartDate by rememberSaveable { mutableStateOf(subTask.startDate) }
-        var subTaskStartTime by rememberSaveable { mutableStateOf(subTask.startTime) }
-        var subTaskEndDate by rememberSaveable { mutableStateOf(subTask.endDate) }
-        var subTaskEndTime by rememberSaveable { mutableStateOf(subTask.endTime) }
-
-        var showEditSubTaskEditorDialog by rememberSaveable { mutableStateOf(false) }
-
-        if (showEditSubTaskEditorDialog) {
-            SubTaskEditorDialog(
-                dialogTitle = "Edit subtask",
-                mainTaskId = mainTaskId,
-                subTask = subTask,
-                isNewTask = true,
-                onSave = {
-                    subTask.title = it.title
-                    subTaskTitle = it.title
-                    subTask.note = it.note
-                    subTaskNote = it.note
-                    subTask.startDate = it.startDate
-                    subTaskStartDate = it.startDate
-                    subTask.startTime = it.startTime
-                    subTaskStartTime = it.startTime
-                    subTask.endDate = it.endDate
-                    subTaskEndDate = it.endDate
-                    subTask.endTime = it.endTime
-                    subTaskEndTime = it.endTime
-
-                    showEditSubTaskEditorDialog = false
-                },
-                onDismissRequest = { showEditSubTaskEditorDialog = false }
-            )
-        }
-
-
-        var isExpanded by rememberSaveable {
-            mutableStateOf(false)
-        }
-
-        var isDropDownMenuExpanded by rememberSaveable {
-            mutableStateOf(false)
-        }
-
-        Column(
-            modifier = Modifier
-                .clickable { isExpanded = !isExpanded }
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .padding(
-                    start = 12.dp,
-                    top = 6.dp,
-                    bottom = 6.dp
-                )
-                .wrapContentHeight()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                ) {
-                    Text(
-                        text = subTaskTitle,
-                        style = title(MaterialTheme.colorScheme.onPrimary),
-                        textAlign = TextAlign.Start,
-                    )
-
-                    if (subTaskStartDate != null || subTaskStartTime != null || subTaskEndDate != null || subTaskEndTime != null) {
-                        Text(
-                            text = dateTimeToString(
-                                startDate = subTaskStartDate,
-                                startTime = subTaskStartTime,
-                                endDate = subTaskEndDate,
-                                endTime = subTaskEndTime
-                            ),
-                            color = Color(0xFFCCCCCC),
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Start
-                        )
-                    }
-                }
-
-                Box {
-                    IconButton(onClick = {
-                        isDropDownMenuExpanded = !isDropDownMenuExpanded
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "Note"
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = isDropDownMenuExpanded,
-                        onDismissRequest = { isDropDownMenuExpanded = false }) {
-                        Column {
-                            TextButton(onClick = {
-                                isDropDownMenuExpanded = false
-                                showEditSubTaskEditorDialog = true
-                            }) {
-                                Text(
-                                    text = "Edit",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
-
-                            TextButton(onClick = {
-                                subTasks.remove(subTask)
-                                isDropDownMenuExpanded = false
-                            }) {
-                                Text(
-                                    text = "Delete",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (subTaskNote != "") {
-                NoteComponent(
-                    note = subTaskNote,
-                    isExpanded = isExpanded,
-                    modifier = Modifier.padding(
-                        top = 6.dp,
-                        bottom = 6.dp,
-                        end = 12.dp
-                    )
-                )
-
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBar(
-    saveExerciseProgramWithAllTheThings : () -> Unit,
-    onBackPress : () -> Unit
-) {
-    Column {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Edit",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 22.sp,
-                    maxLines = 1,
-                    textAlign = TextAlign.Start,
-
-                    modifier = Modifier
-                        .padding(
-                            start = 0.dp,
-                            top = 4.dp,
-                            end = 8.dp,
-                            bottom = 4.dp
-                        )
-                        .weight(1f)
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = onBackPress) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(end = 2.dp)
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            actions = {
-                IconButton(
-                    onClick = { saveExerciseProgramWithAllTheThings() },
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Save,
-                        contentDescription = "Save task",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                    )
-                }
-            })
-        Divider(
-            color = MaterialTheme.colorScheme.background
-        )
     }
 }

@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import com.je.playground.view.theme.regularText
 import java.time.LocalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeRangePicker(
     startTime : LocalTime?,
