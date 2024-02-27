@@ -9,8 +9,8 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.je.playground.MainActivity
 import com.je.playground.R
-import com.je.playground.view.MainActivity
 
 class NotificationReceiver : BroadcastReceiver() {
     companion object {

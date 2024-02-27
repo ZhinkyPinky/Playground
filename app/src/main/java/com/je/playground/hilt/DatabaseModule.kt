@@ -1,6 +1,7 @@
 package com.je.playground.hilt
 
 import android.content.Context
+import androidx.room.Room
 import com.je.playground.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -14,7 +15,12 @@ import javax.inject.Singleton
 class DatabaseModule {
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context : Context) : AppDatabase {
-        return AppDatabase.getDatabase(context)
-    }
+    fun provideDatabase(@ApplicationContext context : Context) : AppDatabase = Room
+        .databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "app_database"
+        )
+        .fallbackToDestructiveMigration()
+        .build()
 }

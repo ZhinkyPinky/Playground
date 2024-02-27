@@ -16,7 +16,7 @@ import java.time.LocalTime
     tableName = "sub_task",
     foreignKeys = [
         ForeignKey(
-            entity = MainTask::class,
+            entity = Task::class,
             parentColumns = ["main_task_id"],
             childColumns = ["main_task_id"],
             onDelete = 5
