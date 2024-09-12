@@ -34,10 +34,13 @@ fun EditorModeButtonRow(
     ) {
         Button(
             onClick = onClick,
+            enabled = isGroup,
             shape = MaterialTheme.shapes.small.copy(CornerSize(0)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isGroup) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             modifier = Modifier
                 .weight(1f)
@@ -55,10 +58,13 @@ fun EditorModeButtonRow(
 
         Button(
             onClick = onClick,
+            enabled = !isGroup,
             shape = MaterialTheme.shapes.small.copy(CornerSize(0)),
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (!isGroup) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                disabledContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             modifier = Modifier
                 .weight(1f)

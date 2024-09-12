@@ -23,6 +23,7 @@ import com.je.playground.designsystem.component.TextFieldComponent
 import com.je.playground.designsystem.component.datetimerangepicker.DateRangePicker
 import com.je.playground.designsystem.component.datetimerangepicker.TimeRangePicker
 import com.je.playground.designsystem.theme.PlaygroundTheme
+import com.je.playground.feature.tasks.editor.TaskEditorEvent
 import com.je.playground.feature.tasks.editor.TaskEditorViewModel
 
 @Composable
@@ -38,10 +39,7 @@ fun MainTaskEditorScreen(
         is TaskEditorViewModel.State.Ready -> {
             MainTaskEditorScreen(
                 task = taskEditorViewModel.task.collectAsState().value,
-                updateMainTask = {
-                    taskEditorViewModel.updateMainTask(it)
-                    onBackPress()
-                },
+                onEvent = taskEditorViewModel::onEvent,
                 onBackPress = onBackPress
             )
 
@@ -52,7 +50,7 @@ fun MainTaskEditorScreen(
 @Composable
 fun MainTaskEditorScreen(
     task : Task,
-    updateMainTask : (Task) -> Unit,
+    onEvent : (TaskEditorEvent) -> Unit,
     onBackPress : () -> Unit
 ) {
     var title by rememberSaveable { mutableStateOf(task.title) }
@@ -67,18 +65,21 @@ fun MainTaskEditorScreen(
         topBar = {
             EditorTopBar(
                 text = "Edit",
-                onSave = {
-                    updateMainTask(
-                        task.copy(
-                            title = title,
-                            note = note,
-                            priority = priority,
-                            startDate = startDate,
-                            startTime = startTime,
-                            endDate = endDate,
-                            endTime = endTime
+                onEvent = {
+                    onEvent(
+                        TaskEditorEvent.UpdateTask(
+                            task.copy(
+                                title = title,
+                                note = note,
+                                priority = priority,
+                                startDate = startDate,
+                                startTime = startTime,
+                                endDate = endDate,
+                                endTime = endTime
+                            )
                         )
                     )
+                    onBackPress()
                 },
                 onBackPress = onBackPress
             )
@@ -155,7 +156,7 @@ fun TaskEditorScreenPreview() {
     PlaygroundTheme {
         MainTaskEditorScreen(
             task = Task(),
-            updateMainTask = {}
+            onEvent = {}
         ) {
 
         }

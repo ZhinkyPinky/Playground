@@ -54,12 +54,15 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
 import com.je.playground.database.tasks.entity.TaskWithSubTasks
+import com.je.playground.designsystem.ThemePreviews
 import com.je.playground.designsystem.component.CheckboxComponent
 import com.je.playground.designsystem.component.NoteComponent
 import com.je.playground.designsystem.component.dialog.ConfirmationDialog
 import com.je.playground.designsystem.dateTimeToString
+import com.je.playground.designsystem.theme.PlaygroundTheme
 import com.je.playground.designsystem.theme.title
 import com.je.playground.feature.tasks.list.TaskListEvent
 
@@ -75,8 +78,6 @@ enum class DragAnchors {
 fun TaskComponent(
     taskWithSubTasks : TaskWithSubTasks,
     navigateToTaskEditScreen : (Long) -> Unit,
-    updateTask : (Task) -> Unit,
-    updateTaskWithSubTasks : (TaskWithSubTasks) -> Unit,
     onEvent : (TaskListEvent) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -108,18 +109,17 @@ fun TaskComponent(
                 TaskComponentContent(
                     taskWithSubTasks = taskWithSubTasks,
                     navigateToTaskEditScreen = navigateToTaskEditScreen,
-                    updateTaskWithSubTasks = updateTaskWithSubTasks,
                     onEvent = onEvent
                 )
             }
         )
     }
+
     LaunchedEffect(
         isVisible
     ) {
         if (!isVisible) {
-            taskWithSubTasks.task.isArchived = true
-            updateTask(taskWithSubTasks.task)
+            onEvent(TaskListEvent.ToggleTaskArchived(task = taskWithSubTasks.task))
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }
@@ -129,7 +129,6 @@ fun TaskComponent(
 fun TaskComponentContent(
     taskWithSubTasks : TaskWithSubTasks,
     navigateToTaskEditScreen : (Long) -> Unit,
-    updateTaskWithSubTasks : (TaskWithSubTasks) -> Unit,
     onEvent : (TaskListEvent) -> Unit
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -183,8 +182,7 @@ fun TaskComponentContent(
                                 CheckboxComponent(
                                     isChecked = taskWithSubTasks.task.isCompleted,
                                     onCheckedChange = {
-                                        taskWithSubTasks.task.isCompleted = !taskWithSubTasks.task.isCompleted
-                                        updateTaskWithSubTasks(taskWithSubTasks)
+                                        onEvent(TaskListEvent.ToggleTaskCompletion(task = taskWithSubTasks.task))
                                     }
                                 )
                             }
@@ -256,7 +254,6 @@ fun TaskComponentContent(
                             taskWithSubTasks = taskWithSubTasks,
                             completionCounter,
                             onEvent,
-                            updateTaskWithSubTasks
                         )
                     }
                 }
@@ -327,7 +324,6 @@ fun SubTasks(
     taskWithSubTasks : TaskWithSubTasks,
     completionCounter : Int,
     onEvent : (TaskListEvent) -> Unit,
-    updateTaskWithSubTasks : (TaskWithSubTasks) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -338,17 +334,12 @@ fun SubTasks(
             subTask = subTask,
             isCompleted = subTask.isCompleted,
             onCompletion = {
-                //subTask.isCompleted = !subTask.isCompleted
-
                 if (subTask.isCompleted) {
                     completion++
                 } else {
                     completion--
                 }
 
-                //taskWithSubTasks.task.isCompleted = (completion == taskWithSubTasks.subTasks.size)
-
-                //updateTaskWithSubTasks(taskWithSubTasks)
                 onEvent(TaskListEvent.ToggleSubTaskCompletion(subTask))
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             }
@@ -379,7 +370,8 @@ fun TaskDropDownMenu(
         }) {
             Icon(
                 imageVector = Icons.Filled.MoreVert,
-                contentDescription = "Note"
+                contentDescription = "Note",
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
 
@@ -428,6 +420,51 @@ fun DeletionDialog(
 }
 
 
+@ThemePreviews
+@Composable
+fun TaskComponentPreview() {
+    PlaygroundTheme {
+        TaskComponent(
+            taskWithSubTasks = TaskWithSubTasks(
+                task = Task(
+                    title = "Test",
+                    note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
+                )
+            ),
+            navigateToTaskEditScreen = {},
+            onEvent = {}
+        )
+    }
+}
 
+@ThemePreviews
+@Composable
+fun TaskComponentWithSubtasksPreview() {
+    PlaygroundTheme {
+        TaskComponent(
+            taskWithSubTasks = TaskWithSubTasks(
+                task = Task(
+                    title = "Test",
+                    note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+
+                ),
+                subTasks = listOf(
+                    SubTask(
+                        title = "TestSubTask1",
+                        note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        isCompleted = true
+                    ),
+                    SubTask(
+                        title = "TestSubTask2",
+                        note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        isCompleted = false
+                    )
+                )
+            ),
+            navigateToTaskEditScreen = {},
+            onEvent = {}
+        )
+    }
+}
 

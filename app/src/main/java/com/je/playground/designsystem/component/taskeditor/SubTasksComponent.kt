@@ -31,11 +31,12 @@ import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.designsystem.component.NoteComponent
 import com.je.playground.designsystem.dateTimeToString
 import com.je.playground.designsystem.theme.title
+import com.je.playground.feature.tasks.editor.TaskEditorEvent
 
 @Composable
 fun SubTasksComponent(
     subTasks : List<SubTask>,
-    removeSubTask : (Int) -> Unit,
+    onEvent : (TaskEditorEvent) -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
 ) {
     Row(
@@ -141,7 +142,7 @@ fun SubTasksComponent(
                             }
 
                             TextButton(onClick = {
-                                removeSubTask(subTasks.indexOf(subTask))
+                                onEvent(TaskEditorEvent.RemoveSubTask(subTasks.indexOf(subTask)))
                                 isDropDownMenuExpanded = false
                             }) {
                                 Text(

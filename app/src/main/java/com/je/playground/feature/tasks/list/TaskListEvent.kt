@@ -8,4 +8,5 @@ sealed class TaskListEvent {
     data class DeleteTaskWithSubTasks(val taskWithSubTasks : TaskWithSubTasks): TaskListEvent()
     data class ToggleTaskCompletion(val task : Task) : TaskListEvent()
     data class ToggleSubTaskCompletion(val subTask : SubTask) : TaskListEvent()
+    data class ToggleTaskArchived(val task : Task) : TaskListEvent()
 }

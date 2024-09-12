@@ -27,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.je.playground.database.tasks.entity.Task
 import com.je.playground.database.tasks.entity.TaskWithSubTasks
 import com.je.playground.designsystem.component.tasklist.TaskComponent
 
@@ -53,8 +52,6 @@ fun TasksScreen(
     TasksScreen(
         tasksWithSubTasks = tasksUiState.mainTasksWithSubTasks,
         navigateToTaskEditScreen = navigateToTaskEditScreen,
-        updateTask = taskListViewModel::updateMainTask,
-        updateTaskWithSubTasks = taskListViewModel::updateMainTaskWithSubTasks,
         onEvent = taskListViewModel::onEvent
     )
 }
@@ -63,8 +60,6 @@ fun TasksScreen(
 fun TasksScreen(
     tasksWithSubTasks : List<TaskWithSubTasks>,
     navigateToTaskEditScreen : (Long) -> Unit,
-    updateTask : (Task) -> Unit,
-    updateTaskWithSubTasks : (TaskWithSubTasks) -> Unit,
     onEvent : (TaskListEvent) -> Unit
 ) {
     Scaffold(
@@ -80,8 +75,6 @@ fun TasksScreen(
             taskList(
                 tasksWithSubTasks = tasksWithSubTasks,
                 navigateToTaskEditScreen = navigateToTaskEditScreen,
-                updateTask = updateTask,
-                updateTaskWithSubTasks = updateTaskWithSubTasks,
                 onEvent = onEvent
             )
         }
@@ -91,8 +84,6 @@ fun TasksScreen(
 fun LazyListScope.taskList(
     tasksWithSubTasks : List<TaskWithSubTasks>,
     navigateToTaskEditScreen : (Long) -> Unit,
-    updateTask : (Task) -> Unit,
-    updateTaskWithSubTasks : (TaskWithSubTasks) -> Unit,
     onEvent : (TaskListEvent) -> Unit
 ) {
     itemsIndexed(
@@ -102,8 +93,6 @@ fun LazyListScope.taskList(
             TaskComponent(
                 taskWithSubTasks = taskWithSubTasks,
                 navigateToTaskEditScreen = navigateToTaskEditScreen,
-                updateTask = updateTask,
-                updateTaskWithSubTasks = updateTaskWithSubTasks,
                 onEvent = onEvent
             )
         }

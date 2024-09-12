@@ -3,11 +3,11 @@ package com.je.playground.hilt
 import com.je.playground.database.tasks.repository.SubTaskRepository
 import com.je.playground.database.tasks.repository.TaskRepository
 import com.je.playground.database.tasks.repository.TaskWithSubTasksRepository
-import com.je.playground.feature.tasks.domain.AddTaskUseCase
 import com.je.playground.feature.tasks.domain.GetActiveTasksWithSubTasksUseCase
 import com.je.playground.feature.tasks.domain.GetTaskUseCase
 import com.je.playground.feature.tasks.domain.GetTaskWithSubTasksByTaskIdUseCase
-import com.je.playground.feature.tasks.domain.ToggleSubTaskCompletionUseCase
+import com.je.playground.feature.tasks.domain.SaveTaskUseCase
+import com.je.playground.feature.tasks.domain.ToggleSubTaskIsCompletedUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,8 +19,8 @@ import javax.inject.Singleton
 class UseCaseModule {
     @Provides
     @Singleton
-    fun providesAddTaskUseCase(taskRepository : TaskRepository) : AddTaskUseCase {
-        return AddTaskUseCase(taskRepository)
+    fun providesAddTaskUseCase(taskRepository : TaskRepository) : SaveTaskUseCase {
+        return SaveTaskUseCase(taskRepository)
     }
 
     @Provides
@@ -47,8 +47,8 @@ class UseCaseModule {
     fun providesToggleSubTaskCompletionUseCase(
         subTaskRepository : SubTaskRepository,
         taskRepository : TaskRepository
-    ) : ToggleSubTaskCompletionUseCase {
-        return ToggleSubTaskCompletionUseCase(
+    ) : ToggleSubTaskIsCompletedUseCase {
+        return ToggleSubTaskIsCompletedUseCase(
             subTaskRepository = subTaskRepository,
             taskRepository = taskRepository
         )

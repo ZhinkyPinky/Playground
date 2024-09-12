@@ -37,3 +37,5 @@ data class SubTask(
     @ColumnInfo(name = "end_time") var endTime : LocalTime? = null,
     @ColumnInfo(name = "is_completed") var isCompleted : Boolean = false,
 ) : Parcelable
+
+class InvalidSubTaskException(message : String) : Exception(message)

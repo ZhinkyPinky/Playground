@@ -43,7 +43,6 @@ import com.je.playground.database.exerciseprogram.entity.Exercise
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgram
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithAllTheThings
 import com.je.playground.designsystem.component.exerciseprogrameditor.dialog.ExerciseProgramEditorDialog
-import com.je.playground.designsystem.component.taskeditor.EditorTopBar
 import com.je.playground.designsystem.theme.title
 import com.je.playground.feature.exerciseprogram.viewmodel.ExerciseProgramViewModel
 
@@ -209,11 +208,14 @@ fun ExerciseProgramEditorContent(
 
     Scaffold(
         topBar = {
+            /*
             EditorTopBar(
                 text = "Edit",
                 onSave = saveExerciseProgramWithAllTheThings,
                 onBackPress
             )
+
+             */
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->

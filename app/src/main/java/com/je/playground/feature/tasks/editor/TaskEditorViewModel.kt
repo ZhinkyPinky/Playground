@@ -1,37 +1,34 @@
 package com.je.playground.feature.tasks.editor
 
-import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.je.playground.database.tasks.entity.InvalidSubTaskException
+import com.je.playground.database.tasks.entity.InvalidTaskException
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
 import com.je.playground.database.tasks.entity.TaskWithSubTasks
-import com.je.playground.database.tasks.repository.TaskRepository
 import com.je.playground.feature.tasks.domain.GetTaskWithSubTasksByTaskIdUseCase
-import com.je.playground.notification.NotificationItem
-import com.je.playground.notification.NotificationScheduler
+import com.je.playground.feature.tasks.domain.SaveTaskAndSubTasksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDateTime
-import java.time.LocalTime
 import javax.inject.Inject
 
 
 @HiltViewModel
 class TaskEditorViewModel @Inject constructor(
-    application : Application,
     savedStateHandle : SavedStateHandle,
-    private val taskRepository : TaskRepository,
     private val getTaskWithSubTasksByTaskIdUseCase : GetTaskWithSubTasksByTaskIdUseCase,
+    private val saveTaskAndSubTasks : SaveTaskAndSubTasksUseCase
 ) : ViewModel() {
     sealed class State {
         data object Loading : State()
@@ -39,24 +36,28 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     private val _taskEditorUiState : MutableStateFlow<State> = MutableStateFlow(State.Loading)
-    val taskEditorUiState : StateFlow<State> = _taskEditorUiState.asStateFlow()
+    val taskEditorUiState = _taskEditorUiState.asStateFlow()
 
-    private val _Task : MutableStateFlow<Task> = MutableStateFlow(Task())
-    val task : StateFlow<Task> = _Task.asStateFlow()
+    private val _eventFlow = MutableSharedFlow<Event>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
+    private val _task : MutableStateFlow<Task> = MutableStateFlow(Task())
+    val task : StateFlow<Task> = _task.asStateFlow()
 
     val subTasks = mutableStateListOf<SubTask>()
     private val removedSubTasks : MutableList<Long> = mutableListOf()
 
-    private val notification = NotificationScheduler(application.applicationContext)
-
     private val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
+
+    val isGroup : MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     init {
         viewModelScope.launch {
             getTaskWithSubTasksByTaskId(mainTaskId).let {
                 it?.let {
-                    _Task.value = it.task
+                    _task.value = it.task
                     subTasks.addAll(it.subTasks)
+                    isGroup.value = it.subTasks.isNotEmpty()
                 }
 
                 _taskEditorUiState.value = State.Ready
@@ -64,108 +65,86 @@ class TaskEditorViewModel @Inject constructor(
         }
     }
 
-    fun updateMainTask(task : Task) {
-        _Task.update { current ->
-            current.copy(
-                title = task.title,
-                note = task.note,
-                priority = task.priority,
-                startDate = task.startDate,
-                startTime = task.startTime,
-                endDate = task.endDate,
-                endTime = task.endTime
-            )
-        }
+    private suspend fun getTaskWithSubTasksByTaskId(taskId : Long) : TaskWithSubTasks? = withContext(Dispatchers.IO) { getTaskWithSubTasksByTaskIdUseCase(taskId) }
 
-        Log.d(
-            "startDate",
-            task.startDate.toString()
-        )
-    }
-
-    private fun addSubTask(subTask : SubTask) {
-        subTasks.add(subTask)
-    }
-
-    fun removeSubTask(index : Int) {
-        removedSubTasks.add(subTasks.removeAt(index).subTaskId)
-    }
-
-    fun saveSubTask(
-        index : Int,
-        subTask : SubTask
-    ) {
-        if (index == -1) {
-            addSubTask(subTask = subTask)
-        } else {
-            subTasks[index] = subTasks[index].copy(
-                title = subTask.title,
-                note = subTask.note,
-                startDate = subTask.startDate,
-                startTime = subTask.startTime,
-                endDate = subTask.endDate,
-                endTime = subTask.endTime
-            )
-        }
-    }
-
-    private suspend fun getTaskWithSubTasksByTaskId(taskId : Long) : TaskWithSubTasks? =
-        withContext(Dispatchers.IO) { getTaskWithSubTasksByTaskIdUseCase(taskId) }
-
-    fun saveMainTaskWithSubTasks() {
-        viewModelScope.launch {
-            if (_taskEditorUiState.value is State.Ready) {
-                val mainTask = _Task.value
-                val subTasks = subTasks
-
-                mainTask.isCompleted = subTasks.isNotEmpty() && subTasks.all { it.isCompleted }
-
-                mainTask.mainTaskId = taskRepository.insertTask(mainTask)
-                subTasks.forEach { subTask ->
-                    subTask.mainTaskId = mainTask.mainTaskId
-                    subTask.subTaskId = taskRepository.insertSubTask(subTask)
-                }
-
-                if (mainTask.startDate != null) {
-                    val startTime = mainTask.startTime ?: LocalTime.MIDNIGHT
-                    notification.scheduleNotification(
-                        NotificationItem(
-                            id = mainTask.mainTaskId.toInt(),
-                            title = mainTask.title,
-                            message = mainTask.note,
-                            dateTime = LocalDateTime.of(
-                                mainTask.startDate,
-                                startTime
-                            )
-                        )
-                    )
-                } else {
-                    notification.cancelNotification(mainTask.mainTaskId.toInt())
-                }
-
-                subTasks.forEach { subTask ->
-                    if (subTask.startDate != null) {
-                        val startTime = subTask.startTime ?: LocalTime.MIDNIGHT
-                        notification.scheduleNotification(
-                            NotificationItem(
-                                id = subTask.subTaskId.toInt() * 1009,
-                                title = subTask.title,
-                                message = subTask.note,
-                                dateTime = LocalDateTime.of(
-                                    subTask.startDate,
-                                    startTime
-                                )
-                            )
-                        )
-                    } else {
-                        notification.cancelNotification(subTask.subTaskId.toInt() * 1009)
+    fun onEvent(event : TaskEditorEvent) {
+        when (event) {
+            is TaskEditorEvent.SaveSubTask -> viewModelScope.launch {
+                try {
+                    if (event.subTask.title.isBlank()) {
+                        throw InvalidSubTaskException("A subtask must have a title.")
                     }
-                }
 
-                removedSubTasks.forEach {
-                    notification.cancelNotification(it.toInt() * 1009)
+                    if (event.index == -1) {
+                        subTasks.add(event.subTask)
+                    } else {
+                        subTasks[event.index] = subTasks[event.index].copy(
+                            title = event.subTask.title,
+                            note = event.subTask.note,
+                            startDate = event.subTask.startDate,
+                            startTime = event.subTask.startTime,
+                            endDate = event.subTask.endDate,
+                            endTime = event.subTask.endTime
+                        )
+                    }
+
+                    _eventFlow.emit(Event.Saved)
+                } catch (e : InvalidSubTaskException) {
+                    _eventFlow.emit(Event.ShowSnackbar(message = e.message ?: "Subtask couldn't be saved."))
                 }
             }
+
+            is TaskEditorEvent.RemoveSubTask -> removedSubTasks.add(subTasks.removeAt(event.index).subTaskId)
+            is TaskEditorEvent.UpdateTask -> _task.update { current ->
+                current.copy(
+                    title = event.task.title,
+                    note = event.task.note,
+                    priority = event.task.priority,
+                    startDate = event.task.startDate,
+                    startTime = event.task.startTime,
+                    endDate = event.task.endDate,
+                    endTime = event.task.endTime
+                )
+            }
+
+            is TaskEditorEvent.SaveTask -> viewModelScope.launch {
+                try {
+                    saveTaskAndSubTasks(
+                        _task.value,
+                        subTasks,
+                        removedSubTasks
+                    )
+
+                    _eventFlow.emit(Event.Saved)
+                } catch (e : InvalidTaskException) {
+                    _eventFlow.emit(
+                        Event.ShowSnackbar(
+                            message = e.message ?: "Couldn't save task."
+                        )
+                    )
+                }
+            }
+
+            is TaskEditorEvent.ToggleGroup -> toggleGroup()
         }
+    }
+
+    private fun toggleGroup() {
+        viewModelScope.launch {
+            if (isGroup.value) {
+                if (subTasks.isNotEmpty()) {
+                    _eventFlow.emit(Event.ShowSnackbar("You have to remove all subtasks first."))
+                } else {
+                    isGroup.value = !isGroup.value
+                }
+            } else {
+                isGroup.value = !isGroup.value
+            }
+        }
+    }
+
+    sealed class Event {
+        data class ShowSnackbar(val message : String) : Event()
+        data object Saved : Event()
     }
 }

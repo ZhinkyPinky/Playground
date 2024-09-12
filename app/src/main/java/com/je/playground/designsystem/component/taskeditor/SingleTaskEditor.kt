@@ -20,11 +20,12 @@ import com.je.playground.designsystem.component.PrioritySliderComponent
 import com.je.playground.designsystem.component.TextFieldComponent
 import com.je.playground.designsystem.component.datetimerangepicker.DateRangePicker
 import com.je.playground.designsystem.component.datetimerangepicker.TimeRangePicker
+import com.je.playground.feature.tasks.editor.TaskEditorEvent
 
 @Composable
 fun SingleTaskEditor(
     task : Task,
-    updateMainTask : (Task) -> Unit
+    onEvent : (TaskEditorEvent) -> Unit
 ) {
     Divider(
         color = MaterialTheme.colorScheme.background
@@ -46,7 +47,7 @@ fun SingleTaskEditor(
             placeholder = "Enter a title for the group",
             value = task.title,
             isSingleLine = true,
-            onValueChange = { updateMainTask(task.copy(title = it)) },
+            onValueChange = { onEvent(TaskEditorEvent.UpdateTask(task.copy(title = it))) },
             modifier = Modifier.padding(
                 bottom = 6.dp
             )
@@ -54,7 +55,7 @@ fun SingleTaskEditor(
 
         NoteEditComponent(
             note = task.note,
-            onValueChange = { updateMainTask(task.copy(note = it)) },
+            onValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(note = it)))) },
             modifier = Modifier.padding(
                 bottom = 12.dp
             )
@@ -62,7 +63,7 @@ fun SingleTaskEditor(
 
         PrioritySliderComponent(
             priority = task.priority,
-            onPriorityChanged = { updateMainTask(task.copy(priority = it)) },
+            onPriorityChanged = { onEvent(TaskEditorEvent.UpdateTask((task.copy(priority = it)))) },
             modifier = Modifier.padding(
                 top = 6.dp,
                 bottom = 6.dp
@@ -72,13 +73,15 @@ fun SingleTaskEditor(
         DateRangePicker(
             startDate = task.startDate,
             endDate = task.endDate,
-            onStartDateValueChange = { updateMainTask(task.copy(startDate = it)) },
-            onEndDateValueChange = { updateMainTask(task.copy(endDate = it)) },
+            onStartDateValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(startDate = it)))) },
+            onEndDateValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(endDate = it)))) },
             clearDates = {
-                updateMainTask(
-                    task.copy(
-                        startDate = null,
-                        endDate = null
+                onEvent(
+                    TaskEditorEvent.UpdateTask(
+                        (task.copy(
+                            startDate = null,
+                            endDate = null
+                        ))
                     )
                 )
             }
@@ -87,8 +90,8 @@ fun SingleTaskEditor(
         TimeRangePicker(
             startTime = task.startTime,
             endTime = task.endTime,
-            onStartTimeValueChange = { updateMainTask(task.copy(startTime = it)) },
-            onEndTimeValueChange = { updateMainTask(task.copy(endTime = it)) }
+            onStartTimeValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(startTime = it)))) },
+            onEndTimeValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(endTime = it)))) }
         )
 
         Box(

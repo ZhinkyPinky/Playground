@@ -20,12 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.je.playground.designsystem.ThemePreviews
 import com.je.playground.designsystem.theme.PlaygroundTheme
+import com.je.playground.feature.tasks.editor.TaskEditorEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorTopBar(
     text : String,
-    onSave : () -> Unit,
+    onEvent : (TaskEditorEvent) -> Unit,
     onBackPress : () -> Unit
 ) {
     Column {
@@ -63,7 +64,9 @@ fun EditorTopBar(
             ),
             actions = {
                 IconButton(
-                    onClick = { onSave() },
+                    onClick = {
+                        onEvent(TaskEditorEvent.SaveTask)
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Save,
@@ -84,7 +87,7 @@ fun EditorTopBarPreview(){
     PlaygroundTheme {
         EditorTopBar(
             text = "Edit",
-            onSave = { /*TODO*/ }) {
+            onEvent = { /*TODO*/ }) {
             
         }
     }

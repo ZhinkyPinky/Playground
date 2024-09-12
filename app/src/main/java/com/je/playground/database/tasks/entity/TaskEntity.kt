@@ -22,3 +22,6 @@ data class Task(
     @ColumnInfo(name = "date_to") var endDate : LocalDate? = null,
     @ColumnInfo(name = "time_to") var endTime : LocalTime? = null,
 )
+
+
+class InvalidTaskException(message : String) : Exception(message)

@@ -5,7 +5,7 @@ import com.je.playground.database.tasks.repository.SubTaskRepository
 import com.je.playground.database.tasks.repository.TaskRepository
 import javax.inject.Inject
 
-class ToggleSubTaskCompletionUseCase @Inject constructor(
+class ToggleSubTaskIsCompletedUseCase @Inject constructor(
     private val subTaskRepository : SubTaskRepository,
     private val taskRepository : TaskRepository
 ) {

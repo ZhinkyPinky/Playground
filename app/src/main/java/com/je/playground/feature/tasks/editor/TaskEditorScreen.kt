@@ -9,21 +9,24 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
+import com.je.playground.designsystem.component.SnackbarComponent
 import com.je.playground.designsystem.component.taskeditor.EditorModeButtonRow
 import com.je.playground.designsystem.component.taskeditor.EditorTopBar
 import com.je.playground.designsystem.component.taskeditor.MainTaskEditorComponent
 import com.je.playground.designsystem.component.taskeditor.SingleTaskEditor
 import com.je.playground.designsystem.component.taskeditor.SubTasksComponent
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun TaskEditorScreen(
@@ -32,6 +35,28 @@ fun TaskEditorScreen(
     navigateToSubTaskEditorScreen : (Int) -> Unit,
     onBackPress : () -> Unit,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val localCoroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        taskEditorViewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is TaskEditorViewModel.Event.ShowSnackbar -> {
+                    localCoroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = event.message
+                        )
+                    }
+                }
+
+                is TaskEditorViewModel.Event.Saved -> {
+                    onBackPress()
+                }
+            }
+        }
+    }
+
     when (taskEditorViewModel.taskEditorUiState.collectAsState().value) {
         is TaskEditorViewModel.State.Loading -> {
             //TODO: Add loading screen?
@@ -41,15 +66,12 @@ fun TaskEditorScreen(
         is TaskEditorViewModel.State.Ready -> {
             TaskEditorScreen(
                 task = taskEditorViewModel.task.collectAsState().value,
-                updateMainTask = taskEditorViewModel::updateMainTask,
                 subTasks = taskEditorViewModel.subTasks,
-                removeSubTask = taskEditorViewModel::removeSubTask,
-                saveMainTaskWithSubTasks = {
-                    taskEditorViewModel.saveMainTaskWithSubTasks()
-                    onBackPress()
-                },
+                isGroup = taskEditorViewModel.isGroup.collectAsState().value,
                 navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
                 navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
+                snackbarHostState = snackbarHostState,
+                onEvent = taskEditorViewModel::onEvent,
                 onBackPress = onBackPress
             )
         }
@@ -59,33 +81,24 @@ fun TaskEditorScreen(
 @Composable
 fun TaskEditorScreen(
     task : Task,
-    updateMainTask : (Task) -> Unit,
     subTasks : List<SubTask>,
-    removeSubTask : (Int) -> Unit,
-    saveMainTaskWithSubTasks : () -> Unit,
+    isGroup : Boolean,
     navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
+    snackbarHostState : SnackbarHostState,
+    onEvent : (TaskEditorEvent) -> Unit,
     onBackPress : () -> Unit,
 ) {
-    var isGroup by rememberSaveable { mutableStateOf(subTasks.isNotEmpty()) }
+    //var isGroup by rememberSaveable { mutableStateOf(subTasks.isNotEmpty()) }
 
     TaskEditorContent(
         task = task,
-        saveMainTaskWithSubTasks = saveMainTaskWithSubTasks,
-        updateMainTask = updateMainTask,
         subTasks = subTasks,
-        removeSubTask = removeSubTask,
         isGroup = isGroup,
-        toggleIsGroup = {
-            isGroup =
-                if (subTasks.isNotEmpty()) {
-                    true
-                } else {
-                    !isGroup
-                }
-        },
         navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
         navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
+        snackbarHostState = snackbarHostState,
+        onEvent = onEvent,
         onBackPress = onBackPress,
     )
 }
@@ -94,23 +107,24 @@ fun TaskEditorScreen(
 @Composable
 fun TaskEditorContent(
     task : Task,
-    updateMainTask : (Task) -> Unit,
-    saveMainTaskWithSubTasks : () -> Unit,
     subTasks : List<SubTask>,
-    removeSubTask : (Int) -> Unit,
     isGroup : Boolean,
-    toggleIsGroup : () -> Unit,
     navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
+    snackbarHostState : SnackbarHostState,
+    onEvent : (TaskEditorEvent) -> Unit,
     onBackPress : () -> Unit
 ) {
     Scaffold(
         topBar = {
             EditorTopBar(
                 text = "Edit",
-                onSave = saveMainTaskWithSubTasks,
-                onBackPress
+                onEvent = onEvent,
+                onBackPress = onBackPress
             )
+        },
+        snackbarHost = {
+            SnackbarComponent(snackbarHostState = snackbarHostState)
         },
         containerColor = if (isGroup) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary
     ) { paddingValues ->
@@ -123,22 +137,21 @@ fun TaskEditorContent(
         ) {
             EditorModeButtonRow(
                 isGroup = isGroup,
-                onClick = toggleIsGroup
+                onClick = { onEvent(TaskEditorEvent.ToggleGroup) }
             )
 
             if (isGroup) {
-
                 GroupTaskEditor(
                     task = task,
                     subTasks = subTasks,
-                    removeSubTask = removeSubTask,
                     navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
-                    navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
+                    navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
+                    onEvent = onEvent
                 )
             } else {
                 SingleTaskEditor(
                     task = task,
-                    updateMainTask = updateMainTask
+                    onEvent = onEvent
                 )
             }
         }
@@ -149,9 +162,9 @@ fun TaskEditorContent(
 fun GroupTaskEditor(
     task : Task,
     subTasks : List<SubTask>,
-    removeSubTask : (Int) -> Unit,
     navigateToMainTaskEditorScreen : () -> Unit,
     navigateToSubTaskEditorScreen : (Int) -> Unit,
+    onEvent : (TaskEditorEvent) -> Unit
 ) {
     MainTaskEditorComponent(
         task = task,
@@ -160,7 +173,7 @@ fun GroupTaskEditor(
 
     SubTasksComponent(
         subTasks = subTasks,
-        removeSubTask = removeSubTask,
+        onEvent = onEvent,
         navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
     )
 }
