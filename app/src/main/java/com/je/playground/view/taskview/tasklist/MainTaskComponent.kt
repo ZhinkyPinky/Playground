@@ -23,19 +23,17 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,56 +60,51 @@ import com.je.playground.view.sharedcomponents.NoteComponent
 import com.je.playground.view.taskview.dateTimeToString
 import com.je.playground.view.theme.title
 
-enum class DragAnchors {
-    Start,
-    End
-}
 
-@OptIn(
-    ExperimentalMaterial3Api::class
-)
 @Composable
 fun MainTaskComponent(
-    mainTaskWithSubTasks : MainTaskWithSubTasks,
-    navigateToTaskEditScreen : (Long) -> Unit,
-    updateMainTask : (MainTask) -> Unit,
-    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
-    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+    mainTaskWithSubTasks: MainTaskWithSubTasks,
+    navigateToTaskEditScreen: (Long) -> Unit,
+    updateMainTask: (MainTask) -> Unit,
+    updateMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit,
+    deleteMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit,
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
     var isVisible by remember { mutableStateOf(true) }
-    val dismissState = rememberDismissState(
+    val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
-            if (it == DismissValue.DismissedToStart) {
+            if (it == SwipeToDismissBoxValue.EndToStart) {
                 isVisible = false
                 true
             } else {
                 false
             }
         },
-        positionalThreshold = { 150.dp.toPx() }
+        positionalThreshold = { 150.dp.value }
     )
 
     AnimatedVisibility(
         visible = isVisible,
         exit = fadeOut(spring())
     ) {
-        SwipeToDismiss(
+        SwipeToDismissBox(
             state = dismissState,
-            directions = if (mainTaskWithSubTasks.mainTask.isCompleted) setOf(DismissDirection.EndToStart) else setOf(),
-            background = {
-                DismissBackground(dismissState = dismissState)
-            },
-            dismissContent = {
-                MainTaskComponentContent(
-                    mainTaskWithSubTasks = mainTaskWithSubTasks,
-                    navigateToTaskEditScreen = navigateToTaskEditScreen,
-                    updateMainTaskWithSubTasks = updateMainTaskWithSubTasks,
-                    deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks
+            enableDismissFromStartToEnd = false,
+            enableDismissFromEndToStart = mainTaskWithSubTasks.mainTask.isCompleted,
+            backgroundContent = {
+                DismissBackground(
+                    dismissState = dismissState
                 )
             }
-        )
+        ) {
+            MainTaskComponentContent(
+                mainTaskWithSubTasks = mainTaskWithSubTasks,
+                navigateToTaskEditScreen = navigateToTaskEditScreen,
+                updateMainTaskWithSubTasks = updateMainTaskWithSubTasks,
+                deleteMainTaskWithSubTasks = deleteMainTaskWithSubTasks
+            )
+        }
     }
 
     LaunchedEffect(
@@ -127,10 +120,10 @@ fun MainTaskComponent(
 
 @Composable
 fun MainTaskComponentContent(
-    mainTaskWithSubTasks : MainTaskWithSubTasks,
-    navigateToTaskEditScreen : (Long) -> Unit,
-    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
-    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
+    mainTaskWithSubTasks: MainTaskWithSubTasks,
+    navigateToTaskEditScreen: (Long) -> Unit,
+    updateMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit,
+    deleteMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit,
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
 
@@ -183,7 +176,8 @@ fun MainTaskComponentContent(
                                 CheckboxComponent(
                                     isChecked = mainTaskWithSubTasks.mainTask.isCompleted,
                                     onCheckedChange = {
-                                        mainTaskWithSubTasks.mainTask.isCompleted = !mainTaskWithSubTasks.mainTask.isCompleted
+                                        mainTaskWithSubTasks.mainTask.isCompleted =
+                                            !mainTaskWithSubTasks.mainTask.isCompleted
                                         updateMainTaskWithSubTasks(mainTaskWithSubTasks)
                                     }
                                 )
@@ -266,7 +260,7 @@ fun MainTaskComponentContent(
 
 @Composable
 fun MainTaskPriorityIndicator(
-    mainTaskWithSubTasks : MainTaskWithSubTasks
+    mainTaskWithSubTasks: MainTaskWithSubTasks
 ) {
     Box(
         modifier = Modifier
@@ -284,14 +278,12 @@ fun MainTaskPriorityIndicator(
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DismissBackground(dismissState : DismissState) {
-    val color = when (dismissState.dismissDirection) {
-        DismissDirection.StartToEnd -> MaterialTheme.colorScheme.background
-        DismissDirection.EndToStart -> Color(0xFF1DE9B6)
-        null -> Color.Transparent
+fun DismissBackground(dismissState: SwipeToDismissBoxState) {
+    val color: Color = when (dismissState.targetValue) {
+        SwipeToDismissBoxValue.StartToEnd -> Color.Transparent
+        SwipeToDismissBoxValue.EndToStart -> Color(0xFF1DE9B6)
+        SwipeToDismissBoxValue.Settled -> Color.Transparent
     }
     val direction = dismissState.dismissDirection
 
@@ -306,15 +298,9 @@ fun DismissBackground(dismissState : DismissState) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        /*
-        if (direction == DismissDirection.StartToEnd) Icon(
-            Icons.Default.Delete,
-            contentDescription = "delete"
-        )
-        */
         Spacer(modifier = Modifier)
 
-        if (direction == DismissDirection.EndToStart) Icon(
+        if (direction == SwipeToDismissBoxValue.EndToStart) Icon(
             imageVector = Icons.Filled.Archive,
             contentDescription = "Archive"
         )
@@ -323,9 +309,9 @@ fun DismissBackground(dismissState : DismissState) {
 
 @Composable
 fun SubTasks(
-    mainTaskWithSubTasks : MainTaskWithSubTasks,
-    completionCounter : Int,
-    updateMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit
+    mainTaskWithSubTasks: MainTaskWithSubTasks,
+    completionCounter: Int,
+    updateMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -344,7 +330,8 @@ fun SubTasks(
                     completion--
                 }
 
-                mainTaskWithSubTasks.mainTask.isCompleted = (completion == mainTaskWithSubTasks.subTasks.size)
+                mainTaskWithSubTasks.mainTask.isCompleted =
+                    (completion == mainTaskWithSubTasks.subTasks.size)
 
                 updateMainTaskWithSubTasks(mainTaskWithSubTasks)
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -355,9 +342,9 @@ fun SubTasks(
 
 @Composable
 fun MainTaskDropDownMenu(
-    mainTaskWithSubTasks : MainTaskWithSubTasks,
-    navigateToTaskEditScreen : (Long) -> Unit,
-    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit
+    mainTaskWithSubTasks: MainTaskWithSubTasks,
+    navigateToTaskEditScreen: (Long) -> Unit,
+    deleteMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit
 ) {
     var isDropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var isDeletionDialogDisplayed by rememberSaveable { mutableStateOf(false) }
@@ -410,9 +397,9 @@ fun MainTaskDropDownMenu(
 
 @Composable
 fun DeletionDialog(
-    mainTaskWithSubTasks : MainTaskWithSubTasks,
-    deleteMainTaskWithSubTasks : (MainTaskWithSubTasks) -> Unit,
-    dismissDialog : () -> Unit
+    mainTaskWithSubTasks: MainTaskWithSubTasks,
+    deleteMainTaskWithSubTasks: (MainTaskWithSubTasks) -> Unit,
+    dismissDialog: () -> Unit
 ) {
     ConfirmationDialog(
         title = "Delete",
