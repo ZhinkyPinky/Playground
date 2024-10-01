@@ -1,8 +1,12 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
-        google()
+        google {
+            includeGroupByRegex("com\\.android.*")
+            includeGroupByRegex("com\\.google.*")
+            includeGroupByRegex("androidx.*")
+        }
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 dependencyResolutionManagement {
@@ -12,5 +16,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
 rootProject.name = "Playground"
-include ':app'
+include(":app")
