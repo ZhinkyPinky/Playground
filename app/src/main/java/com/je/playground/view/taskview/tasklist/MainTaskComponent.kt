@@ -231,16 +231,16 @@ fun MainTaskComponentContent(
 
                         if (mainTaskWithSubTasks.subTasks.isNotEmpty()) {
                             LinearProgressIndicator(
-                                progress = completionCounter.toFloat() / mainTaskWithSubTasks.subTasks.size,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                trackColor = MaterialTheme.colorScheme.background,
+                                progress = { completionCounter.toFloat() / mainTaskWithSubTasks.subTasks.size },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(1.dp)
                                     .padding(
                                         start = 6.dp,
                                         end = 6.dp
-                                    )
+                                    ),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                trackColor = MaterialTheme.colorScheme.background,
                             )
                         }
                     }
