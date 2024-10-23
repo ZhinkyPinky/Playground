@@ -10,7 +10,7 @@ import java.time.DayOfWeek
     primaryKeys = ["main_task_id", "weekday"],
     foreignKeys = [
         ForeignKey(
-            entity = MainTask::class,
+            entity = Task::class,
             parentColumns = ["main_task_id"],
             childColumns = ["main_task_id"],
             onDelete = ForeignKey.CASCADE

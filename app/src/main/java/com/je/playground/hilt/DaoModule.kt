@@ -17,14 +17,14 @@ import javax.inject.Singleton
 class DaoModule {
     @Provides
     @Singleton
-    fun provideMainTaskWithSubTasksDao(appDatabase : AppDatabase) : MainTaskWithSubTasksDao {
-        return appDatabase.getMainTaskWithSubTasksDao()
+    fun provideMainTaskWithSubTasksDao(appDatabase : AppDatabase) : TaskWithSubTasksDao {
+        return appDatabase.getTaskWithSubTasksDao()
     }
 
     @Provides
     @Singleton
-    fun provideMainTaskDao(appDatabase : AppDatabase) : MainTaskDao {
-        return appDatabase.getMainTaskDao()
+    fun provideMainTaskDao(appDatabase : AppDatabase) : TaskDao {
+        return appDatabase.getTaskDao()
     }
 
     @Provides

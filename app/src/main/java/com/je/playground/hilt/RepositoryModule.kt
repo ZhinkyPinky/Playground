@@ -6,32 +6,51 @@ import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWeekdaySche
 import com.je.playground.database.exerciseprogram.dao.ExerciseProgramWithAllTheThingsDao
 import com.je.playground.database.exerciseprogram.repository.ExerciseProgramRepository
 import com.je.playground.database.tasks.dao.*
-import com.je.playground.database.tasks.repository.TasksRepository
+import com.je.playground.database.tasks.repository.SubTaskRepository
+import com.je.playground.database.tasks.repository.SubTaskRepositoryImpl
+import com.je.playground.database.tasks.repository.TaskRepository
+import com.je.playground.database.tasks.repository.TaskWithSubTasksRepository
+import com.je.playground.database.tasks.repository.TaskWithSubTasksRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
-import dagger.hilt.android.scopes.ViewModelScoped
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 class RepositoryModule {
     @Provides
-    @ViewModelScoped
+    @Singleton
     fun providesTasksRepository(
-        mainTaskWithSubTasksDao : MainTaskWithSubTasksDao,
-        mainTaskDao : MainTaskDao,
+        taskDao : TaskDao,
         subTaskDao : SubTaskDao,
-    ) : TasksRepository {
-        return TasksRepository(
-            mainTaskWithSubTasksDao = mainTaskWithSubTasksDao,
-            mainTaskDao = mainTaskDao,
+    ) : TaskRepository {
+        return TaskRepository(
+            taskDao = taskDao,
             subTaskDao = subTaskDao,
         )
     }
 
+
     @Provides
-    @ViewModelScoped
+    @Singleton
+    fun providesSubTaskRepository(
+        subTaskDao : SubTaskDao
+    ) : SubTaskRepository {
+        return SubTaskRepositoryImpl(subTaskDao = subTaskDao)
+    }
+
+    @Provides
+    @Singleton
+    fun providesTaskWithSubTasksRepository(
+        taskWithSubTasksDao : TaskWithSubTasksDao
+    ) : TaskWithSubTasksRepository {
+        return TaskWithSubTasksRepositoryImpl(taskWithSubTasksDao = taskWithSubTasksDao)
+    }
+
+    @Provides
+    @Singleton
     fun providesExerciseProgramRepository(
         exerciseProgramWithAllTheThingsDao : ExerciseProgramWithAllTheThingsDao,
         exerciseProgramDao : ExerciseProgramDao,

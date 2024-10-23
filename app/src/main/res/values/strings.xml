@@ -8,4 +8,6 @@
     <string name="no_priority_set">No priority set</string>
     <string name="previous_month">Previous month</string>
     <string name="next_month">Next month</string>
+    <string name="feature_task_list_icon">Tasks</string>
+    <string name="feature_task_list_title">Tasks</string>
 </resources>

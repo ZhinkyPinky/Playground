@@ -11,7 +11,6 @@ class NotificationScheduler(
 ) : INotificationScheduler {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-
     override fun scheduleNotification(
         notificationItem : NotificationItem
     ) {
