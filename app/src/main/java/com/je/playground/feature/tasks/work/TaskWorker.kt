@@ -9,10 +9,11 @@ import com.je.playground.database.tasks.repository.TaskRepository
 import dagger.assisted.Assisted
 import kotlinx.coroutines.runBlocking
 
+/*
 @HiltWorker
 class TaskWorker(
     @Assisted context : Context,
-    @Assisted workerParameters : WorkerParameters,
+    workerParameters : WorkerParameters,
     private val taskRepository : TaskRepository
 ) : Worker(
     context,
@@ -27,3 +28,4 @@ class TaskWorker(
         return Result.success()
     }
 }
+ */
