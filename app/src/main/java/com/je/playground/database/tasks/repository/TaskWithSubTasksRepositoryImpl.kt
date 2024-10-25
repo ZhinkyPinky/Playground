@@ -12,7 +12,7 @@ class TaskWithSubTasksRepositoryImpl @Inject constructor(
 
     override fun getAllActive() : Flow<List<TaskWithSubTasks>> = taskWithSubTasksDao.getAllActive()
 
-    override fun getByTaskId(taskId : Long) : TaskWithSubTasks? = taskWithSubTasksDao.getTaskWithSubTasksByTaskId(taskId)
+    override suspend fun getByTaskId(taskId : Long) : TaskWithSubTasks? = taskWithSubTasksDao.getTaskWithSubTasksByTaskId(taskId)
 
     override fun getAllArchived() : Flow<List<TaskWithSubTasks>> = taskWithSubTasksDao.getAllArchived()
 }

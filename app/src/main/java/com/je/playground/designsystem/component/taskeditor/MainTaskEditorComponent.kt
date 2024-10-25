@@ -40,7 +40,7 @@ import com.je.playground.designsystem.theme.title
 @Composable
 fun MainTaskEditorComponent(
     task : Task,
-    toggleMainTaskEditorDialog : () -> Unit,
+    toggleMainTaskEditorDialog : (Long) -> Unit,
 ) {
     var isExpanded by rememberSaveable {
         mutableStateOf(false)
@@ -62,7 +62,7 @@ fun MainTaskEditorComponent(
         )
 
         IconButton(
-            onClick = toggleMainTaskEditorDialog
+            onClick = { toggleMainTaskEditorDialog(task.mainTaskId) }
         ) {
             Icon(
                 imageVector = Icons.Filled.Edit,

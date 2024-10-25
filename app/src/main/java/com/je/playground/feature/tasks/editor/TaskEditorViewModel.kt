@@ -1,150 +1,168 @@
 package com.je.playground.feature.tasks.editor
 
-import androidx.compose.runtime.mutableStateListOf
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.je.playground.database.tasks.entity.InvalidSubTaskException
 import com.je.playground.database.tasks.entity.InvalidTaskException
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
-import com.je.playground.database.tasks.entity.TaskWithSubTasks
 import com.je.playground.feature.tasks.domain.GetTaskWithSubTasksByTaskIdUseCase
 import com.je.playground.feature.tasks.domain.SaveTaskAndSubTasksUseCase
+import com.je.playground.feature.utility.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
 @HiltViewModel
 class TaskEditorViewModel @Inject constructor(
-    savedStateHandle : SavedStateHandle,
-    private val getTaskWithSubTasksByTaskIdUseCase : GetTaskWithSubTasksByTaskIdUseCase,
-    private val saveTaskAndSubTasks : SaveTaskAndSubTasksUseCase
+    savedStateHandle: SavedStateHandle,
+    private val getTaskWithSubTasksByTaskId: GetTaskWithSubTasksByTaskIdUseCase,
+    private val saveTaskAndSubTasks: SaveTaskAndSubTasksUseCase
 ) : ViewModel() {
     sealed class State {
         data object Loading : State()
-        data object Ready : State()
+        data class Ready(
+            val task: Task = Task(),
+            val subTasks: List<SubTask> = emptyList(),
+            val isGroup: Boolean = false
+        ) : State()
+
+        data object Saved : State()
     }
 
-    private val _taskEditorUiState : MutableStateFlow<State> = MutableStateFlow(State.Loading)
+    private val mainTaskId: Long = checkNotNull(savedStateHandle.get<Long>("taskId"))
+
+    private val _taskEditorUiState: MutableStateFlow<State> = MutableStateFlow(State.Loading)
     val taskEditorUiState = _taskEditorUiState.asStateFlow()
 
-    private val _eventFlow = MutableSharedFlow<Event>()
-    val eventFlow = _eventFlow.asSharedFlow()
+    private val _snackbarFlow = MutableSharedFlow<Event<String>>()
+    val snackbarFlow = _snackbarFlow.asSharedFlow()
 
-    private val _task : MutableStateFlow<Task> = MutableStateFlow(Task())
-    val task : StateFlow<Task> = _task.asStateFlow()
-
-    val subTasks = mutableStateListOf<SubTask>()
-    private val removedSubTasks : MutableList<Long> = mutableListOf()
-
-    private val mainTaskId : Long = checkNotNull(savedStateHandle.get<Long>("mainTaskId"))
-
-    val isGroup : MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val removedSubTasks: MutableList<Long> = mutableListOf()
 
     init {
+        Log.d("sharedViewModel", this.toString())
         viewModelScope.launch {
             getTaskWithSubTasksByTaskId(mainTaskId).let {
                 it?.let {
-                    _task.value = it.task
-                    subTasks.addAll(it.subTasks)
-                    isGroup.value = it.subTasks.isNotEmpty()
+                    _taskEditorUiState.value = State.Ready(
+                        task = it.task,
+                        subTasks = it.subTasks,
+                        isGroup = it.subTasks.isNotEmpty()
+                    )
                 }
-
-                _taskEditorUiState.value = State.Ready
             }
         }
     }
 
-    private suspend fun getTaskWithSubTasksByTaskId(taskId : Long) : TaskWithSubTasks? = withContext(Dispatchers.IO) { getTaskWithSubTasksByTaskIdUseCase(taskId) }
-
-    fun onEvent(event : TaskEditorEvent) {
+    fun onEvent(event: TaskEditorEvent) {
         when (event) {
-            is TaskEditorEvent.SaveSubTask -> viewModelScope.launch {
-                try {
-                    if (event.subTask.title.isBlank()) {
-                        throw InvalidSubTaskException("A subtask must have a title.")
-                    }
-
-                    if (event.index == -1) {
-                        subTasks.add(event.subTask)
-                    } else {
-                        subTasks[event.index] = subTasks[event.index].copy(
-                            title = event.subTask.title,
-                            note = event.subTask.note,
-                            startDate = event.subTask.startDate,
-                            startTime = event.subTask.startTime,
-                            endDate = event.subTask.endDate,
-                            endTime = event.subTask.endTime
-                        )
-                    }
-
-                    _eventFlow.emit(Event.Saved)
-                } catch (e : InvalidSubTaskException) {
-                    _eventFlow.emit(Event.ShowSnackbar(message = e.message ?: "Subtask couldn't be saved."))
-                }
-            }
-
-            is TaskEditorEvent.RemoveSubTask -> removedSubTasks.add(subTasks.removeAt(event.index).subTaskId)
-            is TaskEditorEvent.UpdateTask -> _task.update { current ->
-                current.copy(
-                    title = event.task.title,
-                    note = event.task.note,
-                    priority = event.task.priority,
-                    startDate = event.task.startDate,
-                    startTime = event.task.startTime,
-                    endDate = event.task.endDate,
-                    endTime = event.task.endTime
-                )
-            }
-
-            is TaskEditorEvent.SaveTask -> viewModelScope.launch {
-                try {
-                    saveTaskAndSubTasks(
-                        _task.value,
-                        subTasks,
-                        removedSubTasks
-                    )
-
-                    _eventFlow.emit(Event.Saved)
-                } catch (e : InvalidTaskException) {
-                    _eventFlow.emit(
-                        Event.ShowSnackbar(
-                            message = e.message ?: "Couldn't save task."
-                        )
-                    )
-                }
-            }
-
+            is TaskEditorEvent.UpdateSubTask -> updateSubTask(event.index, event.fields)
+            is TaskEditorEvent.RemoveSubTask -> removeSubTask(event.index)
+            is TaskEditorEvent.UpdateTask -> updateTask(event.fields)
+            is TaskEditorEvent.Save -> save()
             is TaskEditorEvent.ToggleGroup -> toggleGroup()
         }
     }
 
-    private fun toggleGroup() {
-        viewModelScope.launch {
-            if (isGroup.value) {
-                if (subTasks.isNotEmpty()) {
-                    _eventFlow.emit(Event.ShowSnackbar("You have to remove all subtasks first."))
-                } else {
-                    isGroup.value = !isGroup.value
+    private fun save() = viewModelScope.launch {
+        try {
+            _taskEditorUiState.value.let {
+                if (it is State.Ready) {
+                    saveTaskAndSubTasks(
+                        it.task,
+                        it.subTasks,
+                        removedSubTasks
+                    )
                 }
-            } else {
-                isGroup.value = !isGroup.value
             }
+        } catch (e: InvalidTaskException) {
+            e.message?.let { showSnackBar(it) }
         }
     }
 
-    sealed class Event {
-        data class ShowSnackbar(val message : String) : Event()
-        data object Saved : Event()
+    private fun updateTask(fields: List<TaskField>) = _taskEditorUiState.update { currentState ->
+        if (currentState !is State.Ready) return@update currentState
+
+        var task = currentState.task
+
+        fields.forEach { field ->
+            task = when (field) {
+                is TaskField.Archived -> task.copy(isArchived = field.archived)
+                is TaskField.Completed -> task.copy(isCompleted = field.completed)
+                is TaskField.StartDate -> task.copy(startDate = field.startDate)
+                is TaskField.EndDate -> task.copy(endDate = field.endDate)
+                is TaskField.Note -> task.copy(note = field.note)
+                is TaskField.Priority -> task.copy(priority = field.priority)
+                is TaskField.StartTime -> task.copy(startTime = field.startTime)
+                is TaskField.EndTime -> task.copy(endTime = field.endTime)
+                is TaskField.Title -> task.copy(title = field.title)
+            }
+        }
+
+        Log.d("update task", task.toString())
+
+        currentState.copy(task = task)
+    }
+
+    private fun updateSubTask(
+        index: Int,
+        fields: List<SubTaskField>
+    ) = _taskEditorUiState.update { currentState ->
+        if (currentState !is State.Ready) return@update currentState
+
+        val subTasks = currentState.subTasks.toMutableList()
+        var subTask = subTasks[index]
+
+        fields.forEach { field ->
+            subTask = when (field) {
+                is SubTaskField.Completed -> subTask.copy(isCompleted = field.completed)
+                is SubTaskField.EndDate -> subTask.copy(endDate = field.endDate)
+                is SubTaskField.EndTime -> subTask.copy(endTime = field.endTime)
+                is SubTaskField.Note -> subTask.copy(note = field.note)
+                is SubTaskField.StartDate -> subTask.copy(startDate = field.startDate)
+                is SubTaskField.StartTime -> subTask.copy(startTime = field.startTime)
+                is SubTaskField.Title -> subTask.copy(title = field.title)
+            }
+        }
+
+        subTasks[index] = subTask
+
+        currentState.copy(subTasks = subTasks)
+    }
+
+    private fun removeSubTask(index: Int) = _taskEditorUiState.update { currentState ->
+        if (currentState !is State.Ready) return@update currentState
+
+        val subTasks = currentState.subTasks.toMutableList()
+        val subTaskId = subTasks.removeAt(index).subTaskId
+
+        removedSubTasks.add(subTaskId)
+
+        currentState.copy(subTasks = subTasks)
+    }
+
+    private fun toggleGroup() = _taskEditorUiState.update { currentState ->
+        if (currentState !is State.Ready) return@update currentState
+
+        if (currentState.subTasks.isNotEmpty()) {
+            showSnackBar("You have to remove all subtasks first.")
+            return@update currentState
+        }
+
+        currentState.copy(
+            isGroup = !currentState.isGroup
+        )
+    }
+
+    private fun showSnackBar(message: String) = viewModelScope.launch {
+        _snackbarFlow.emit(Event(message))
     }
 }

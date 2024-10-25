@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
-import com.je.playground.designsystem.ThemePreviews
+import com.je.playground.designsystem.theme.ThemePreviews
 import com.je.playground.designsystem.theme.PlaygroundTheme
 
 @Composable fun TextFieldComponent(

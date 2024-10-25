@@ -7,152 +7,53 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import androidx.navigation.navArgument
-import com.je.playground.designsystem.component.taskeditor.MainTaskEditorScreen
-import com.je.playground.designsystem.component.taskeditor.SubTaskEditorScreen
-import com.je.playground.feature.tasks.editor.TaskEditorScreen
-import com.je.playground.feature.tasks.list.TasksScreen
+import com.je.playground.feature.tasks.editor.navigateToTaskEditor
+import com.je.playground.feature.tasks.editor.taskEditorScreen
 import com.je.playground.feature.tasks.list.navigation.TASK_LIST_ROUTE
 import com.je.playground.feature.tasks.list.navigation.taskListScreen
-import com.je.playground.ui.MainScreen
 import com.je.playground.ui.PlaygroundAppState
-import com.je.playground.ui.Route
-import com.je.playground.ui.SubScreen
+import mainTaskEditorScreen
+import navigateToMainTaskEditor
+import navigateToSubTaskEditor
+import subTaskEditorScreen
 
 
 @Composable
-fun PlaygroundNavHost(appState : PlaygroundAppState) {
+fun PlaygroundNavHost(appState: PlaygroundAppState) {
     val navController = appState.navController
     NavHost(
         navController = navController,
         startDestination = TASK_LIST_ROUTE
     ) {
-        /*
-        composable(MainScreen.ExerciseProgramList.route) { navBackStackEntry ->
-            ExerciseProgramListScreen(
-                exerciseProgramViewModel = hiltViewModel(),
-                drawerState = appState.drawerState,
-                navigateToExerciseProgramScreen = {
-                    appState.navigateToExerciseProgramScreen(
-                        navBackStackEntry,
-                        it
-                    )
-                },
-                navigateToExerciseProgramEditScreen = {
-                    appState.navigateToExerciseProgramEditScreen(
-                        navBackStackEntry,
-                        it
-                    )
-                },
-            )
-        }
-        composable(MainScreen.Home.route) { navBackStackEntry ->
-            HomeScreen(
-                homeViewModel = hiltViewModel(),
-                drawerState = appState.drawerState,
-                navigateToTaskScreen = {
-                    appState.navigateToTaskScreen(navBackStackEntry)
-                }
-            )
-        }
-
-        composable(SubScreen.ExerciseProgram.route) { navBackStackEntry ->
-            ExerciseProgramScreen(
-                exerciseProgramViewModel = hiltViewModel(),
-                drawerState = appState.drawerState,
-                navigateToExerciseProgramEditScreen = {
-                    appState.navigateToExerciseProgramEditScreen(
-                        navBackStackEntry,
-                        it
-                    )
-                }
-            )
-        }
-
-        composable(
-            route = SubScreen.ExerciseProgramEdit.route,
-            arguments = listOf(navArgument("exerciseProgramId") { defaultValue = 0L })
-        ) {
-            ExerciseProgramEditorScreen(
-                exerciseProgramId = it.arguments?.getLong("exerciseProgramId"),
-                exerciseProgramViewModel = hiltViewModel(),
-                onBackPress = appState::navigateBack
-            )
-        }
-
-         */
-
-        taskListScreen(appState::navigateToTaskEditScreen)
-
-        //taskEditorScreen()
-
-        composable(MainScreen.TaskList.route) { navBackStackEntry ->
-            TasksScreen(
-                taskListViewModel = hiltViewModel(),
-                navigateToTaskEditScreen = {
-                    appState.navigateToTaskEditScreen(
-                        navBackStackEntry,
-                        it
-                    )
-                }
-            )
-        }
+        taskListScreen(navController::navigateToTaskEditor)
 
         navigation(
-            startDestination = SubScreen.TaskEdit.route + "?mainTaskId={mainTaskId}",
-            route = Route.TaskEdit.name
+            startDestination = "tasks/{taskId}/edit",
+            route = "edit_task"
         ) {
-            composable(
-                route = SubScreen.TaskEdit.route + "?mainTaskId={mainTaskId}",
-                arguments = listOf(navArgument("mainTaskId") { defaultValue = 0L })
-            ) { navBackStackEntry ->
-                TaskEditorScreen(
-                    taskEditorViewModel = hiltViewModel(),
-                    navigateToMainTaskEditorScreen = {
-                        appState.navigateToMainTaskEditorScreen(navBackStackEntry)
-                    },
-                    navigateToSubTaskEditorScreen = {
-                        appState.navigateToSubTaskEditorScreen(
-                            navBackStackEntry,
-                            it
-                        )
-                    },
-                    onBackPress = appState::navigateBack
-                )
-            }
+            taskEditorScreen(
+                onEditTaskClick = navController::navigateToMainTaskEditor,
+                onEditSubTaskClick = navController::navigateToSubTaskEditor,
+                onBackClick = navController::navigateUp
+            )
 
-            composable(
-                route = SubScreen.MainTaskEdit.route,
-            ) { navBackStackEntry ->
-                MainTaskEditorScreen(
-                    taskEditorViewModel = navBackStackEntry.sharedViewModel(navController = appState.navController),
-                    onBackPress = appState::navigateBack
-                )
-            }
+            mainTaskEditorScreen(navController)
 
-            composable(
-                route = SubScreen.SubTaskEdit.route + "?subTaskIndex={subTaskIndex}",
-                arguments = listOf(navArgument("subTaskIndex") { defaultValue = -1 })
-            ) { navBackStackEntry ->
-                SubTaskEditorScreen(
-                    subTaskIndex = navBackStackEntry.arguments!!.getInt("subTaskIndex"),
-                    taskEditorViewModel = navBackStackEntry.sharedViewModel(navController = appState.navController),
-                    onBackPress = appState::navigateBack
-                )
-            }
+            subTaskEditorScreen(navController)
         }
     }
 }
 
 @Composable
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
-    navController : NavController,
-) : T {
-    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
+    navController: NavController,
+    route: String
+): T {
+    //val navGraphRoute = destination.parent?.findStartDestination()?.route ?: return hiltViewModel()
     val parentEntry = remember(this) {
-        navController.getBackStackEntry(navGraphRoute)
+        //navController.getBackStackEntry(navGraphRoute)
+        navController.getBackStackEntry(route)
     }
     return hiltViewModel(parentEntry)
 }

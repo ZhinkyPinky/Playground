@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
-import com.je.playground.designsystem.ThemePreviews
+import com.je.playground.designsystem.theme.ThemePreviews
 import com.je.playground.designsystem.theme.PlaygroundTheme
 import com.je.playground.designsystem.theme.regularText
 import java.time.LocalTime

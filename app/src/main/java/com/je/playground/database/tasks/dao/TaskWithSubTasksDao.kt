@@ -22,5 +22,5 @@ interface TaskWithSubTasksDao {
 
     @Transaction
     @Query("select * from main_task where main_task_id = :taskId")
-    fun getTaskWithSubTasksByTaskId(taskId : Long) : TaskWithSubTasks?
+    suspend fun getTaskWithSubTasksByTaskId(taskId : Long) : TaskWithSubTasks?
 }

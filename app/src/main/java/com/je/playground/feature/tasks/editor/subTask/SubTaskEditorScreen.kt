@@ -1,4 +1,4 @@
-package com.je.playground.designsystem.component.taskeditor
+package com.je.playground.feature.tasks.editor.subTask
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,77 +10,82 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.designsystem.component.SnackbarComponent
 import com.je.playground.designsystem.component.TextFieldComponent
 import com.je.playground.designsystem.component.datetimerangepicker.DateRangePicker
 import com.je.playground.designsystem.component.datetimerangepicker.TimeRangePicker
+import com.je.playground.designsystem.component.taskeditor.EditorTopBar
+import com.je.playground.designsystem.component.taskeditor.NoteEditComponent
+import com.je.playground.feature.tasks.editor.SubTaskField
 import com.je.playground.feature.tasks.editor.TaskEditorEvent
 import com.je.playground.feature.tasks.editor.TaskEditorViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @Composable
 fun SubTaskEditorScreen(
-    subTaskIndex : Int = -1,
-    taskEditorViewModel : TaskEditorViewModel,
-    onBackPress : () -> Unit
+    viewModel: TaskEditorViewModel,
+    subTaskIndex: Int = -1,
+    onBackClick: () -> Unit
 ) {
+    val taskEditorState: TaskEditorViewModel.State by viewModel.taskEditorUiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val localCoroutineScope = rememberCoroutineScope()
-
     LaunchedEffect(Unit) {
-        taskEditorViewModel.eventFlow.collectLatest { event ->
-            when (event) {
-                is TaskEditorViewModel.Event.ShowSnackbar -> {
-                    localCoroutineScope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = event.message
-                        )
-                    }
-                }
-
-                is TaskEditorViewModel.Event.Saved -> {
-                    onBackPress()
-                }
+        viewModel.snackbarFlow.collect { event ->
+            event.consume()?.let { message ->
+                snackbarHostState.showSnackbar(message)
             }
         }
     }
 
-    when (taskEditorViewModel.taskEditorUiState.collectAsState().value) {
-        is TaskEditorViewModel.State.Loading -> {
-            //TODO: Add loading screen?
-        }
-
-        is TaskEditorViewModel.State.Ready -> {
-            SubTaskEditorScreen(
-                subTaskIndex = subTaskIndex,
-                subTask = if (subTaskIndex == -1) SubTask() else taskEditorViewModel.subTasks[subTaskIndex],
-                snackbarHostState = snackbarHostState,
-                onEvent = taskEditorViewModel::onEvent,
-                onBackPress = onBackPress
-            )
-        }
-    }
+    SubTaskEditorScreen(
+        taskEditorState = taskEditorState,
+        subTaskIndex = subTaskIndex,
+        snackbarHostState = snackbarHostState,
+        onEvent = viewModel::onEvent,
+        onBackClick = onBackClick
+    )
 }
 
 @Composable
 fun SubTaskEditorScreen(
-    subTaskIndex : Int,
-    subTask : SubTask,
-    snackbarHostState : SnackbarHostState,
-    onEvent : (TaskEditorEvent) -> Unit,
-    onBackPress : () -> Unit
+    taskEditorState: TaskEditorViewModel.State,
+    subTaskIndex: Int,
+    snackbarHostState: SnackbarHostState,
+    onEvent: (TaskEditorEvent) -> Unit,
+    onBackClick: () -> Unit
+) {
+    when (taskEditorState) {
+        TaskEditorViewModel.State.Loading -> {}
+        is TaskEditorViewModel.State.Ready -> {
+            SubTaskEditorContent(
+                subTaskIndex = subTaskIndex,
+                subTask = taskEditorState.subTasks[subTaskIndex],
+                snackbarHostState = snackbarHostState,
+                onEvent = onEvent,
+                onBackPress = onBackClick
+            )
+        }
+
+        TaskEditorViewModel.State.Saved -> onBackClick()
+    }
+}
+
+@Composable
+fun SubTaskEditorContent(
+    subTaskIndex: Int,
+    subTask: SubTask,
+    snackbarHostState: SnackbarHostState,
+    onEvent: (TaskEditorEvent) -> Unit,
+    onBackPress: () -> Unit
 ) {
     var title by rememberSaveable { mutableStateOf(subTask.title) }
     var note by rememberSaveable { mutableStateOf(subTask.note) }
@@ -94,20 +99,18 @@ fun SubTaskEditorScreen(
             EditorTopBar(
                 text = "Edit",
                 onEvent = {
-                    onEvent(
-                        TaskEditorEvent.SaveSubTask(
-                            subTaskIndex,
-                            subTask.copy(
-                                title = title,
-                                note = note,
-                                startDate = startDate,
-                                startTime = startTime,
-                                endDate = endDate,
-                                endTime = endTime
-                            )
+                    TaskEditorEvent.updateSubTask(
+                        onEvent,
+                        subTaskIndex,
+                        listOf(
+                            SubTaskField.Title(title),
+                            SubTaskField.Note(note),
+                            SubTaskField.StartDate(startDate),
+                            SubTaskField.StartTime(startTime),
+                            SubTaskField.EndDate(endDate),
+                            SubTaskField.EndTime(endTime),
                         )
                     )
-                    //onBackPress()
                 },
                 onBackPress = onBackPress
             )
@@ -170,6 +173,4 @@ fun SubTaskEditorScreen(
             }
         }
     }
-
-
 }

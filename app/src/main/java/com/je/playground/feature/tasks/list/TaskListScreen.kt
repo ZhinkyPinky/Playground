@@ -126,7 +126,7 @@ fun TasksScreenTopBar(navigateToTaskEditScreen : (Long) -> Unit) {
             },
             actions = {
                 IconButton(
-                    onClick = { navigateToTaskEditScreen(0L) }) {
+                    onClick = { navigateToTaskEditScreen(-1L) }) {
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = "Add new task",

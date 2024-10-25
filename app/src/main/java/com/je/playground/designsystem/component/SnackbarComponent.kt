@@ -10,7 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.je.playground.designsystem.ThemePreviews
+import com.je.playground.designsystem.theme.ThemePreviews
 import com.je.playground.designsystem.theme.PlaygroundTheme
 import kotlinx.coroutines.launch
 

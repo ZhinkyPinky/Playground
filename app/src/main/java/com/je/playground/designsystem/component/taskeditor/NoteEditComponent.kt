@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import com.je.playground.designsystem.ThemePreviews
+import com.je.playground.designsystem.theme.ThemePreviews
 import com.je.playground.designsystem.theme.PlaygroundTheme
 import com.je.playground.designsystem.theme.regularText
 

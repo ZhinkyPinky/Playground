@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 class TaskWithSubTasks(
-    @Embedded var task : Task,
+    @Embedded var task : Task = Task(),
 
     @Relation(
         entity = SubTask::class,

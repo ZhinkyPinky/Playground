@@ -4,7 +4,7 @@ import com.je.playground.database.tasks.entity.TaskWithSubTasks
 import kotlinx.coroutines.flow.Flow
 
 interface TaskWithSubTasksRepository {
-    fun getByTaskId(taskId : Long) : TaskWithSubTasks?
+    suspend fun getByTaskId(taskId : Long) : TaskWithSubTasks?
 
     fun getAll() : Flow<List<TaskWithSubTasks>>
 

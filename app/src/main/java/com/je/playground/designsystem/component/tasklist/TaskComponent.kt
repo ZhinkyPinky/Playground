@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
 import com.je.playground.database.tasks.entity.TaskWithSubTasks
-import com.je.playground.designsystem.ThemePreviews
+import com.je.playground.designsystem.theme.ThemePreviews
 import com.je.playground.designsystem.component.CheckboxComponent
 import com.je.playground.designsystem.component.NoteComponent
 import com.je.playground.designsystem.component.dialog.ConfirmationDialog

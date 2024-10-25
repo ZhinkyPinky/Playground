@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,13 +21,13 @@ import com.je.playground.designsystem.component.TextFieldComponent
 import com.je.playground.designsystem.component.datetimerangepicker.DateRangePicker
 import com.je.playground.designsystem.component.datetimerangepicker.TimeRangePicker
 import com.je.playground.feature.tasks.editor.TaskEditorEvent
+import com.je.playground.feature.tasks.editor.TaskField
 
 @Composable
 fun SingleTaskEditor(
-    task : Task,
-    onEvent : (TaskEditorEvent) -> Unit
+    task: Task, onEvent: (TaskEditorEvent) -> Unit
 ) {
-    Divider(
+    HorizontalDivider(
         color = MaterialTheme.colorScheme.background
     )
 
@@ -35,10 +35,7 @@ fun SingleTaskEditor(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(
-                start = 12.dp,
-                end = 12.dp,
-                top = 6.dp,
-                bottom = 6.dp
+                start = 12.dp, end = 12.dp, top = 6.dp, bottom = 6.dp
             )
             .wrapContentHeight()
     ) {
@@ -47,15 +44,13 @@ fun SingleTaskEditor(
             placeholder = "Enter a title for the group",
             value = task.title,
             isSingleLine = true,
-            onValueChange = { onEvent(TaskEditorEvent.UpdateTask(task.copy(title = it))) },
-            modifier = Modifier.padding(
-                bottom = 6.dp
-            )
+            onValueChange = { TaskField.updateTitle(onEvent, it) },
+            modifier = Modifier.padding(bottom = 6.dp)
         )
 
         NoteEditComponent(
             note = task.note,
-            onValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(note = it)))) },
+            onValueChange = { TaskField.updateNote(onEvent, it) },
             modifier = Modifier.padding(
                 bottom = 12.dp
             )
@@ -63,36 +58,30 @@ fun SingleTaskEditor(
 
         PrioritySliderComponent(
             priority = task.priority,
-            onPriorityChanged = { onEvent(TaskEditorEvent.UpdateTask((task.copy(priority = it)))) },
+            onPriorityChanged = { TaskField.updatePriority(onEvent, it) },
             modifier = Modifier.padding(
-                top = 6.dp,
-                bottom = 6.dp
+                top = 6.dp, bottom = 6.dp
             )
         )
 
-        DateRangePicker(
-            startDate = task.startDate,
+        DateRangePicker(startDate = task.startDate,
             endDate = task.endDate,
-            onStartDateValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(startDate = it)))) },
-            onEndDateValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(endDate = it)))) },
+            onStartDateValueChange = { TaskField.updateStartDate(onEvent, it) },
+            onEndDateValueChange = { TaskField.updateEndDate(onEvent, it) },
             clearDates = {
-                onEvent(
-                    TaskEditorEvent.UpdateTask(
-                        (task.copy(
-                            startDate = null,
-                            endDate = null
-                        ))
+                TaskEditorEvent.updateTask(
+                    onEvent,
+                    listOf(
+                        TaskField.StartDate(null),
+                        TaskField.EndDate(null)
                     )
                 )
-            }
-        )
+            })
 
-        TimeRangePicker(
-            startTime = task.startTime,
+        TimeRangePicker(startTime = task.startTime,
             endTime = task.endTime,
-            onStartTimeValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(startTime = it)))) },
-            onEndTimeValueChange = { onEvent(TaskEditorEvent.UpdateTask((task.copy(endTime = it)))) }
-        )
+            onStartTimeValueChange = { TaskField.updateStartTime(onEvent, it) },
+            onEndTimeValueChange = { TaskField.updateEndTime(onEvent, it) })
 
         Box(
             modifier = Modifier

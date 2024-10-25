@@ -10,4 +10,7 @@
     <string name="next_month">Next month</string>
     <string name="feature_task_list_icon">Tasks</string>
     <string name="feature_task_list_title">Tasks</string>
+    <string name="title_required">Title*</string>
+    <string name="edit">Edit</string>
+    <string name="go_back">Go back</string>
 </resources>

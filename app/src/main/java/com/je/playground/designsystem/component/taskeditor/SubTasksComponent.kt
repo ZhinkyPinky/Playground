@@ -35,9 +35,9 @@ import com.je.playground.feature.tasks.editor.TaskEditorEvent
 
 @Composable
 fun SubTasksComponent(
-    subTasks : List<SubTask>,
-    onEvent : (TaskEditorEvent) -> Unit,
-    navigateToSubTaskEditorScreen : (Int) -> Unit,
+    subTasks: List<SubTask>,
+    onEvent: (TaskEditorEvent) -> Unit,
+    navigateToSubTaskEditorScreen: (Long, Int) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -55,7 +55,7 @@ fun SubTasksComponent(
 
         IconButton(
             onClick = {
-                navigateToSubTaskEditorScreen(-1)
+                navigateToSubTaskEditorScreen(-1L, -1)
             },
         ) {
             Icon(
@@ -133,7 +133,10 @@ fun SubTasksComponent(
                         Column { //TODO: Not needed?
                             TextButton(onClick = {
                                 isDropDownMenuExpanded = false
-                                navigateToSubTaskEditorScreen(subTasks.indexOf(subTask))
+                                navigateToSubTaskEditorScreen(
+                                    subTask.subTaskId,
+                                    subTasks.indexOf(subTask)
+                                )
                             }) {
                                 Text(
                                     text = "Edit",

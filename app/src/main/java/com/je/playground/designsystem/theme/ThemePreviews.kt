@@ -1,4 +1,4 @@
-package com.je.playground.designsystem
+package com.je.playground.designsystem.theme
 
 import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
