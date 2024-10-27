@@ -1,7 +1,9 @@
 package com.je.playground.navigation
 
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
@@ -20,11 +22,15 @@ import subTaskEditorScreen
 
 
 @Composable
-fun PlaygroundNavHost(appState: PlaygroundAppState) {
+fun PlaygroundNavHost(
+    appState: PlaygroundAppState
+) {
     val navController = appState.navController
+
     NavHost(
         navController = navController,
-        startDestination = TASK_LIST_ROUTE
+        startDestination = TASK_LIST_ROUTE,
+        modifier = Modifier.imePadding()
     ) {
         taskListScreen(navController::navigateToTaskEditor)
 

@@ -17,17 +17,7 @@ enum class Route() {
     TaskEdit
 }
 
-enum class MainScreen(val route : String) {
-    Home("Home"),
-    ExerciseProgramList("Exercise Program List"),
-    Habits("Habits"),
-    TaskList("Tasks"),
-    Settings("Settings")
-}
-
-
-
-enum class SubScreen(val route : String) {
+enum class SubScreen(val route: String) {
     TaskEdit("TaskEdit"),
     MainTaskEdit("MainTaskEdit"),
     SubTaskEdit("SubTaskEdit"),
@@ -37,9 +27,9 @@ enum class SubScreen(val route : String) {
 
 @Composable
 fun rememberPlaygroundAppState(
-    navController : NavHostController = rememberNavController(),
-    drawerState : DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    context : Context = LocalContext.current
+    navController: NavHostController = rememberNavController(),
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
+    context: Context = LocalContext.current
 ) = remember(
     navController,
     drawerState,
@@ -53,74 +43,7 @@ fun rememberPlaygroundAppState(
 }
 
 class PlaygroundAppState(
-    val navController : NavHostController,
-    val drawerState : DrawerState,
-    private val context : Context
-) {
-    fun navigateToHomeScreen() {
-        navController.navigate(MainScreen.Home.route)
-    }
-
-    fun navigateToTaskScreen(from : NavBackStackEntry) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(MainScreen.TaskList.route)
-        }
-    }
-
-    fun navigateToTaskEditScreen(
-        from : NavBackStackEntry,
-        mainTaskId : Long
-    ) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.TaskEdit.route + "?mainTaskId=$mainTaskId")
-        }
-    }
-
-    fun navigateToMainTaskEditorScreen(
-        from : NavBackStackEntry
-    ) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.MainTaskEdit.route)
-        }
-    }
-
-    fun navigateToSubTaskEditorScreen(
-        from : NavBackStackEntry,
-        subTaskIndex : Int
-    ) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.SubTaskEdit.route + "?subTaskIndex=$subTaskIndex")
-        }
-    }
-
-    fun navigateToHabitScreen(from : NavBackStackEntry) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(MainScreen.Habits.route)
-        }
-    }
-
-
-    fun navigateToExerciseProgramEditScreen(
-        from : NavBackStackEntry,
-        exerciseProgramId : Any
-    ) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.ExerciseProgramEdit.route + "?exerciseProgramId=$exerciseProgramId")
-        }
-    }
-
-    fun navigateToExerciseProgramScreen(
-        from : NavBackStackEntry,
-        exerciseProgramId : Long
-    ) {
-        if (from.lifecycleIsResumed()) {
-            navController.navigate(SubScreen.ExerciseProgram.route + "?exerciseProgramId=$exerciseProgramId")
-        }
-    }
-
-    fun navigateBack() {
-        navController.popBackStack()
-    }
-}
-
-private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState == Lifecycle.State.RESUMED
+    val navController: NavHostController,
+    val drawerState: DrawerState,
+    private val context: Context
+)

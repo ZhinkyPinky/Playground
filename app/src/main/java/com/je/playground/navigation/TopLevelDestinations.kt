@@ -2,7 +2,7 @@ package com.je.playground.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.je.playground.R
-import com.je.playground.designsystem.icon.PlaygroundIcons
+import com.je.playground.ui.icon.PlaygroundIcons
 
 enum class TopLevelDestinations(
     val selectedIcon : ImageVector,

@@ -13,4 +13,14 @@
     <string name="title_required">Title*</string>
     <string name="edit">Edit</string>
     <string name="go_back">Go back</string>
+    <string name="tasks_title">Tasks</string>
+    <string name="delete">Delete</string>
+    <string name="delete_task_warning">This will delete the task permanently. You cannot undo this action.</string>
+    <string name="note">Note</string>
+    <string name="priority">Priority</string>
+    <string name="low">Low</string>
+    <string name="medium">Medium</string>
+    <string name="high">High</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
 </resources>

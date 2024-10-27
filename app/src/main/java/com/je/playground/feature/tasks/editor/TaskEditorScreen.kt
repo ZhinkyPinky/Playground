@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -15,23 +14,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
 import com.je.playground.designsystem.component.SnackbarComponent
-import com.je.playground.designsystem.component.taskeditor.EditorModeButtonRow
-import com.je.playground.designsystem.component.taskeditor.EditorTopBar
-import com.je.playground.designsystem.component.taskeditor.MainTaskEditorComponent
-import com.je.playground.designsystem.component.taskeditor.SingleTaskEditor
-import com.je.playground.designsystem.component.taskeditor.SubTasksComponent
+import com.je.playground.designsystem.component.task.taskeditor.EditorTopBar
+import com.je.playground.designsystem.component.task.taskeditor.TaskEditorComponent
+import com.je.playground.designsystem.component.task.taskeditor.SubTasksComponent
+import com.je.playground.ui.theme.PlaygroundTheme
+import com.je.playground.ui.theme.ThemePreviews
+import java.time.LocalDate
+import java.time.LocalTime
 
 
 @Composable
 fun TaskEditorScreen(
     viewModel: TaskEditorViewModel,
     onEditTaskClick: (Long) -> Unit,
-    onEditSubTaskClick:  (Long, Int) -> Unit,
+    onEditSubTaskClick: (Long, Int) -> Unit,
     onBackClick: () -> Unit
 ) {
     val taskEditorState: TaskEditorViewModel.State by viewModel.taskEditorUiState.collectAsStateWithLifecycle()
@@ -60,7 +60,7 @@ fun TaskEditorScreen(
     taskEditorState: TaskEditorViewModel.State,
     snackbarHostState: SnackbarHostState,
     onEditTaskClick: (Long) -> Unit,
-    onEditSubTaskClick:  (Long, Int) -> Unit,
+    onEditSubTaskClick: (Long, Int) -> Unit,
     onEvent: (TaskEditorEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -70,7 +70,6 @@ fun TaskEditorScreen(
             TaskEditorContent(
                 task = taskEditorState.task,
                 subTasks = taskEditorState.subTasks,
-                isGroup = taskEditorState.isGroup,
                 navigateToMainTaskEditorScreen = onEditTaskClick,
                 navigateToSubTaskEditorScreen = onEditSubTaskClick,
                 snackbarHostState = snackbarHostState,
@@ -88,9 +87,8 @@ fun TaskEditorScreen(
 fun TaskEditorContent(
     task: Task,
     subTasks: List<SubTask>,
-    isGroup: Boolean,
     navigateToMainTaskEditorScreen: (Long) -> Unit,
-    navigateToSubTaskEditorScreen:  (Long, Int) -> Unit,
+    navigateToSubTaskEditorScreen: (Long, Int) -> Unit,
     snackbarHostState: SnackbarHostState,
     onEvent: (TaskEditorEvent) -> Unit,
     onBackPress: () -> Unit
@@ -103,10 +101,7 @@ fun TaskEditorContent(
                 onBackPress = onBackPress
             )
         },
-        snackbarHost = {
-            SnackbarComponent(snackbarHostState = snackbarHostState)
-        },
-        containerColor = if (isGroup) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.primary
+        snackbarHost = { SnackbarComponent(snackbarHostState = snackbarHostState) },
     ) { paddingValues ->
         Column(
             verticalArrangement = Arrangement.spacedBy(1.dp),
@@ -115,45 +110,66 @@ fun TaskEditorContent(
                 .fillMaxWidth()
                 .padding(paddingValues)
         ) {
-            EditorModeButtonRow(
-                isGroup = isGroup,
-                onClick = { onEvent(TaskEditorEvent.ToggleGroup) }
+            TaskEditorComponent(
+                task = task,
+                navigateToMainTaskEditorScreen
             )
 
-            if (isGroup) {
-                GroupTaskEditor(
-                    task = task,
-                    subTasks = subTasks,
-                    navigateToMainTaskEditorScreen = navigateToMainTaskEditorScreen,
-                    navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
-                    onEvent = onEvent
-                )
-            } else {
-                SingleTaskEditor(
-                    task = task,
-                    onEvent = onEvent
-                )
-            }
+            SubTasksComponent(
+                subTasks = subTasks,
+                onEvent = onEvent,
+                navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
+            )
         }
     }
 }
 
+@ThemePreviews
 @Composable
-fun GroupTaskEditor(
-    task: Task,
-    subTasks: List<SubTask>,
-    navigateToMainTaskEditorScreen: (Long) -> Unit,
-    navigateToSubTaskEditorScreen: (Long, Int) -> Unit,
-    onEvent: (TaskEditorEvent) -> Unit
-) {
-    MainTaskEditorComponent(
-        task = task,
-        navigateToMainTaskEditorScreen
-    )
-
-    SubTasksComponent(
-        subTasks = subTasks,
-        onEvent = onEvent,
-        navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
-    )
+fun TaskEditorScreenPreview() {
+    PlaygroundTheme {
+        TaskEditorContent(
+            task = Task(
+                title = "Do thang",
+                note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
+                startDate = LocalDate.now().plusDays(50),
+                endDate = LocalDate.now().plusDays(58),
+                startTime = LocalTime.now(),
+                endTime = LocalTime.now().plusHours(1)
+            ),
+            subTasks = listOf(
+                SubTask(
+                    title = "Stuff",
+                ),
+                SubTask(
+                    title = "Do stuff",
+                    startDate = LocalDate.now().plusDays(50),
+                    endDate = LocalDate.now().plusDays(58),
+                    startTime = LocalTime.now(),
+                    endTime = LocalTime.now().plusHours(1)
+                ),
+                SubTask(
+                    title = "Do thing",
+                    note = "Lorem ipsum dolor sit amet.",
+                    startDate = LocalDate.now().plusDays(50),
+                    endDate = LocalDate.now().plusDays(58),
+                    startTime = LocalTime.now(),
+                    endTime = LocalTime.now().plusHours(1)
+                ),
+                SubTask(
+                    title = "Do other thing",
+                    note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
+                    startDate = LocalDate.now().plusDays(50),
+                    endDate = LocalDate.now().plusDays(58),
+                    startTime = LocalTime.now(),
+                    endTime = LocalTime.now().plusHours(1)
+                )
+            ),
+            navigateToMainTaskEditorScreen = {},
+            navigateToSubTaskEditorScreen = { _, _ -> },
+            snackbarHostState = SnackbarHostState(),
+            onEvent = {},
+            onBackPress = {}
+        )
+    }
 }

@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.designsystem.component.SnackbarComponent
-import com.je.playground.designsystem.component.TextFieldComponent
-import com.je.playground.designsystem.component.datetimerangepicker.DateRangePicker
-import com.je.playground.designsystem.component.datetimerangepicker.TimeRangePicker
-import com.je.playground.designsystem.component.taskeditor.EditorTopBar
-import com.je.playground.designsystem.component.taskeditor.NoteEditComponent
+import com.je.playground.designsystem.component.task.taskeditor.TextFieldComponent
+import com.je.playground.deprecated.datetimerangepicker.DateRangePicker
+import com.je.playground.deprecated.datetimerangepicker.TimeRangePicker
+import com.je.playground.designsystem.component.task.taskeditor.EditorTopBar
+import com.je.playground.designsystem.component.task.taskeditor.NoteEditComponent
 import com.je.playground.feature.tasks.editor.SubTaskField
 import com.je.playground.feature.tasks.editor.TaskEditorEvent
 import com.je.playground.feature.tasks.editor.TaskEditorViewModel

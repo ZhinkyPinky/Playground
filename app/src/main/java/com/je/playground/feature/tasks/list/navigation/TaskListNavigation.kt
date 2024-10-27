@@ -1,12 +1,11 @@
 package com.je.playground.feature.tasks.list.navigation
 
-import android.util.Log
-import androidx.navigation.NavBackStackEntry
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import com.je.playground.feature.tasks.list.TaskListRoute
+import com.je.playground.feature.tasks.list.TasksScreen
 
 const val TASK_LIST_ROUTE = "tasks"
 
@@ -20,10 +19,9 @@ fun NavGraphBuilder.taskListScreen(
     composable(
         route = TASK_LIST_ROUTE,
     ) { navBackStackEntry ->
-        TaskListRoute(navigateToTaskEditScreen = {
-            navigateToTaskEditScreen(
-                it
-            )
-        })
+        TasksScreen(
+            viewModel = hiltViewModel(),
+            navigateToTaskEditScreen = navigateToTaskEditScreen
+        )
     }
 }

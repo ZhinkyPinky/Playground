@@ -12,7 +12,7 @@ import com.je.playground.navigation.PlaygroundNavHost
 
 @Composable
 fun PlaygroundApp(
-    appState : PlaygroundAppState = rememberPlaygroundAppState(),
+    appState: PlaygroundAppState = rememberPlaygroundAppState(),
 ) {
     PlaygroundBackground {
         ModalNavigationDrawer(
@@ -24,19 +24,7 @@ fun PlaygroundApp(
                 )
             }
         ) {
-            Scaffold(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-                contentWindowInsets = WindowInsets(
-                    0,
-                    0,
-                    0,
-                    0
-                ),
-
-                ) { padding ->
-                PlaygroundNavHost(appState = appState)
-            }
+            PlaygroundNavHost(appState = appState)
         }
     }
 }

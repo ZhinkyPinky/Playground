@@ -31,7 +31,7 @@ class TaskEditorViewModel @Inject constructor(
         data class Ready(
             val task: Task = Task(),
             val subTasks: List<SubTask> = emptyList(),
-            val isGroup: Boolean = false
+            //val isGroup: Boolean = false
         ) : State()
 
         data object Saved : State()
@@ -48,14 +48,13 @@ class TaskEditorViewModel @Inject constructor(
     private val removedSubTasks: MutableList<Long> = mutableListOf()
 
     init {
-        Log.d("sharedViewModel", this.toString())
         viewModelScope.launch {
             getTaskWithSubTasksByTaskId(mainTaskId).let {
                 it?.let {
                     _taskEditorUiState.value = State.Ready(
                         task = it.task,
                         subTasks = it.subTasks,
-                        isGroup = it.subTasks.isNotEmpty()
+                        //isGroup = it.subTasks.isNotEmpty()
                     )
                 }
             }
@@ -64,29 +63,14 @@ class TaskEditorViewModel @Inject constructor(
 
     fun onEvent(event: TaskEditorEvent) {
         when (event) {
+            is TaskEditorEvent.UpdateTask -> updateTask(event.fields)
             is TaskEditorEvent.UpdateSubTask -> updateSubTask(event.index, event.fields)
             is TaskEditorEvent.RemoveSubTask -> removeSubTask(event.index)
-            is TaskEditorEvent.UpdateTask -> updateTask(event.fields)
+            //is TaskEditorEvent.ToggleGroup -> toggleGroup()
             is TaskEditorEvent.Save -> save()
-            is TaskEditorEvent.ToggleGroup -> toggleGroup()
         }
     }
 
-    private fun save() = viewModelScope.launch {
-        try {
-            _taskEditorUiState.value.let {
-                if (it is State.Ready) {
-                    saveTaskAndSubTasks(
-                        it.task,
-                        it.subTasks,
-                        removedSubTasks
-                    )
-                }
-            }
-        } catch (e: InvalidTaskException) {
-            e.message?.let { showSnackBar(it) }
-        }
-    }
 
     private fun updateTask(fields: List<TaskField>) = _taskEditorUiState.update { currentState ->
         if (currentState !is State.Ready) return@update currentState
@@ -106,8 +90,6 @@ class TaskEditorViewModel @Inject constructor(
                 is TaskField.Title -> task.copy(title = field.title)
             }
         }
-
-        Log.d("update task", task.toString())
 
         currentState.copy(task = task)
     }
@@ -149,6 +131,7 @@ class TaskEditorViewModel @Inject constructor(
         currentState.copy(subTasks = subTasks)
     }
 
+    /*
     private fun toggleGroup() = _taskEditorUiState.update { currentState ->
         if (currentState !is State.Ready) return@update currentState
 
@@ -160,6 +143,23 @@ class TaskEditorViewModel @Inject constructor(
         currentState.copy(
             isGroup = !currentState.isGroup
         )
+    }
+     */
+
+    private fun save() = viewModelScope.launch {
+        try {
+            _taskEditorUiState.value.let {
+                if (it is State.Ready) {
+                    saveTaskAndSubTasks(
+                        it.task,
+                        it.subTasks,
+                        removedSubTasks
+                    )
+                }
+            }
+        } catch (e: InvalidTaskException) {
+            e.message?.let { showSnackBar(it) }
+        }
     }
 
     private fun showSnackBar(message: String) = viewModelScope.launch {
