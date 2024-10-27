@@ -4,6 +4,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.je.playground.feature.tasks.editor.TASK_EDITOR_ROUTE
+import com.je.playground.feature.tasks.editor.TaskEditorOverview
 import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorScreen
 import com.je.playground.navigation.sharedViewModel
 
@@ -26,7 +27,7 @@ fun NavGraphBuilder.subTaskEditorScreen(
     ) { navBackStackEntry ->
 
         SubTaskEditorScreen(
-            viewModel = navBackStackEntry.sharedViewModel(navController, TASK_EDITOR_ROUTE),
+            viewModel = navBackStackEntry.sharedViewModel(navController, TaskEditorOverview::class),
             onBackClick = navController::navigateUp
         )
     }

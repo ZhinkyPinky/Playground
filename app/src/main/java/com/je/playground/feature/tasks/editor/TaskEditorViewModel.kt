@@ -31,7 +31,6 @@ class TaskEditorViewModel @Inject constructor(
         data class Ready(
             val task: Task = Task(),
             val subTasks: List<SubTask> = emptyList(),
-            //val isGroup: Boolean = false
         ) : State()
 
         data object Saved : State()
@@ -48,13 +47,13 @@ class TaskEditorViewModel @Inject constructor(
     private val removedSubTasks: MutableList<Long> = mutableListOf()
 
     init {
+        Log.d("viewModel", this.toString())
         viewModelScope.launch {
             getTaskWithSubTasksByTaskId(mainTaskId).let {
                 it?.let {
                     _taskEditorUiState.value = State.Ready(
                         task = it.task,
                         subTasks = it.subTasks,
-                        //isGroup = it.subTasks.isNotEmpty()
                     )
                 }
             }
@@ -66,7 +65,6 @@ class TaskEditorViewModel @Inject constructor(
             is TaskEditorEvent.UpdateTask -> updateTask(event.fields)
             is TaskEditorEvent.UpdateSubTask -> updateSubTask(event.index, event.fields)
             is TaskEditorEvent.RemoveSubTask -> removeSubTask(event.index)
-            //is TaskEditorEvent.ToggleGroup -> toggleGroup()
             is TaskEditorEvent.Save -> save()
         }
     }
@@ -131,21 +129,6 @@ class TaskEditorViewModel @Inject constructor(
         currentState.copy(subTasks = subTasks)
     }
 
-    /*
-    private fun toggleGroup() = _taskEditorUiState.update { currentState ->
-        if (currentState !is State.Ready) return@update currentState
-
-        if (currentState.subTasks.isNotEmpty()) {
-            showSnackBar("You have to remove all subtasks first.")
-            return@update currentState
-        }
-
-        currentState.copy(
-            isGroup = !currentState.isGroup
-        )
-    }
-     */
-
     private fun save() = viewModelScope.launch {
         try {
             _taskEditorUiState.value.let {
@@ -155,6 +138,7 @@ class TaskEditorViewModel @Inject constructor(
                         it.subTasks,
                         removedSubTasks
                     )
+                    _taskEditorUiState.update { State.Saved }
                 }
             }
         } catch (e: InvalidTaskException) {

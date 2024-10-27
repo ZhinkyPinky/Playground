@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.dagger.hilt.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
+    id 'kotlinx-serialization'
     id 'kotlin-parcelize'
 }
 
@@ -66,6 +67,10 @@ dependencies {
 
     //Navigation
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.navigation.dynamic.features.fragment)
+    androidTestImplementation(libs.androidx.navigation.testing)
 
     //Dagger - Hilt
     implementation(libs.hilt.android)
@@ -73,7 +78,7 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    implementation (libs.androidx.hilt.work)
+    implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -106,6 +111,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
 
     implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

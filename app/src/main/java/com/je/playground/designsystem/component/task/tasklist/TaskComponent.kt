@@ -163,12 +163,15 @@ fun TaskComponentContent(
                     }
 
                     Column(
-                        modifier = Modifier.weight(1f).padding(
-                            start = 8.dp,
-                            top = 6.dp,
-                            end = 16.dp,
-                            bottom = 6.dp
-                        )
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(
+                                start = 8.dp,
+                                top = 6.dp,
+                                end = 16.dp,
+                                bottom = 6.dp
+                            )
+                            .align(Alignment.CenterVertically)
                     ) {
                         Text(
                             text = taskWithSubTasks.task.title,
@@ -311,7 +314,7 @@ fun TaskDropDownMenu(
             title = stringResource(R.string.delete),
             text = stringResource(R.string.delete_task_warning),
             confirmButtonText = stringResource(R.string.delete),
-            onConfirm = { onEvent(TaskListEvent.DeleteTaskWithSubTasks(taskWithSubTasks)) },
+            onConfirm = { onEvent(TaskListEvent.Delete(taskWithSubTasks)) },
             onDismissRequest = { isDeletionDialogDisplayed = false }
         )
     }
@@ -340,6 +343,18 @@ fun TaskDropDownMenu(
                 isDropDownMenuExpanded = false
             }) { Text(text = "Delete") }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TaskComponentSimplePreview() {
+    PlaygroundTheme {
+        TaskComponent(
+            taskWithSubTasks = TaskWithSubTasks(task = Task(title = "Test")),
+            navigateToTaskEditScreen = {},
+            onEvent = {}
+        )
     }
 }
 

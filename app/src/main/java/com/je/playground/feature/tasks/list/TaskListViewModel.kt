@@ -64,7 +64,7 @@ class TaskListViewModel @Inject constructor(
 
     fun onEvent(event : TaskListEvent) {
         when (event) {
-                   is TaskListEvent.DeleteTaskWithSubTasks -> deleteTask(event.taskWithSubTasks)
+                   is TaskListEvent.Delete -> deleteTask(event.taskWithSubTasks)
                    is TaskListEvent.ToggleTaskCompletion -> viewModelScope.launch { toggleTaskIsCompleted(event.task) }
                    is TaskListEvent.ToggleSubTaskCompletion -> viewModelScope.launch { toggleSubTaskIsCompleted(event.subTask) }
                    is TaskListEvent.ToggleTaskArchived -> toggleTaskIsArchived(event.task)

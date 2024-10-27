@@ -1,11 +1,5 @@
 package com.je.playground.feature.tasks.editor
 
-import com.je.playground.feature.tasks.editor.TaskField.Archived
-import com.je.playground.feature.tasks.editor.TaskField.EndDate
-import com.je.playground.feature.tasks.editor.TaskField.EndTime
-import com.je.playground.feature.tasks.editor.TaskField.Priority
-import com.je.playground.feature.tasks.editor.TaskField.StartDate
-import com.je.playground.feature.tasks.editor.TaskField.StartTime
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -13,7 +7,6 @@ sealed interface TaskEditorEvent {
     data class UpdateTask(val fields: List<TaskField>) : TaskEditorEvent
     data class UpdateSubTask(val index: Int, val fields: List<SubTaskField>) : TaskEditorEvent
     data class RemoveSubTask(val index: Int) : TaskEditorEvent
-    //data object ToggleGroup : TaskEditorEvent
     data object Save : TaskEditorEvent
 
     companion object {
