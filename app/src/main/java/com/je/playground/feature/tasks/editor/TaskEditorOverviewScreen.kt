@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -28,10 +29,10 @@ import java.time.LocalTime
 
 
 @Composable
-fun TaskEditorScreen(
+fun TaskEditorOverviewScreen(
     viewModel: TaskEditorViewModel,
-    onEditTaskClick: (Long) -> Unit,
-    onEditSubTaskClick: (Long, Int) -> Unit,
+    navigateToTaskEditorScreen: (Long) -> Unit,
+    navigateToSubTaskEditorScreen: (Int) -> Unit,
     onBackClick: () -> Unit
 ) {
     val taskEditorState: TaskEditorViewModel.State by viewModel.taskEditorUiState.collectAsStateWithLifecycle()
@@ -45,22 +46,22 @@ fun TaskEditorScreen(
         }
     }
 
-    TaskEditorScreen(
+    TaskEditorOverviewScreen(
         taskEditorState = taskEditorState,
         snackbarHostState = snackbarHostState,
-        onEditTaskClick = onEditTaskClick,
-        onEditSubTaskClick = onEditSubTaskClick,
+        navigateToTaskEditorScreen = navigateToTaskEditorScreen,
+        navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
     )
 }
 
 @Composable
-fun TaskEditorScreen(
+fun TaskEditorOverviewScreen(
     taskEditorState: TaskEditorViewModel.State,
     snackbarHostState: SnackbarHostState,
-    onEditTaskClick: (Long) -> Unit,
-    onEditSubTaskClick: (Long, Int) -> Unit,
+    navigateToTaskEditorScreen: (Long) -> Unit,
+    navigateToSubTaskEditorScreen: (Int) -> Unit,
     onEvent: (TaskEditorEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -70,8 +71,8 @@ fun TaskEditorScreen(
             TaskEditorContent(
                 task = taskEditorState.task,
                 subTasks = taskEditorState.subTasks,
-                navigateToMainTaskEditorScreen = onEditTaskClick,
-                navigateToSubTaskEditorScreen = onEditSubTaskClick,
+                navigateToTaskEditorScreen = navigateToTaskEditorScreen,
+                navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
                 snackbarHostState = snackbarHostState,
                 onEvent = onEvent,
                 onBackPress = onBackClick
@@ -87,8 +88,8 @@ fun TaskEditorScreen(
 fun TaskEditorContent(
     task: Task,
     subTasks: List<SubTask>,
-    navigateToMainTaskEditorScreen: (Long) -> Unit,
-    navigateToSubTaskEditorScreen: (Long, Int) -> Unit,
+    navigateToTaskEditorScreen: (Long) -> Unit,
+    navigateToSubTaskEditorScreen: (Int) -> Unit,
     snackbarHostState: SnackbarHostState,
     onEvent: (TaskEditorEvent) -> Unit,
     onBackPress: () -> Unit
@@ -108,11 +109,12 @@ fun TaskEditorContent(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(paddingValues)
         ) {
             TaskEditorComponent(
                 task = task,
-                navigateToMainTaskEditorScreen
+                navigateToTaskEditorScreen
             )
 
             SubTasksComponent(
@@ -163,10 +165,10 @@ fun TaskEditorScreenPreview() {
                     endDate = LocalDate.now().plusDays(58),
                     startTime = LocalTime.now(),
                     endTime = LocalTime.now().plusHours(1)
-                )
+                ),
             ),
-            navigateToMainTaskEditorScreen = {},
-            navigateToSubTaskEditorScreen = { _, _ -> },
+            navigateToTaskEditorScreen = {},
+            navigateToSubTaskEditorScreen = { _ -> },
             snackbarHostState = SnackbarHostState(),
             onEvent = {},
             onBackPress = {}

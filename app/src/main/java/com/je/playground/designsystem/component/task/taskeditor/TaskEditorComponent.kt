@@ -42,7 +42,7 @@ import java.time.LocalTime
 @Composable
 fun TaskEditorComponent(
     task: Task,
-    toggleMainTaskEditorDialog: (Long) -> Unit,
+    toggleTaskEditorDialog: (Long) -> Unit,
 ) {
     var isExpanded by rememberSaveable {
         mutableStateOf(false)
@@ -54,9 +54,9 @@ fun TaskEditorComponent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(
                     start = 16.dp,
-                    end = 16.dp,
                     top = 8.dp,
-                    bottom = 8.dp
+                    end = 16.dp,
+                    bottom = 4.dp
                 )
             ) {
                 Text(
@@ -65,10 +65,10 @@ fun TaskEditorComponent(
                     modifier = Modifier.weight(1f)
                 )
 
-                IconButton(onClick = { toggleMainTaskEditorDialog(task.mainTaskId) }) {
+                IconButton(onClick = { toggleTaskEditorDialog(task.taskId) }) {
                     Icon(
                         imageVector = Icons.Filled.Edit,
-                        contentDescription = "Edit main task",
+                        contentDescription = "Edit task",
                     )
                 }
             }
@@ -82,8 +82,9 @@ fun TaskEditorComponent(
                     .clickable { isExpanded = !isExpanded }
                     .padding(
                         start = 6.dp,
-                        top = 6.dp,
-                        bottom = 6.dp
+                        top = 8.dp,
+                        end = 16.dp,
+                        bottom = 8.dp
                     )
             ) {
                 Box(
@@ -106,14 +107,14 @@ fun TaskEditorComponent(
                         .wrapContentHeight()
                         .padding(
                             start = 8.dp,
-                            end = 16.dp,
-                            top = 6.dp,
-                            bottom = 6.dp
+                            top = 8.dp,
+                            bottom = 8.dp
                         )
                 ) {
                     Text(
-                        text = if (task.title == "") "Title*" else task.title,
+                        text = task.title.ifBlank { "Title *" },
                         style = MaterialTheme.typography.titleMedium,
+                        color = if (task.title.isBlank()) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
                     )
 
                     DateTimeRangeText(
@@ -123,13 +124,14 @@ fun TaskEditorComponent(
                         endTime = task.endTime
                     )
 
-                    if (task.note != "") {
-                        NoteComponent(
-                            note = task.note,
-                            isExpanded = isExpanded
-                        )
+                    task.note?.let {
+                        if (it.isNotBlank()) {
+                            NoteComponent(
+                                note = it,
+                                isExpanded = isExpanded
+                            )
+                        }
                     }
-
                 }
             }
         }
@@ -149,6 +151,6 @@ fun MainTaskEditorComponentPreview() {
                 startTime = LocalTime.now(),
                 endTime = LocalTime.now().plusHours(1)
             ),
-            toggleMainTaskEditorDialog = {})
+            toggleTaskEditorDialog = {})
     }
 }

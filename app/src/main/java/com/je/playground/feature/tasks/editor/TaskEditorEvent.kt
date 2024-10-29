@@ -23,9 +23,13 @@ sealed interface TaskEditorEvent {
     }
 }
 
+fun TaskEditorEvent.UpdateTask.with(onEvent: (TaskEditorEvent) -> Unit) = onEvent(this)
+
+fun TaskEditorEvent.UpdateSubTask.with(onEvent: (TaskEditorEvent) -> Unit) = onEvent(this)
+
 sealed interface TaskField {
     data class Title(val title: String) : TaskField
-    data class Note(val note: String) : TaskField
+    data class Note(val note: String?) : TaskField
     data class Priority(val priority: Int) : TaskField
     data class Completed(val completed: Boolean) : TaskField
     data class Archived(val archived: Boolean) : TaskField
@@ -40,7 +44,7 @@ fun TaskField.update(onEvent: (TaskEditorEvent) -> Unit) =
 
 sealed interface SubTaskField {
     data class Title(val title: String) : SubTaskField
-    data class Note(val note: String) : SubTaskField
+    data class Note(val note: String?) : SubTaskField
     data class StartDate(val startDate: LocalDate?) : SubTaskField
     data class EndDate(val endDate: LocalDate?) : SubTaskField
     data class StartTime(val startTime: LocalTime?) : SubTaskField

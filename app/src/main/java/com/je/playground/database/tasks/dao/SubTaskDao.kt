@@ -23,7 +23,7 @@ interface SubTaskDao {
     @Query("select * from sub_task")
     fun getAll() : Flow<List<SubTask>>
 
-    @Query("SELECT * FROM sub_task WHERE main_task_id = :taskId")
+    @Query("SELECT * FROM sub_task WHERE task_id = :taskId")
     fun getAllByTaskId(taskId : Long) : Flow<List<SubTask>>
 
     @Delete

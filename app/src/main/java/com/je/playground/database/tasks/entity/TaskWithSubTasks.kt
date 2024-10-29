@@ -8,8 +8,8 @@ class TaskWithSubTasks(
 
     @Relation(
         entity = SubTask::class,
-        parentColumn = "main_task_id",
-        entityColumn = "main_task_id"
+        parentColumn = "task_id",
+        entityColumn = "task_id"
     )
     var subTasks : List<SubTask> = emptyList()
 )

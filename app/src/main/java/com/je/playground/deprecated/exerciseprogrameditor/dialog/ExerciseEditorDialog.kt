@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,20 +25,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.je.playground.database.tasks.entity.SubTask
-import com.je.playground.designsystem.component.task.taskeditor.TextFieldComponent
 import com.je.playground.deprecated.datetimerangepicker.DateRangePicker
 import com.je.playground.deprecated.datetimerangepicker.TimeRangePicker
 import com.je.playground.designsystem.component.task.taskeditor.NoteEditComponent
+import com.je.playground.designsystem.component.task.taskeditor.TextFieldComponent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubTaskEditorDialog(
-    dialogTitle : String,
-    mainTaskId : Long,
-    subTask : SubTask,
-    isNewTask : Boolean,
-    onSave : (SubTask) -> Unit,
-    onDismissRequest : () -> Unit
+    dialogTitle: String,
+    taskId: Long,
+    subTask: SubTask,
+    isNewTask: Boolean,
+    onSave: (SubTask) -> Unit,
+    onDismissRequest: () -> Unit
 ) {
     var title by rememberSaveable { mutableStateOf(subTask.title) }
     var note by rememberSaveable { mutableStateOf(subTask.note) }
@@ -47,12 +47,12 @@ fun SubTaskEditorDialog(
     var endDate by rememberSaveable { mutableStateOf(subTask.endDate) }
     var endTime by rememberSaveable { mutableStateOf(subTask.endTime) }
 
-    AlertDialog(
+    BasicAlertDialog(
         onDismissRequest = onDismissRequest,
+        modifier = Modifier.padding(24.dp),
         properties = DialogProperties(
             usePlatformDefaultWidth = false
-        ),
-        modifier = Modifier.padding(24.dp)
+        )
     ) {
         Surface(
             modifier =
@@ -72,12 +72,12 @@ fun SubTaskEditorDialog(
                         )
                 )
 
-                Divider(
-                    color = MaterialTheme.colorScheme.background,
+                HorizontalDivider(
                     modifier = Modifier.padding(
                         top = 12.dp,
                         bottom = 6.dp
-                    )
+                    ),
+                    color = MaterialTheme.colorScheme.background
                 )
 
                 Column(
@@ -99,11 +99,13 @@ fun SubTaskEditorDialog(
                         }
                     )
 
-                    NoteEditComponent(
-                        note = note,
-                        onValueChange = {
-                            note = it
-                        })
+                    note?.let { currentNote ->
+                        NoteEditComponent(
+                            note = currentNote,
+                            onValueChange = { newNote ->
+                                note = newNote
+                            })
+                    }
 
                     DateRangePicker(
                         startDate = startDate,
@@ -154,7 +156,7 @@ fun SubTaskEditorDialog(
                         onClick = {
                             onSave(
                                 SubTask(
-                                    mainTaskId = mainTaskId,
+                                    taskId = taskId,
                                     title = title,
                                     note = note,
                                     startDate = startDate,

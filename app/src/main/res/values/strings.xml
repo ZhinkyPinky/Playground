@@ -23,4 +23,6 @@
     <string name="high">High</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
+    <string name="add_a_description">Add a description</string>
+    <string name="save">Save</string>
 </resources>

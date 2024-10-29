@@ -1,36 +1,33 @@
 package com.je.playground.feature.tasks.editor
 
-import android.util.Log
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
 import com.je.playground.navigation.TaskEditorRoute
 import kotlinx.serialization.Serializable
 
-const val TASK_EDITOR_ROUTE = "tasks/{taskId}/edit"
 
 @Serializable
-object TaskRoute
+data class TaskEditorOverview(val taskId: Long)
 
-@Serializable
-data class TaskEditorOverview(val taskId: Long = -1L)
+fun NavController.navigateToTaskEditorOverview(taskId: Long) =
+    navigate(route = TaskEditorOverview(taskId))
 
 fun NavGraphBuilder.taskEditorScreen(
     navController: NavController,
     onEditTaskClick: (Long) -> Unit,
-    onEditSubTaskClick: (Long, Int) -> Unit,
+    onEditSubTaskClick: (Int) -> Unit,
     onBackClick: () -> Unit
 ) {
     composable<TaskEditorOverview> { backStackEntry ->
         val parentEntry =
             remember(backStackEntry) { navController.getBackStackEntry(TaskEditorRoute) }
-        TaskEditorScreen(
+        TaskEditorOverviewScreen(
             viewModel = hiltViewModel(parentEntry),
-            onEditTaskClick = onEditTaskClick,
-            onEditSubTaskClick = onEditSubTaskClick,
+            navigateToTaskEditorScreen = onEditTaskClick,
+            navigateToSubTaskEditorScreen = onEditSubTaskClick,
             onBackClick = onBackClick
         )
     }

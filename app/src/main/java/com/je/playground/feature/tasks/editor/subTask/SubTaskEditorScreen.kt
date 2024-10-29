@@ -1,13 +1,15 @@
 package com.je.playground.feature.tasks.editor.subTask
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,18 +18,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.je.playground.R
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.designsystem.component.SnackbarComponent
-import com.je.playground.designsystem.component.task.taskeditor.TextFieldComponent
-import com.je.playground.deprecated.datetimerangepicker.DateRangePicker
-import com.je.playground.deprecated.datetimerangepicker.TimeRangePicker
 import com.je.playground.designsystem.component.task.taskeditor.EditorTopBar
-import com.je.playground.designsystem.component.task.taskeditor.NoteEditComponent
+import com.je.playground.designsystem.datetimepickers.DateTimePicker
 import com.je.playground.feature.tasks.editor.SubTaskField
 import com.je.playground.feature.tasks.editor.TaskEditorEvent
+import com.je.playground.feature.tasks.editor.TaskEditorEvent.UpdateSubTask
 import com.je.playground.feature.tasks.editor.TaskEditorViewModel
+import com.je.playground.feature.tasks.editor.with
 
 @Composable
 fun SubTaskEditorScreen(
@@ -68,7 +71,7 @@ fun SubTaskEditorScreen(
         is TaskEditorViewModel.State.Ready -> {
             SubTaskEditorContent(
                 subTaskIndex = subTaskIndex,
-                subTask = taskEditorState.subTasks[subTaskIndex],
+                subTask = if (subTaskIndex == -1) SubTask() else taskEditorState.subTasks[subTaskIndex],
                 snackbarHostState = snackbarHostState,
                 onEvent = onEvent,
                 onBackPress = onBackClick
@@ -99,8 +102,7 @@ fun SubTaskEditorContent(
             EditorTopBar(
                 text = "Edit",
                 onEvent = {
-                    TaskEditorEvent.updateSubTask(
-                        onEvent,
+                    UpdateSubTask(
                         subTaskIndex,
                         listOf(
                             SubTaskField.Title(title),
@@ -110,65 +112,57 @@ fun SubTaskEditorContent(
                             SubTaskField.EndDate(endDate),
                             SubTaskField.EndTime(endTime),
                         )
-                    )
+                    ).with(onEvent)
+
+                    onBackPress()
                 },
                 onBackPress = onBackPress
             )
         },
-        snackbarHost = {
-            SnackbarComponent(snackbarHostState = snackbarHostState)
-        },
-        containerColor = MaterialTheme.colorScheme.primary,
+        snackbarHost = { SnackbarComponent(snackbarHostState = snackbarHostState) },
     ) { paddingValues ->
-        Box(
-            modifier = Modifier.padding(paddingValues)
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
             Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .padding(
-                        start = 12.dp,
-                        end = 12.dp,
-                        top = 6.dp,
-                        bottom = 6.dp
-                    )
-                    .wrapContentHeight()
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.padding(16.dp)
             ) {
-                TextFieldComponent(
-                    label = "Title*",
-                    placeholder = "Enter a title for the group",
+                OutlinedTextField(
+                    label = { Text(text = stringResource(R.string.title_required)) },
                     value = title,
-                    isSingleLine = true,
                     onValueChange = { title = it },
-                    modifier = Modifier.padding(
-                        bottom = 6.dp
-                    )
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                NoteEditComponent(
-                    note = note,
+
+                DateTimePicker(
+                    dateLabel = "From",
+                    timeLabel = "HH:mm",
+                    date = startDate,
+                    time = startTime,
+                    onDateSelected = { startDate = it },
+                    onTimeSelected = { startTime = it }
+                )
+
+                DateTimePicker(
+                    dateLabel = "To",
+                    timeLabel = "HH:mm",
+                    date = endDate,
+                    time = endTime,
+                    onDateSelected = { endDate = it },
+                    onTimeSelected = { endTime = it }
+                )
+
+                OutlinedTextField(
+                    label = { Text(text = stringResource(R.string.note)) },
+                    value = note ?: "",
+                    maxLines = 10,
                     onValueChange = { note = it },
-                    modifier = Modifier.padding(
-                        bottom = 12.dp
-                    )
-                )
-
-                DateRangePicker(
-                    startDate = startDate,
-                    endDate = endDate,
-                    onStartDateValueChange = { startDate = it },
-                    onEndDateValueChange = { endDate = it },
-                    clearDates = {
-                        startDate = null
-                        endDate = null
-                    }
-                )
-
-                TimeRangePicker(
-                    startTime = startTime,
-                    endTime = endTime,
-                    onStartTimeValueChange = { startTime = it },
-                    onEndTimeValueChange = { endTime = it }
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

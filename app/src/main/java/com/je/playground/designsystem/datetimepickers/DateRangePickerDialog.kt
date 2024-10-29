@@ -1,3 +1,5 @@
+package com.je.playground.designsystem.datetimepickers
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -84,9 +86,8 @@ fun DateRangePickerDialog(
     onDateSelected: (Long?) -> Unit, onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = currentDate?.let {
-            it.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        }
+        initialSelectedDateMillis = currentDate?.plusDays(1)?.atStartOfDay(ZoneId.systemDefault())
+            ?.toInstant()?.toEpochMilli()
     )
 
     androidx.compose.material3.DatePickerDialog(onDismissRequest = onDismiss, confirmButton = {
@@ -106,7 +107,7 @@ fun DateRangePickerDialog(
 
 @ThemePreviews
 @Composable
-fun DatePickerDialogPreview() {
+fun DateRangePickerDialogPreview() {
     PlaygroundTheme {
         DateRangePickerDialog(
             currentDate = LocalDate.now(),

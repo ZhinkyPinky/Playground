@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.je.playground.R
 import com.je.playground.database.tasks.entity.SubTask
@@ -66,7 +67,7 @@ import java.time.LocalTime
 @Composable
 fun TaskComponent(
     taskWithSubTasks: TaskWithSubTasks,
-    navigateToTaskEditScreen: (Long) -> Unit,
+    navigateToTaskEditorOverview: (Long) -> Unit,
     onEvent: (TaskListEvent) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
@@ -100,7 +101,7 @@ fun TaskComponent(
         ) {
             TaskComponentContent(
                 taskWithSubTasks = taskWithSubTasks,
-                navigateToTaskEditScreen = navigateToTaskEditScreen,
+                navigateToTaskEditorOverview = navigateToTaskEditorOverview,
                 onEvent = onEvent
             )
         }
@@ -119,7 +120,7 @@ fun TaskComponent(
 @Composable
 fun TaskComponentContent(
     taskWithSubTasks: TaskWithSubTasks,
-    navigateToTaskEditScreen: (Long) -> Unit,
+    navigateToTaskEditorOverview: (Long) -> Unit,
     onEvent: (TaskListEvent) -> Unit
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -150,7 +151,9 @@ fun TaskComponentContent(
             Column {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 6.dp)
                 ) {
                     if (taskWithSubTasks.subTasks.isEmpty()) {
                         CheckboxComponent(
@@ -175,6 +178,8 @@ fun TaskComponentContent(
                     ) {
                         Text(
                             text = taskWithSubTasks.task.title,
+                            overflow = TextOverflow.Ellipsis,
+                            softWrap = isExpanded,
                             style = MaterialTheme.typography.titleMedium
                         )
 
@@ -185,17 +190,19 @@ fun TaskComponentContent(
                             endTime = taskWithSubTasks.task.endTime
                         )
 
-                        if (taskWithSubTasks.task.note != "") {
-                            NoteComponent(
-                                note = taskWithSubTasks.task.note,
-                                isExpanded = isExpanded,
-                            )
+                        taskWithSubTasks.task.note?.let {
+                            if (it.isNotBlank()) {
+                                NoteComponent(
+                                    note = it,
+                                    isExpanded = isExpanded,
+                                )
+                            }
                         }
                     }
 
                     TaskDropDownMenu(
                         taskWithSubTasks = taskWithSubTasks,
-                        navigateToTaskEditScreen = navigateToTaskEditScreen,
+                        navigateToTaskEditorOverview = navigateToTaskEditorOverview,
                         onEvent = onEvent
                     )
                 }
@@ -303,7 +310,7 @@ fun SubTasks(
 @Composable
 fun TaskDropDownMenu(
     taskWithSubTasks: TaskWithSubTasks,
-    navigateToTaskEditScreen: (Long) -> Unit,
+    navigateToTaskEditorOverview: (Long) -> Unit,
     onEvent: (TaskListEvent) -> Unit
 ) {
     var isDropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -335,7 +342,7 @@ fun TaskDropDownMenu(
         ) {
             TextButton(onClick = {
                 isDropDownMenuExpanded = false
-                navigateToTaskEditScreen(taskWithSubTasks.task.mainTaskId)
+                navigateToTaskEditorOverview(taskWithSubTasks.task.taskId)
             }) { Text(text = "Edit") }
 
             TextButton(onClick = {
@@ -352,7 +359,7 @@ fun TaskComponentSimplePreview() {
     PlaygroundTheme {
         TaskComponent(
             taskWithSubTasks = TaskWithSubTasks(task = Task(title = "Test")),
-            navigateToTaskEditScreen = {},
+            navigateToTaskEditorOverview = {},
             onEvent = {}
         )
     }
@@ -373,7 +380,7 @@ fun TaskComponentPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 )
             ),
-            navigateToTaskEditScreen = {},
+            navigateToTaskEditorOverview = {},
             onEvent = {}
         )
     }
@@ -410,7 +417,7 @@ fun TaskComponentWithSubtasksPreview() {
                     )
                 )
             ),
-            navigateToTaskEditScreen = {},
+            navigateToTaskEditorOverview = {},
             onEvent = {}
         )
     }

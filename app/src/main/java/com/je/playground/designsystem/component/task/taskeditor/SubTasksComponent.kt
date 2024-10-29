@@ -38,7 +38,7 @@ import java.time.LocalTime
 fun SubTasksComponent(
     subTasks: List<SubTask>,
     onEvent: (TaskEditorEvent) -> Unit,
-    navigateToSubTaskEditorScreen: (Long, Int) -> Unit,
+    navigateToSubTaskEditorScreen: (Int) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
         Surface {
@@ -46,9 +46,9 @@ fun SubTasksComponent(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(
                     start = 16.dp,
-                    end = 16.dp,
                     top = 8.dp,
-                    bottom = 8.dp
+                    end = 16.dp,
+                    bottom = 4.dp
                 )
             ) {
                 Text(
@@ -59,7 +59,7 @@ fun SubTasksComponent(
 
                 IconButton(
                     onClick = {
-                        navigateToSubTaskEditorScreen(-1L, -1)
+                        navigateToSubTaskEditorScreen(-1)
                     },
                 ) {
                     Icon(
@@ -70,80 +70,94 @@ fun SubTasksComponent(
             }
         }
 
-
         subTasks.forEach { subTask ->
-            var isExpanded by rememberSaveable {
-                mutableStateOf(false)
-            }
+            SubTaskComponent(
+                index = subTasks.indexOf(subTask),
+                subTask = subTask,
+                onEvent = onEvent,
+                navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
+            )
+        }
+    }
+}
 
-            var dropDownMenuExpanded by rememberSaveable {
-                mutableStateOf(false)
-            }
+@Composable
+fun SubTaskComponent(
+    index: Int,
+    subTask: SubTask,
+    onEvent: (TaskEditorEvent) -> Unit,
+    navigateToSubTaskEditorScreen: (Int) -> Unit
+) {
+    var isExpanded by rememberSaveable {
+        mutableStateOf(false)
+    }
 
-            Surface {
-                Column(
-                    modifier = Modifier
-                        .clickable { isExpanded = !isExpanded }
-                        .padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 8.dp,
-                            bottom = 8.dp
-                        )
-                        .wrapContentHeight()
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = subTask.title,
-                                style = MaterialTheme.typography.titleMedium
+    var dropDownMenuExpanded by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    Surface {
+        Column(
+            modifier = Modifier
+                .clickable { isExpanded = !isExpanded }
+                .wrapContentHeight()
+        ) {
+            Row(
+                modifier = Modifier.padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 6.dp,
+                    bottom = 6.dp
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = subTask.title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    DateTimeRangeText(
+                        startDate = subTask.startDate,
+                        startTime = subTask.startTime,
+                        endDate = subTask.endDate,
+                        endTime = subTask.endTime
+                    )
+
+                    subTask.note?.let {
+                        if (it.isNotBlank()) {
+                            NoteComponent(
+                                note = it,
+                                isExpanded = isExpanded,
                             )
-
-                            DateTimeRangeText(
-                                startDate = subTask.startDate,
-                                startTime = subTask.startTime,
-                                endDate = subTask.endDate,
-                                endTime = subTask.endTime
-                            )
-
-                            if (subTask.note != "") {
-                                NoteComponent(
-                                    note = subTask.note,
-                                    isExpanded = isExpanded,
-                                )
-                            }
-                        }
-
-                        Box (modifier = Modifier.align(Alignment.Top)){
-                            IconButton(onClick = {
-                                dropDownMenuExpanded = !dropDownMenuExpanded
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.MoreVert,
-                                    contentDescription = "Note"
-                                )
-                            }
-
-                            DropdownMenu(
-                                expanded = dropDownMenuExpanded,
-                                onDismissRequest = { dropDownMenuExpanded = false },
-                            ) {
-                                TextButton(onClick = {
-                                    dropDownMenuExpanded = false
-                                    navigateToSubTaskEditorScreen(
-                                        subTask.subTaskId,
-                                        subTasks.indexOf(subTask)
-                                    )
-                                }) { Text(text = "Edit") }
-
-                                TextButton(onClick = {
-                                    onEvent(TaskEditorEvent.RemoveSubTask(subTasks.indexOf(subTask)))
-                                    dropDownMenuExpanded = false
-                                }) { Text(text = "Delete") }
-                            }
                         }
                     }
+                }
 
+                Box(modifier = Modifier.align(Alignment.Top)) {
+                    IconButton(onClick = {
+                        dropDownMenuExpanded = !dropDownMenuExpanded
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.MoreVert,
+                            contentDescription = "Note"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = dropDownMenuExpanded,
+                        onDismissRequest = { dropDownMenuExpanded = false },
+                    ) {
+                        TextButton(onClick = {
+                            dropDownMenuExpanded = false
+                            navigateToSubTaskEditorScreen(index)
+                        }) { Text(text = "Edit") }
+
+                        TextButton(onClick = {
+                            onEvent(TaskEditorEvent.RemoveSubTask(index))
+                            dropDownMenuExpanded = false
+                        }) { Text(text = "Delete") }
+                    }
                 }
             }
         }
@@ -185,7 +199,7 @@ fun SubTasksComponentPreview() {
                 )
             ),
             onEvent = {},
-            navigateToSubTaskEditorScreen = { _, _ -> }
+            navigateToSubTaskEditorScreen = {}
         )
     }
 }

@@ -13,7 +13,7 @@ class DeleteTaskUseCase @Inject constructor(
         taskRepository
             .deleteTask(taskWithSubTasks.task)
             .invokeOnCompletion {
-                notificationScheduler.cancelNotification(taskWithSubTasks.task.mainTaskId.toInt())
+                notificationScheduler.cancelNotification(taskWithSubTasks.task.taskId.toInt())
 
                 taskWithSubTasks.subTasks.forEach {
                     notificationScheduler.cancelNotification(it.subTaskId.toInt() * 1009)

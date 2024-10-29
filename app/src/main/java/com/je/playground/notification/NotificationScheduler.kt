@@ -7,36 +7,24 @@ import android.content.Intent
 import java.time.ZoneId
 
 class NotificationScheduler(
-    private val context : Context
+    private val context: Context
 ) : INotificationScheduler {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     override fun scheduleNotification(
-        notificationItem : NotificationItem
+        notificationItem: NotificationItem
     ) {
         val intent = Intent(
             context,
             NotificationReceiver::class.java
         ).apply {
-            putExtra(
-                "ID",
-                notificationItem.id
-            )
+            putExtra("ID", notificationItem.id)
+            putExtra("TITLE", notificationItem.title)
 
-            putExtra(
-                "TITLE",
-                notificationItem.title
-            )
-
-            putExtra(
-                "MESSAGE",
-                notificationItem.message
-            )
+            notificationItem.message?.let {
+                putExtra("MESSAGE", it)
+            }
         }
-
-        Any()
-
-        notificationItem.hashCode()
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
@@ -53,7 +41,7 @@ class NotificationScheduler(
     }
 
     @Override
-    override fun cancelNotification(id : Int) {
+    override fun cancelNotification(id: Int) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,

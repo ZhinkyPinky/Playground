@@ -1,6 +1,5 @@
 package com.je.playground.feature.tasks.editor
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -47,7 +46,6 @@ class TaskEditorViewModel @Inject constructor(
     private val removedSubTasks: MutableList<Long> = mutableListOf()
 
     init {
-        Log.d("viewModel", this.toString())
         viewModelScope.launch {
             getTaskWithSubTasksByTaskId(mainTaskId).let {
                 it?.let {
@@ -79,8 +77,8 @@ class TaskEditorViewModel @Inject constructor(
             task = when (field) {
                 is TaskField.Archived -> task.copy(isArchived = field.archived)
                 is TaskField.Completed -> task.copy(isCompleted = field.completed)
-                is TaskField.StartDate -> task.copy(startDate = field.startDate)
-                is TaskField.EndDate -> task.copy(endDate = field.endDate)
+                is TaskField.StartDate -> field.startDate?.let { task.copy(startDate = it) } ?: task
+                is TaskField.EndDate -> field.endDate?.let { task.copy(endDate = it) } ?: task
                 is TaskField.Note -> task.copy(note = field.note)
                 is TaskField.Priority -> task.copy(priority = field.priority)
                 is TaskField.StartTime -> task.copy(startTime = field.startTime)
@@ -99,7 +97,7 @@ class TaskEditorViewModel @Inject constructor(
         if (currentState !is State.Ready) return@update currentState
 
         val subTasks = currentState.subTasks.toMutableList()
-        var subTask = subTasks[index]
+        var subTask = if (index != -1) subTasks[index] else SubTask()
 
         fields.forEach { field ->
             subTask = when (field) {
@@ -113,7 +111,7 @@ class TaskEditorViewModel @Inject constructor(
             }
         }
 
-        subTasks[index] = subTask
+        if (index != -1) subTasks[index] = subTask else subTasks.add(subTask)
 
         currentState.copy(subTasks = subTasks)
     }
@@ -134,9 +132,7 @@ class TaskEditorViewModel @Inject constructor(
             _taskEditorUiState.value.let {
                 if (it is State.Ready) {
                     saveTaskAndSubTasks(
-                        it.task,
-                        it.subTasks,
-                        removedSubTasks
+                        it.task, it.subTasks, removedSubTasks
                     )
                     _taskEditorUiState.update { State.Saved }
                 }

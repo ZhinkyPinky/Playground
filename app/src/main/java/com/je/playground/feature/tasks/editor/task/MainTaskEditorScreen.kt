@@ -1,16 +1,25 @@
 package com.je.playground.feature.tasks.editor.task
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -20,22 +29,27 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.je.playground.R
 import com.je.playground.database.tasks.entity.Task
-import com.je.playground.designsystem.DatePicker
-import com.je.playground.designsystem.TimePicker
-import com.je.playground.ui.theme.ThemePreviews
-import com.je.playground.designsystem.component.task.taskeditor.PrioritySliderComponent
-import com.je.playground.ui.theme.PlaygroundTheme
+import com.je.playground.designsystem.datetimepickers.DateTimeRangePicker
 import com.je.playground.feature.tasks.editor.TaskEditorEvent
+import com.je.playground.feature.tasks.editor.TaskEditorEvent.UpdateTask
 import com.je.playground.feature.tasks.editor.TaskEditorViewModel
 import com.je.playground.feature.tasks.editor.TaskField
-import com.je.playground.feature.tasks.editor.update
+import com.je.playground.feature.tasks.editor.with
+import com.je.playground.ui.theme.PlaygroundTheme
+import com.je.playground.ui.theme.ThemePreviews
+import java.time.LocalDate
 
 @Composable
 fun MainTaskEditorScreen(
@@ -91,6 +105,22 @@ fun MainTaskEditorContent(
     onEvent: (TaskEditorEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
+
+    var title by rememberSaveable { mutableStateOf(task.title) }
+    var note by rememberSaveable { mutableStateOf(task.note) }
+    var priority by rememberSaveable { mutableIntStateOf(task.priority) }
+    var startDate by rememberSaveable { mutableStateOf(task.startDate) }
+    var startTime by rememberSaveable { mutableStateOf(task.startTime) }
+    var endDate by rememberSaveable { mutableStateOf(task.endDate) }
+    var endTime by rememberSaveable { mutableStateOf(task.endTime) }
+
+
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(note) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -100,6 +130,27 @@ fun MainTaskEditorContent(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.go_back)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        UpdateTask(
+                            listOf(
+                                TaskField.Title(title),
+                                TaskField.Note(note),
+                                TaskField.StartDate(startDate),
+                                TaskField.StartTime(startTime),
+                                TaskField.EndDate(endDate),
+                                TaskField.EndTime(endTime)
+                            )
+                        ).with(onEvent)
+
+                        onBackClick()
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Save,
+                            contentDescription = stringResource(R.string.save)
                         )
                     }
                 }
@@ -113,82 +164,86 @@ fun MainTaskEditorContent(
                 .padding(paddingValues)
         ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(12.dp)
+                modifier = Modifier.verticalScroll(scrollState)
             ) {
-                OutlinedTextField(
-                    label = { Text(text = stringResource(R.string.title_required)) },
-                    value = task.title,
-                    onValueChange = { TaskField.Title(it).update(onEvent) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Box(
+                    modifier = Modifier.padding(
+                        start = 56.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 16.dp
+                    )
+                ) {
 
-                OutlinedTextField(
-                    label = { Text(text = stringResource(R.string.note)) },
-                    value = task.note,
-                    onValueChange = { TaskField.Note(it).update(onEvent) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    if (title.isEmpty()) {
+                        Text(
+                            text = "Add title*",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-                DatePicker(
-                    label = "From",
-                    date = task.startDate,
-                    onDateSelected = {},
-                )
+                    BasicTextField(
+                        value = title,
+                        textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+                        onValueChange = { title = it },
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                DatePicker(
-                    label = "To",
-                    date = task.endDate,
-                    onDateSelected = {},
-                )
+                HorizontalDivider()
 
-                TimePicker(
-                    label = "From",
-                    time = task.startTime,
-                    onTimeSelected = {}
-                )
-
-                TimePicker(
-                    label = "To",
-                    time = task.endTime,
-                    onTimeSelected = {}
+                DateTimeRangePicker(
+                    startDateLabel = "Select a start date",
+                    startTimeLabel = "Select a start time",
+                    endDateLabel = "Select an end date",
+                    endTimeLabel = "Select an end time",
+                    startDate = startDate,
+                    startTime = startTime,
+                    endDate = endDate,
+                    endTime = endTime,
+                    onStartDateSelected = { startDate = it },
+                    onStartTimeSelected = { startTime = it },
+                    onEndDateSelected = { endDate = it },
+                    onEndTimeSelected = { endTime = it },
                 )
 
                 /*
-                DateRangePicker(
-                    startDate = task.startDate,
-                    endDate = task.endDate,
-                    onStartDateValueChange = { TaskField.StartDate(it).update(onEvent) },
-                    onEndDateValueChange = { TaskField.EndDate(it).update(onEvent) },
-                    clearDates = {
-                        TaskEditorEvent.updateTask(
-                            onEvent,
-                            listOf(
-                                TaskField.StartDate(null),
-                                TaskField.EndDate(null)
-                            )
-                        )
-                    }
-                )
-                 *
-                TimeRangePicker(
-                    startTime = task.startTime,
-                    endTime = task.endTime,
-                    onStartTimeValueChange = { TaskField.StartTime(it).update(onEvent) },
-                    onEndTimeValueChange = { TaskField.EndTime(it).update(onEvent) }
-                )
-
-                 */
-
                 PrioritySliderComponent(
-                    priority = task.priority,
+                    priority = priority,
                     onPriorityChanged = { TaskField.Priority(it).update(onEvent) },
                     modifier = Modifier.padding(
                         top = 6.dp,
                         bottom = 6.dp
                     )
                 )
+                 */
+
+                HorizontalDivider()
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
+                ) {
+                    Icon(imageVector = Icons.AutoMirrored.Filled.Notes, contentDescription = "")
+
+                    Box {
+                        if (note == null) {
+                            Text(
+                                text = stringResource(R.string.add_a_description),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        BasicTextField(
+                            value = note ?: "",
+                            textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onSurface),
+                            onValueChange = { note = it.ifEmpty { null } },
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
         }
     }
@@ -200,6 +255,23 @@ fun TaskEditorScreenPreview() {
     PlaygroundTheme {
         MainTaskEditorContent(
             task = Task(),
+            snackbarHostState = SnackbarHostState(),
+            onEvent = {},
+            onBackClick = {}
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TaskEditorScreenFilledPreview() {
+    PlaygroundTheme {
+        MainTaskEditorContent(
+            task = Task(
+                title = "This is a title",
+                startDate = LocalDate.now(),
+                note = "This is a description"
+            ),
             snackbarHostState = SnackbarHostState(),
             onEvent = {},
             onBackClick = {}

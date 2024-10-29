@@ -10,9 +10,9 @@ import javax.inject.Inject
 class SubTaskRepositoryImpl @Inject constructor(
     private val subTaskDao : SubTaskDao
 ) : SubTaskRepository {
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     override suspend fun insert(subTask : SubTask) : Long = subTaskDao.insert(subTask)
+
     override suspend fun getById(id : Long) : SubTask? = subTaskDao.getById(id)
 
     override suspend fun update(subTask : SubTask) = subTaskDao.update(subTask)
@@ -22,4 +22,5 @@ class SubTaskRepositoryImpl @Inject constructor(
     override suspend fun getAllByTaskId(taskId : Long) : Flow<List<SubTask>> = subTaskDao.getAllByTaskId(taskId)
 
     override suspend fun delete(subTask : SubTask) = subTaskDao.delete(subTask)
+
 }

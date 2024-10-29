@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,8 +42,10 @@ fun SubTaskComponent(
                 .wrapContentHeight()
                 .fillMaxWidth()
                 .padding(
+                    top = 6.dp,
+                    start = 6.dp,
                     end = 16.dp,
-                    bottom = 12.dp
+                    bottom = 6.dp
                 )
         ) {
             CheckboxComponent(
@@ -53,7 +54,11 @@ fun SubTaskComponent(
                 modifier = Modifier.align(Alignment.Top)
             )
 
-            Column(modifier = Modifier.padding(top = 12.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterVertically)
+            ) {
                 Text(
                     text = subTask.title,
                     style = MaterialTheme.typography.titleMedium
@@ -65,11 +70,14 @@ fun SubTaskComponent(
                     endDate = subTask.endDate,
                     endTime = subTask.endTime
                 )
-                if (subTask.note != "") {
-                    NoteComponent(
-                        note = subTask.note,
-                        isExpanded = isExpanded,
-                    )
+
+                subTask.note?.let {
+                    if (it.isNotBlank()) {
+                        NoteComponent(
+                            note = it,
+                            isExpanded = isExpanded,
+                        )
+                    }
                 }
             }
         }
@@ -78,7 +86,23 @@ fun SubTaskComponent(
 
 @ThemePreviews
 @Composable
-fun SubTaskComponentPreview() {
+fun SubTaskComponentTitleOnlyPreview() {
+    val subTask = SubTask(
+        title = "Do other thing",
+    )
+
+    PlaygroundTheme {
+        SubTaskComponent(
+            subTask = subTask,
+            isCompleted = subTask.isCompleted,
+            onCompletion = { subTask.isCompleted != subTask.isCompleted }
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun SubTaskComponentFilledPreview() {
     val subTask = SubTask(
         title = "Do other thing",
         note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",

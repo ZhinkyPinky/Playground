@@ -13,30 +13,32 @@ import javax.inject.Inject
 
 
 class TaskRepository @Inject constructor(
-    private val taskDao : TaskDao,
-    private val subTaskDao : SubTaskDao
+    private val taskDao: TaskDao,
+    private val subTaskDao: SubTaskDao
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
-    suspend fun insertTask(task : Task) : Long = withContext(Dispatchers.IO) { taskDao.insertMainTask(task) }
+    suspend fun insertTask(task: Task): Long =
+        withContext(Dispatchers.IO) { taskDao.insertTask(task) }
 
+    fun updateTask(task: Task) = coroutineScope.launch { taskDao.updateTask(task) }
 
-    fun updateMainTask(task : Task) = coroutineScope.launch { taskDao.updateMainTask(task) }
+    fun deleteTask(task: Task) = coroutineScope.launch { taskDao.deleteTask(task) }
 
-    fun deleteTask(task : Task) = coroutineScope.launch { taskDao.deleteMainTask(task) }
+    fun getAllTasks(): Flow<List<Task>> = taskDao.getAll()
 
+    suspend fun insertSubTask(subTask: SubTask): Long =
+        withContext(Dispatchers.IO) { subTaskDao.insert(subTask) }
 
-    fun getAllTasks() : Flow<List<Task>> = taskDao.getAll()
+    fun updateSubTasks(subTasks: List<SubTask>) =
+        coroutineScope.launch { subTaskDao.updateSubTasks(subTasks) }
 
-    suspend fun insertSubTask(subTask : SubTask) : Long = withContext(Dispatchers.IO) { subTaskDao.insert(subTask) }
+    suspend fun toggleCompletionBasedOnSubTasksCompletion(taskId: Long) =
+        taskDao.toggleCompletionBasedOnSubTasksCompletion(taskId)
 
-    fun updateSubTasks(subTasks : List<SubTask>) = coroutineScope.launch { subTaskDao.updateSubTasks(subTasks) }
+    fun getAllSubTasks(): Flow<List<SubTask>> = subTaskDao.getAll()
 
-    suspend fun toggleCompletionBasedOnSubTasksCompletion(taskId : Long) = taskDao.toggleCompletionBasedOnSubTasksCompletion(taskId)
-        //taskDao.thing(taskId = taskId)
-
-    fun getAllSubTasks() : Flow<List<SubTask>> = subTaskDao.getAll()
-    fun getTaskById(id : Long) : Flow<Task> {
+    fun getTaskById(id: Long): Flow<Task> {
         return taskDao.getTaskById(id)
     }
 }

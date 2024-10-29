@@ -1,33 +1,33 @@
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.je.playground.feature.tasks.editor.TASK_EDITOR_ROUTE
-import com.je.playground.feature.tasks.editor.TaskEditorOverview
+import androidx.navigation.toRoute
 import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorScreen
-import com.je.playground.navigation.sharedViewModel
+import com.je.playground.navigation.TaskEditorRoute
+import kotlinx.serialization.Serializable
 
 
-fun NavController.navigateToSubTaskEditor(
-    taskId: Long,
-    index: Int
-) = navigate(
-    route = "tasks/$taskId/subTasks/$index/edit"
-)
+@Serializable
+data class SubTaskEditor(val index: Int)
+
+fun NavController.navigateToSubTaskEditor(index: Int) =
+    navigate(route = SubTaskEditor(index))
 
 fun NavGraphBuilder.subTaskEditorScreen(
     navController: NavController,
 ) {
-    composable(
-        route = "tasks/{taskId}/subTasks/{index}/edit",
-        arguments = listOf(
-            navArgument("taskId") { type = NavType.LongType },
-            navArgument("index") { type = NavType.IntType })
-    ) { navBackStackEntry ->
+    composable<SubTaskEditor> { backStackEntry ->
+        val parentEntry = remember(backStackEntry) {
+            navController.getBackStackEntry(TaskEditorRoute)
+        }
+
+        val subTaskEditor: SubTaskEditor = backStackEntry.toRoute()
 
         SubTaskEditorScreen(
-            viewModel = navBackStackEntry.sharedViewModel(navController, TaskEditorOverview::class),
+            viewModel = hiltViewModel(parentEntry),
+            subTaskIndex = subTaskEditor.index,
             onBackClick = navController::navigateUp
         )
     }

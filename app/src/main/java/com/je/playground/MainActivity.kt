@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PlaygroundTheme {
+
                 // A surface container using the 'background' color from the theme
                 PlaygroundApp()
             }

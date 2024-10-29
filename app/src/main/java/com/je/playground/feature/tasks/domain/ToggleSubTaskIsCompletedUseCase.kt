@@ -11,6 +11,6 @@ class ToggleSubTaskIsCompletedUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(subTask : SubTask)  {
         subTaskRepository.insert(subTask.copy(isCompleted = !subTask.isCompleted))
-        taskRepository.toggleCompletionBasedOnSubTasksCompletion(subTask.mainTaskId)
+        taskRepository.toggleCompletionBasedOnSubTasksCompletion(subTask.taskId)
     }
 }
