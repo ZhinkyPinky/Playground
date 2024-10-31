@@ -9,11 +9,13 @@ import kotlinx.serialization.Serializable
 object TaskList
 
 fun NavGraphBuilder.taskListScreen(
+    navigateToTaskEditor: () -> Unit,
     navigateToTaskEditorOverview: (Long) -> Unit
 ) {
     composable<TaskList> {
-        TasksScreen(
+        TaskListScreen(
             viewModel = hiltViewModel(),
+            navigateToTaskEditor = navigateToTaskEditor,
             navigateToTaskEditorOverview= navigateToTaskEditorOverview
         )
     }

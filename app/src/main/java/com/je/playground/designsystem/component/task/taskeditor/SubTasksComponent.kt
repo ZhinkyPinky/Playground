@@ -24,11 +24,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.designsystem.component.task.DateTimeRangeText
 import com.je.playground.designsystem.component.task.NoteComponent
-import com.je.playground.feature.tasks.editor.TaskEditorEvent
+import com.je.playground.feature.tasks.editor.overview.TaskEditorOverviewEvent
+import com.je.playground.feature.utility.Result
 import com.je.playground.ui.theme.PlaygroundTheme
 import com.je.playground.ui.theme.ThemePreviews
 import java.time.LocalDate
@@ -36,9 +38,10 @@ import java.time.LocalTime
 
 @Composable
 fun SubTasksComponent(
+    taskId: Long,
     subTasks: List<SubTask>,
-    onEvent: (TaskEditorEvent) -> Unit,
-    navigateToSubTaskEditorScreen: (Int) -> Unit,
+    onEvent: (TaskEditorOverviewEvent) -> Unit,
+    navigateToSubTaskEditor: (Long, Long) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
         Surface {
@@ -47,7 +50,7 @@ fun SubTasksComponent(
                 modifier = Modifier.padding(
                     start = 16.dp,
                     top = 8.dp,
-                    end = 16.dp,
+                    end = 4.dp,
                     bottom = 4.dp
                 )
             ) {
@@ -57,11 +60,7 @@ fun SubTasksComponent(
                     modifier = Modifier.weight(1f)
                 )
 
-                IconButton(
-                    onClick = {
-                        navigateToSubTaskEditorScreen(-1)
-                    },
-                ) {
+                IconButton(onClick = { navigateToSubTaskEditor(taskId, 0L) }) {
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = "New Task",
@@ -72,10 +71,9 @@ fun SubTasksComponent(
 
         subTasks.forEach { subTask ->
             SubTaskComponent(
-                index = subTasks.indexOf(subTask),
                 subTask = subTask,
                 onEvent = onEvent,
-                navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
+                navigateToSubTaskEditor = navigateToSubTaskEditor
             )
         }
     }
@@ -83,29 +81,23 @@ fun SubTasksComponent(
 
 @Composable
 fun SubTaskComponent(
-    index: Int,
     subTask: SubTask,
-    onEvent: (TaskEditorEvent) -> Unit,
-    navigateToSubTaskEditorScreen: (Int) -> Unit
+    onEvent: (TaskEditorOverviewEvent) -> Unit,
+    navigateToSubTaskEditor: (Long, Long) -> Unit
 ) {
-    var isExpanded by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var dropDownMenuExpanded by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var dropDownMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
     Surface {
         Column(
             modifier = Modifier
-                .clickable { isExpanded = !isExpanded }
+                .clickable { expanded = !expanded }
                 .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier.padding(
                     start = 16.dp,
-                    end = 16.dp,
+                    end = 4.dp,
                     top = 6.dp,
                     bottom = 6.dp
                 ),
@@ -114,6 +106,8 @@ fun SubTaskComponent(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = subTask.title,
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = expanded,
                         style = MaterialTheme.typography.titleMedium
                     )
 
@@ -128,16 +122,14 @@ fun SubTaskComponent(
                         if (it.isNotBlank()) {
                             NoteComponent(
                                 note = it,
-                                isExpanded = isExpanded,
+                                isExpanded = expanded,
                             )
                         }
                     }
                 }
 
                 Box(modifier = Modifier.align(Alignment.Top)) {
-                    IconButton(onClick = {
-                        dropDownMenuExpanded = !dropDownMenuExpanded
-                    }) {
+                    IconButton(onClick = { dropDownMenuExpanded = !dropDownMenuExpanded }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = "Note"
@@ -150,12 +142,12 @@ fun SubTaskComponent(
                     ) {
                         TextButton(onClick = {
                             dropDownMenuExpanded = false
-                            navigateToSubTaskEditorScreen(index)
+                            navigateToSubTaskEditor(subTask.taskId, subTask.subTaskId)
                         }) { Text(text = "Edit") }
 
                         TextButton(onClick = {
-                            onEvent(TaskEditorEvent.RemoveSubTask(index))
                             dropDownMenuExpanded = false
+                            onEvent(TaskEditorOverviewEvent.RemoveSubTask(subTask))
                         }) { Text(text = "Delete") }
                     }
                 }
@@ -170,11 +162,14 @@ fun SubTaskComponent(
 fun SubTasksComponentPreview() {
     PlaygroundTheme {
         SubTasksComponent(
+            taskId = 0,
             subTasks = listOf(
                 SubTask(
+                    taskId = 0,
                     title = "Stuff",
                 ),
                 SubTask(
+                    taskId = 0,
                     title = "Do stuff",
                     startDate = LocalDate.now().plusDays(50),
                     endDate = LocalDate.now().plusDays(58),
@@ -182,6 +177,7 @@ fun SubTasksComponentPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 ),
                 SubTask(
+                    taskId = 0,
                     title = "Do thing",
                     note = "Lorem ipsum dolor sit amet.",
                     startDate = LocalDate.now().plusDays(50),
@@ -190,6 +186,7 @@ fun SubTasksComponentPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 ),
                 SubTask(
+                    taskId = 0,
                     title = "Do other thing",
                     note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
                     startDate = LocalDate.now().plusDays(50),
@@ -198,8 +195,8 @@ fun SubTasksComponentPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 )
             ),
-            onEvent = {},
-            navigateToSubTaskEditorScreen = {}
+            onEvent = { Result.Success },
+            navigateToSubTaskEditor = { _, _ -> }
         )
     }
 }

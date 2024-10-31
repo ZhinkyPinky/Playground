@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 class GetTaskUseCase(
     private val taskRepository : TaskRepository
 ) {
-    operator fun invoke(id : Long) : Flow<Task> = taskRepository.getTaskById(id)
+    suspend operator fun invoke(id : Long) : Task = taskRepository.getTaskById(id) ?: Task()
 }

@@ -1,4 +1,4 @@
-package com.je.playground.feature.exerciseprogram.viewmodel
+package com.je.playground.deprecated.exerciseprogram.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.ViewModel

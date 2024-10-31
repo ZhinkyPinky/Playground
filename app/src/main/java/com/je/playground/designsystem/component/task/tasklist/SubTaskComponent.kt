@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.designsystem.component.common.CheckboxComponent
@@ -61,6 +62,8 @@ fun SubTaskComponent(
             ) {
                 Text(
                     text = subTask.title,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = isExpanded,
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -88,6 +91,7 @@ fun SubTaskComponent(
 @Composable
 fun SubTaskComponentTitleOnlyPreview() {
     val subTask = SubTask(
+        taskId = 0L,
         title = "Do other thing",
     )
 
@@ -104,6 +108,7 @@ fun SubTaskComponentTitleOnlyPreview() {
 @Composable
 fun SubTaskComponentFilledPreview() {
     val subTask = SubTask(
+        taskId = 0L,
         title = "Do other thing",
         note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
         startDate = LocalDate.now().plusDays(50),

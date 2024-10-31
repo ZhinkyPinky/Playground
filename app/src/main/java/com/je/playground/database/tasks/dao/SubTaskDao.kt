@@ -12,25 +12,25 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SubTaskDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(subTask : SubTask) : Long
+    suspend fun insert(subTask: SubTask): Long
 
     @Query("SELECT * FROM sub_task WHERE sub_task_id = :id")
-    suspend fun getById(id : Long) : SubTask?
+    suspend fun getById(id: Long): SubTask?
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(subTask : SubTask)
+    suspend fun update(subTask: SubTask)
 
     @Query("select * from sub_task")
-    fun getAll() : Flow<List<SubTask>>
+    fun getAll(): Flow<List<SubTask>>
 
     @Query("SELECT * FROM sub_task WHERE task_id = :taskId")
-    fun getAllByTaskId(taskId : Long) : Flow<List<SubTask>>
+    fun getAllByTaskId(taskId: Long): Flow<List<SubTask>>
 
     @Delete
-    fun delete(subTask : SubTask)
+    suspend fun delete(subTask: SubTask): Int
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateSubTasks(subTasks : List<SubTask>)
+    suspend fun updateSubTasks(subTasks: List<SubTask>)
 
 
 }

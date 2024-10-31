@@ -1,4 +1,4 @@
-package com.je.playground.feature.exerciseprogram
+package com.je.playground.deprecated.exerciseprogram
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,7 @@ import com.je.playground.database.exerciseprogram.entity.ExerciseProgram
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithAllTheThings
 import com.je.playground.deprecated.exercise.ExercisesComponent
 import com.je.playground.deprecated.schedule.ScheduleComponent
-import com.je.playground.feature.exerciseprogram.viewmodel.ExerciseProgramViewModel
+import com.je.playground.deprecated.exerciseprogram.viewmodel.ExerciseProgramViewModel
 import kotlinx.coroutines.launch
 
 @Composable

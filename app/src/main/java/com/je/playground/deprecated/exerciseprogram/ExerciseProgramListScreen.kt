@@ -1,4 +1,4 @@
-package com.je.playground.feature.exerciseprogram
+package com.je.playground.deprecated.exerciseprogram
 
 import android.util.Log
 import androidx.compose.animation.animateContentSize
@@ -42,7 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithAllTheThings
-import com.je.playground.feature.exerciseprogram.viewmodel.ExerciseProgramViewModel
+import com.je.playground.deprecated.exerciseprogram.viewmodel.ExerciseProgramViewModel
 
 
 @Composable

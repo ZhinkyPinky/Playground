@@ -10,7 +10,7 @@ import java.time.LocalTime
 
 @Entity(tableName = "task")
 data class Task(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_id") var taskId: Long = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "task_id") var taskId: Long = 0L,
     @ColumnInfo(name = "title") var title: String = "",
     @ColumnInfo(name = "note") var note: String? = null,
     @ColumnInfo(name = "priority") var priority: Int = 0,

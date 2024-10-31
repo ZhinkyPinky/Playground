@@ -1,5 +1,6 @@
-package com.je.playground.feature.tasks.editor.subTask
+package com.je.playground.feature.tasks.editor.task
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,28 +23,25 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.je.playground.LocalSnackHostState
 import com.je.playground.R
-import com.je.playground.database.tasks.entity.SubTask
+import com.je.playground.database.tasks.entity.Task
 import com.je.playground.designsystem.component.task.taskeditor.EditorTopBar
 import com.je.playground.designsystem.component.textfield.EditorTextField
 import com.je.playground.designsystem.datetimepickers.DateTimeRangePicker
-import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorEvent.Save
-import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorViewModel.State
-import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorViewModel.State.Loading
-import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorViewModel.State.Ready
-import com.je.playground.feature.tasks.editor.subTask.SubTaskEditorViewModel.State.Saved
-import com.je.playground.feature.tasks.editor.subTask.SubTaskField.EndDate
-import com.je.playground.feature.tasks.editor.subTask.SubTaskField.EndTime
-import com.je.playground.feature.tasks.editor.subTask.SubTaskField.Note
-import com.je.playground.feature.tasks.editor.subTask.SubTaskField.StartDate
-import com.je.playground.feature.tasks.editor.subTask.SubTaskField.StartTime
-import com.je.playground.feature.tasks.editor.subTask.SubTaskField.Title
+import com.je.playground.feature.tasks.editor.task.TaskEditorEvent.*
+import com.je.playground.feature.tasks.editor.task.TaskEditorViewModel.*
+import com.je.playground.feature.tasks.editor.task.TaskEditorViewModel.State.*
+import com.je.playground.feature.tasks.editor.task.TaskField.*
+import com.je.playground.ui.theme.PlaygroundTheme
+import com.je.playground.ui.theme.ThemePreviews
+import java.time.LocalDate
 
 @Composable
-fun SubTaskEditorScreen(
-    viewModel: SubTaskEditorViewModel,
+fun TaskEditorScreen(
+    viewModel: TaskEditorViewModel,
+    onSave: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val state: State by viewModel.subTaskEditorState.collectAsStateWithLifecycle()
+    val state: State by viewModel.taskEditorState.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackHostState.current
 
     LaunchedEffect(Unit) {
@@ -54,59 +52,70 @@ fun SubTaskEditorScreen(
         }
     }
 
-    SubTaskEditorScreen(
+    TaskEditorScreen(
         state = state,
         onEvent = viewModel::onEvent,
+        onSave = onSave,
         onBackClick = onBackClick
     )
 }
 
 @Composable
-fun SubTaskEditorScreen(
+fun TaskEditorScreen(
     state: State,
-    onEvent: (SubTaskEditorEvent) -> Unit,
+    onEvent: (TaskEditorEvent) -> Unit,
+    onSave: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     when (state) {
         is Loading -> {}
         is Ready -> {
-            SubTaskEditorContent(
-                subTask = state.subTask,
+            TaskEditorContent(
+                task = state.task,
                 onEvent = onEvent,
                 onBackClick = onBackClick
             )
         }
 
-        is Saved -> onBackClick()
+        is Saved -> {
+            Log.d("Save", state.taskId.toString())
+            onSave(state.taskId)
+        }
     }
 }
 
 @Composable
-fun SubTaskEditorContent(
-    subTask: SubTask,
-    onEvent: (SubTaskEditorEvent) -> Unit,
+fun TaskEditorContent(
+    task: Task,
+    onEvent: (TaskEditorEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
+
     val scrollState = rememberScrollState()
-    LaunchedEffect(subTask.note) { scrollState.animateScrollTo(scrollState.maxValue) }
+    LaunchedEffect(task.note) {
+        scrollState.animateScrollTo(scrollState.maxValue)
+    }
 
     Scaffold(
         topBar = {
             EditorTopBar(
-                text = "Edit subtask",
-                onAction = { onEvent(Save) },
-                onNavigation = { onBackClick() }
+                text = stringResource(R.string.edit),
+                onAction = { onEvent(SaveTask) },
+                onNavigation = onBackClick
             )
-        },
+        }
     ) { paddingValues ->
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = paddingValues)
         ) {
-            Column(modifier = Modifier.verticalScroll(scrollState)) {
+            Column(
+                modifier = Modifier.verticalScroll(scrollState)
+            ) {
+
                 EditorTextField(
-                    text = subTask.title,
+                    text = task.title,
                     placeholderText = stringResource(R.string.title_required),
                     leadingIcon = { Spacer(modifier = Modifier.size(24.dp)) },
                     onValueChange = { Title(it).update(onEvent) }
@@ -119,10 +128,10 @@ fun SubTaskEditorContent(
                     startTimeLabel = "Select a start time",
                     endDateLabel = "Select an end date",
                     endTimeLabel = "Select an end time",
-                    startDate = subTask.startDate,
-                    startTime = subTask.startTime,
-                    endDate = subTask.endDate,
-                    endTime = subTask.endTime,
+                    startDate = task.startDate,
+                    startTime = task.startTime,
+                    endDate = task.endDate,
+                    endTime = task.endTime,
                     onStartDateSelected = { StartDate(it).update(onEvent) },
                     onStartTimeSelected = { StartTime(it).update(onEvent) },
                     onEndDateSelected = { EndDate(it).update(onEvent) },
@@ -132,7 +141,7 @@ fun SubTaskEditorContent(
                 HorizontalDivider()
 
                 EditorTextField(
-                    text = subTask.note,
+                    text = task.note,
                     placeholderText = stringResource(R.string.add_a_note),
                     leadingIcon = {
                         Icon(
@@ -144,5 +153,33 @@ fun SubTaskEditorContent(
                 )
             }
         }
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TaskEditorScreenPreview() {
+    PlaygroundTheme {
+        TaskEditorContent(
+            task = Task(),
+            onEvent = {},
+            onBackClick = {}
+        )
+    }
+}
+
+@ThemePreviews
+@Composable
+fun TaskEditorScreenFilledPreview() {
+    PlaygroundTheme {
+        TaskEditorContent(
+            task = Task(
+                title = "This is a title",
+                startDate = LocalDate.now(),
+                note = "This is a description"
+            ),
+            onEvent = {},
+            onBackClick = {}
+        )
     }
 }

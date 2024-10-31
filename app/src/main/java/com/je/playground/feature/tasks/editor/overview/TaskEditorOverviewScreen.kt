@@ -1,14 +1,22 @@
-package com.je.playground.feature.tasks.editor
+package com.je.playground.feature.tasks.editor.overview
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -19,9 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.je.playground.database.tasks.entity.SubTask
 import com.je.playground.database.tasks.entity.Task
 import com.je.playground.designsystem.component.SnackbarComponent
-import com.je.playground.designsystem.component.task.taskeditor.EditorTopBar
-import com.je.playground.designsystem.component.task.taskeditor.TaskEditorComponent
 import com.je.playground.designsystem.component.task.taskeditor.SubTasksComponent
+import com.je.playground.designsystem.component.task.taskeditor.TaskEditorComponent
 import com.je.playground.ui.theme.PlaygroundTheme
 import com.je.playground.ui.theme.ThemePreviews
 import java.time.LocalDate
@@ -30,27 +37,25 @@ import java.time.LocalTime
 
 @Composable
 fun TaskEditorOverviewScreen(
-    viewModel: TaskEditorViewModel,
-    navigateToTaskEditorScreen: (Long) -> Unit,
-    navigateToSubTaskEditorScreen: (Int) -> Unit,
+    viewModel: TaskEditorOverviewViewModel,
+    navigateToTaskEditor: (Long) -> Unit,
+    navigateToSubTaskEditor: (Long, Long) -> Unit,
     onBackClick: () -> Unit
 ) {
-    val taskEditorState: TaskEditorViewModel.State by viewModel.taskEditorUiState.collectAsStateWithLifecycle()
+    val taskEditorState: TaskEditorOverviewViewModel.State by viewModel.taskEditorOverviewState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.snackbarFlow.collect { event ->
-            event.consume()?.let { message ->
-                snackbarHostState.showSnackbar(message)
-            }
+        viewModel.eventFlow.collect { event ->
+            event.consume()?.let { message -> snackbarHostState.showSnackbar(message) }
         }
     }
 
     TaskEditorOverviewScreen(
         taskEditorState = taskEditorState,
         snackbarHostState = snackbarHostState,
-        navigateToTaskEditorScreen = navigateToTaskEditorScreen,
-        navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
+        navigateToTaskEditor = navigateToTaskEditor,
+        navigateToSubTaskEditor = navigateToSubTaskEditor,
         onEvent = viewModel::onEvent,
         onBackClick = onBackClick
     )
@@ -58,54 +63,71 @@ fun TaskEditorOverviewScreen(
 
 @Composable
 fun TaskEditorOverviewScreen(
-    taskEditorState: TaskEditorViewModel.State,
+    taskEditorState: TaskEditorOverviewViewModel.State,
     snackbarHostState: SnackbarHostState,
-    navigateToTaskEditorScreen: (Long) -> Unit,
-    navigateToSubTaskEditorScreen: (Int) -> Unit,
-    onEvent: (TaskEditorEvent) -> Unit,
+    navigateToTaskEditor: (Long) -> Unit,
+    navigateToSubTaskEditor: (Long, Long) -> Unit,
+    onEvent: (TaskEditorOverviewEvent) -> Unit,
     onBackClick: () -> Unit
 ) {
     when (taskEditorState) {
-        is TaskEditorViewModel.State.Loading -> {}
-        is TaskEditorViewModel.State.Ready -> {
-            TaskEditorContent(
+        is TaskEditorOverviewViewModel.State.Loading -> {}
+        is TaskEditorOverviewViewModel.State.Ready -> {
+            TaskEditorOverviewContent(
                 task = taskEditorState.task,
                 subTasks = taskEditorState.subTasks,
-                navigateToTaskEditorScreen = navigateToTaskEditorScreen,
-                navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen,
+                navigateToTaskEditor = navigateToTaskEditor,
+                navigateToSubTaskEditor = navigateToSubTaskEditor,
                 snackbarHostState = snackbarHostState,
                 onEvent = onEvent,
-                onBackPress = onBackClick
+                onBackClick = onBackClick
             )
         }
 
-        TaskEditorViewModel.State.Saved -> onBackClick()
+        TaskEditorOverviewViewModel.State.Saved -> onBackClick()
     }
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskEditorContent(
+fun TaskEditorOverviewContent(
     task: Task,
     subTasks: List<SubTask>,
-    navigateToTaskEditorScreen: (Long) -> Unit,
-    navigateToSubTaskEditorScreen: (Int) -> Unit,
+    navigateToTaskEditor: (Long) -> Unit,
+    navigateToSubTaskEditor: (Long, Long) -> Unit,
     snackbarHostState: SnackbarHostState,
-    onEvent: (TaskEditorEvent) -> Unit,
-    onBackPress: () -> Unit
+    onEvent: (TaskEditorOverviewEvent) -> Unit,
+    onBackClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            EditorTopBar(
-                text = "Edit",
-                onEvent = onEvent,
-                onBackPress = onBackPress
-            )
+            Column {
+                TopAppBar(
+                    title = { Text(text = "Task") },
+                    actions = {
+                        IconButton(onClick = { navigateToTaskEditor(task.taskId) }) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit task",
+                            )
+                        }
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Go Back",
+                            )
+                        }
+                    },
+                )
+                HorizontalDivider()
+            }
         },
         snackbarHost = { SnackbarComponent(snackbarHostState = snackbarHostState) },
     ) { paddingValues ->
         Column(
-            verticalArrangement = Arrangement.spacedBy(1.dp),
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
@@ -114,14 +136,19 @@ fun TaskEditorContent(
         ) {
             TaskEditorComponent(
                 task = task,
-                navigateToTaskEditorScreen
+                navigateToTaskEditor
             )
 
+            HorizontalDivider()
+
             SubTasksComponent(
+                taskId = task.taskId,
                 subTasks = subTasks,
                 onEvent = onEvent,
-                navigateToSubTaskEditorScreen = navigateToSubTaskEditorScreen
+                navigateToSubTaskEditor = navigateToSubTaskEditor
             )
+
+            HorizontalDivider()
         }
     }
 }
@@ -130,7 +157,7 @@ fun TaskEditorContent(
 @Composable
 fun TaskEditorScreenPreview() {
     PlaygroundTheme {
-        TaskEditorContent(
+        TaskEditorOverviewContent(
             task = Task(
                 title = "Do thang",
                 note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
@@ -141,9 +168,11 @@ fun TaskEditorScreenPreview() {
             ),
             subTasks = listOf(
                 SubTask(
+                    taskId = 0,
                     title = "Stuff",
                 ),
                 SubTask(
+                    taskId = 0,
                     title = "Do stuff",
                     startDate = LocalDate.now().plusDays(50),
                     endDate = LocalDate.now().plusDays(58),
@@ -151,6 +180,7 @@ fun TaskEditorScreenPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 ),
                 SubTask(
+                    taskId = 0,
                     title = "Do thing",
                     note = "Lorem ipsum dolor sit amet.",
                     startDate = LocalDate.now().plusDays(50),
@@ -159,6 +189,7 @@ fun TaskEditorScreenPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 ),
                 SubTask(
+                    taskId = 0,
                     title = "Do other thing",
                     note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam blandit porta fringilla. Proin eu odio eget dolor placerat facilisis. Mauris aliquam purus vitae dolor fringilla congue. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
                     startDate = LocalDate.now().plusDays(50),
@@ -167,11 +198,11 @@ fun TaskEditorScreenPreview() {
                     endTime = LocalTime.now().plusHours(1)
                 ),
             ),
-            navigateToTaskEditorScreen = {},
-            navigateToSubTaskEditorScreen = { _ -> },
+            navigateToTaskEditor = {},
+            navigateToSubTaskEditor = { _, _ -> },
             snackbarHostState = SnackbarHostState(),
             onEvent = {},
-            onBackPress = {}
+            onBackClick = {},
         )
     }
 }

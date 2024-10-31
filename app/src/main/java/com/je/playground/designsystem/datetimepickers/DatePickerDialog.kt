@@ -21,17 +21,18 @@ fun DatePickerDialog(
         initialSelectedDateMillis = currentDate?.toEpochMilliseconds()
     )
 
-    androidx.compose.material3.DatePickerDialog(onDismissRequest = onDismiss, confirmButton = {
-        TextButton(onClick = {
-            onDateSelected(datePickerState.selectedDateMillis?.toLocalDate())
+    androidx.compose.material3.DatePickerDialog(onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis?.toLocalDate())
+            }) {
+                Text(text = "OK")
+            }
+        }, dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(text = "Avbryt")
+            }
         }) {
-            Text(text = "OK")
-        }
-    }, dismissButton = {
-        TextButton(onClick = { onDismiss() }) {
-            Text(text = "Avbryt")
-        }
-    }) {
         androidx.compose.material3.DatePicker(state = datePickerState)
     }
 }

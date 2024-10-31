@@ -28,8 +28,8 @@ import java.time.LocalTime
     ]
 )
 data class SubTask(
-    @ColumnInfo(name = "task_id") var taskId: Long = -1L,
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "sub_task_id") var subTaskId: Long = 0,
+    @ColumnInfo(name = "task_id") var taskId: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "sub_task_id") var subTaskId: Long = 0L,
     @ColumnInfo(name = "title") var title: String = "",
     @ColumnInfo(name = "note") var note: String? = null,
     @ColumnInfo(name = "start_date") var startDate: LocalDate? = null,

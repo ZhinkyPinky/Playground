@@ -26,6 +26,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,14 +41,16 @@ import com.je.playground.designsystem.component.task.tasklist.TaskComponent
 
 
 @Composable
-fun TasksScreen(
+fun TaskListScreen(
     viewModel: TaskListViewModel,
+    navigateToTaskEditor: () -> Unit,
     navigateToTaskEditorOverview: (Long) -> Unit,
 ) {
     val tasksUiState by viewModel.tasksUiState.collectAsState()
 
-    TasksScreen(
+    TaskListScreen(
         tasksWithSubTasks = tasksUiState.mainTasksWithSubTasks,
+        navigateToTaskEditor = navigateToTaskEditor,
         navigateToTaskEditorOverview = navigateToTaskEditorOverview,
         onEvent = viewModel::onEvent
     )
@@ -55,22 +58,24 @@ fun TasksScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen(
+fun TaskListScreen(
     tasksWithSubTasks: List<TaskWithSubTasks>,
+    navigateToTaskEditor: () -> Unit,
     navigateToTaskEditorOverview: (Long) -> Unit,
     onEvent: (TaskListEvent) -> Unit
 ) {
-
-    var parentHeight by remember { mutableStateOf(0) }
-    var listHeight by remember { mutableStateOf(0) }
+    var parentHeight by remember { mutableIntStateOf(0) }
+    var listHeight by remember { mutableIntStateOf(0) }
     val diffInDp = LocalDensity.current.run { (parentHeight - listHeight).toDp() }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(R.string.tasks_title)) },
                 actions = {
                     IconButton(
-                        onClick = { navigateToTaskEditorOverview(-1L) }) {
+                        onClick = { navigateToTaskEditor()},
+                        ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "Add new task",

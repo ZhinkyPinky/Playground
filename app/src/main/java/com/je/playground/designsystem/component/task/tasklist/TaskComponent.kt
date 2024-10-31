@@ -93,11 +93,7 @@ fun TaskComponent(
             state = dismissState,
             enableDismissFromStartToEnd = false,
             enableDismissFromEndToStart = taskWithSubTasks.task.isCompleted,
-            backgroundContent = {
-                DismissBackground(
-                    dismissState = dismissState
-                )
-            }
+            backgroundContent = { DismissBackground(dismissState = dismissState) }
         ) {
             TaskComponentContent(
                 taskWithSubTasks = taskWithSubTasks,
@@ -107,9 +103,7 @@ fun TaskComponent(
         }
     }
 
-    LaunchedEffect(
-        isVisible
-    ) {
+    LaunchedEffect(isVisible) {
         if (!isVisible) {
             onEvent(TaskListEvent.ToggleTaskArchived(taskWithSubTasks.task))
             hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -153,7 +147,7 @@ fun TaskComponentContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 6.dp)
+                        .padding(start = 6.dp, end= 4.dp)
                 ) {
                     if (taskWithSubTasks.subTasks.isEmpty()) {
                         CheckboxComponent(
@@ -402,6 +396,7 @@ fun TaskComponentWithSubtasksPreview() {
                 ),
                 subTasks = listOf(
                     SubTask(
+                        taskId = 0L,
                         title = "TestSubTask1",
                         note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                         startDate = LocalDate.now().plusDays(50),
@@ -411,6 +406,7 @@ fun TaskComponentWithSubtasksPreview() {
                         isCompleted = true
                     ),
                     SubTask(
+                        taskId = 0L,
                         title = "TestSubTask2",
                         note = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                         isCompleted = false

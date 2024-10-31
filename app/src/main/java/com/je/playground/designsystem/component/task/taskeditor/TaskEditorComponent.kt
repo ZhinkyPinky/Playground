@@ -42,21 +42,19 @@ import java.time.LocalTime
 @Composable
 fun TaskEditorComponent(
     task: Task,
-    toggleTaskEditorDialog: (Long) -> Unit,
+    onEditTask: (Long) -> Unit,
 ) {
-    var isExpanded by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+        /*
         Surface {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(
                     start = 16.dp,
-                    top = 8.dp,
+                    top = 6.dp,
                     end = 16.dp,
-                    bottom = 4.dp
+                    bottom = 6.dp
                 )
             ) {
                 Text(
@@ -65,7 +63,7 @@ fun TaskEditorComponent(
                     modifier = Modifier.weight(1f)
                 )
 
-                IconButton(onClick = { toggleTaskEditorDialog(task.taskId) }) {
+                IconButton(onClick = { onEditTask(task.taskId) }) {
                     Icon(
                         imageVector = Icons.Filled.Edit,
                         contentDescription = "Edit task",
@@ -73,6 +71,7 @@ fun TaskEditorComponent(
                 }
             }
         }
+         */
 
         Surface {
             Row(
@@ -135,7 +134,6 @@ fun TaskEditorComponent(
                 }
             }
         }
-    }
 }
 
 @ThemePreviews
@@ -151,6 +149,6 @@ fun MainTaskEditorComponentPreview() {
                 startTime = LocalTime.now(),
                 endTime = LocalTime.now().plusHours(1)
             ),
-            toggleTaskEditorDialog = {})
+            onEditTask = {})
     }
 }

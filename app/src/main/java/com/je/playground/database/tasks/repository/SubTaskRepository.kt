@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 interface SubTaskRepository {
     suspend fun insert(subTask : SubTask) : Long
 
-    suspend fun getById(id : Long) : SubTask?
+    suspend fun getById(subTaskId : Long) : SubTask?
 
     suspend fun update(subTask : SubTask)
 
-    suspend fun delete(subTask : SubTask)
+    suspend fun delete(subTask : SubTask): Int
 
     fun getAll() : Flow<List<SubTask>>
 
-    suspend fun getAllByTaskId(taskId : Long) : Flow<List<SubTask>>
+    fun getAllByTaskId(taskId : Long) : Flow<List<SubTask>>
 }

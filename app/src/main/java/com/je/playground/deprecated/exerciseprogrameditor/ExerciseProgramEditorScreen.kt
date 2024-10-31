@@ -44,7 +44,7 @@ import com.je.playground.database.exerciseprogram.entity.ExerciseProgram
 import com.je.playground.database.exerciseprogram.entity.ExerciseProgramWithAllTheThings
 import com.je.playground.deprecated.exerciseprogrameditor.dialog.ExerciseProgramEditorDialog
 import com.je.playground.ui.theme.title
-import com.je.playground.feature.exerciseprogram.viewmodel.ExerciseProgramViewModel
+import com.je.playground.deprecated.exerciseprogram.viewmodel.ExerciseProgramViewModel
 
 @Composable
 fun ExerciseProgramEditorScreen(

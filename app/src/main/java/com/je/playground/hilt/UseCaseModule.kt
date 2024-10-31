@@ -8,6 +8,9 @@ import com.je.playground.feature.tasks.domain.GetTaskUseCase
 import com.je.playground.feature.tasks.domain.GetTaskWithSubTasksByTaskIdUseCase
 import com.je.playground.feature.tasks.domain.SaveTaskUseCase
 import com.je.playground.feature.tasks.domain.ToggleSubTaskIsCompletedUseCase
+import com.je.playground.feature.tasks.editor.overview.domain.DeleteSubTaskUseCase
+import com.je.playground.feature.tasks.editor.subTask.domain.GetSubTaskUseCase
+import com.je.playground.feature.tasks.editor.subTask.domain.SaveSubTaskUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,35 +22,53 @@ import javax.inject.Singleton
 class UseCaseModule {
     @Provides
     @Singleton
-    fun providesAddTaskUseCase(taskRepository : TaskRepository) : SaveTaskUseCase {
+    fun providesAddTaskUseCase(taskRepository: TaskRepository): SaveTaskUseCase {
         return SaveTaskUseCase(taskRepository)
     }
 
     @Provides
     @Singleton
-    fun providesGetActiveTasksWithSubTasksUseCase(taskWithSubTasksRepository : TaskWithSubTasksRepository) : GetActiveTasksWithSubTasksUseCase {
+    fun providesGetActiveTasksWithSubTasksUseCase(taskWithSubTasksRepository: TaskWithSubTasksRepository): GetActiveTasksWithSubTasksUseCase {
         return GetActiveTasksWithSubTasksUseCase(taskWithSubTasksRepository)
     }
 
     @Provides
     @Singleton
-    fun providesGetTaskUseCase(taskRepository : TaskRepository) : GetTaskUseCase {
+    fun providesGetTaskUseCase(taskRepository: TaskRepository): GetTaskUseCase {
         return GetTaskUseCase(taskRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun providesGetSubTaskUseCase(subTaskRepository: SubTaskRepository): GetSubTaskUseCase {
+        return GetSubTaskUseCase(subTaskRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun providesSaveSubTaskUseCase(subTaskRepository: SubTaskRepository): SaveSubTaskUseCase {
+        return SaveSubTaskUseCase(subTaskRepository)
     }
 
 
     @Provides
     @Singleton
-    fun providesGetTaskWithSubTasksByTaskIdUseCase(taskWithSubTasksRepository : TaskWithSubTasksRepository) : GetTaskWithSubTasksByTaskIdUseCase {
+    fun providesDeleteSubTaskUseCase(subTaskRepository: SubTaskRepository): DeleteSubTaskUseCase {
+        return DeleteSubTaskUseCase(subTaskRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun providesGetTaskWithSubTasksByTaskIdUseCase(taskWithSubTasksRepository: TaskWithSubTasksRepository): GetTaskWithSubTasksByTaskIdUseCase {
         return GetTaskWithSubTasksByTaskIdUseCase(taskWithSubTasksRepository)
     }
 
     @Provides
     @Singleton
     fun providesToggleSubTaskCompletionUseCase(
-        subTaskRepository : SubTaskRepository,
-        taskRepository : TaskRepository
-    ) : ToggleSubTaskIsCompletedUseCase {
+        subTaskRepository: SubTaskRepository,
+        taskRepository: TaskRepository
+    ): ToggleSubTaskIsCompletedUseCase {
         return ToggleSubTaskIsCompletedUseCase(
             subTaskRepository = subTaskRepository,
             taskRepository = taskRepository

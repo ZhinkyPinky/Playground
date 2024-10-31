@@ -30,6 +30,7 @@ fun DateTimeRangePicker(
     onEndDateSelected: (LocalDate?) -> Unit,
     onEndTimeSelected: (LocalTime) -> Unit,
 ) {
+    //TODO: Move logic to viewmodel.
     Column {
         DateTimePicker(
             dateLabel = startDateLabel,
