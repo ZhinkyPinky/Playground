@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Playground"
-        tools:targetApi="31">
+        >
         <activity
             android:name="com.je.playground.MainActivity"
             android:exported="true"
